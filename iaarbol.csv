@@ -1,4 +1,4 @@
-target;edad;mes;año;temperatura
+temperatura;edad;mes;año;ciudad
 1;11,12;10,07;14,98;7,61
 1;9,18;9,66;2,53;12,15
 1;4,85;4,70;15,36;13,70
