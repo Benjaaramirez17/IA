@@ -57,8 +57,15 @@ function syncL94() {
   var ss   = SpreadsheetApp.openById(SHEET_ID);
   var hoja = obtenerOCrearHoja(ss, HOJA_HOY);
 
+  // Normalizar todas las filas al mismo número de columnas
+  var numCols = filtradas[0].length;
+  filtradas = filtradas.map(function(fila) {
+    while (fila.length < numCols) fila.push('');
+    return fila.slice(0, numCols);
+  });
+
   hoja.clearContents();
-  hoja.getRange(1, 1, filtradas.length, filtradas[0].length).setValues(filtradas);
+  hoja.getRange(1, 1, filtradas.length, numCols).setValues(filtradas);
 
   // Dar formato de tabla legible
   var rangoEnc = hoja.getRange(1, 1, 1, filtradas[0].length);
