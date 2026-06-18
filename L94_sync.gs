@@ -9,7 +9,7 @@ var SHEET_ID    = '1w3i-sKKGMc2dh_7Nx8vWrUC-tgrMaOcbVQ7-6hUXcs8';
 var LOCAL_VALUE = '94';          // valor a filtrar en columna LOCAL
 var HOJA_HOY    = 'L94_Hoy';
 var HOJA_HIST   = 'Histórico';
-var HORA_ARCHIVO = 22;           // hora en que se archiva (22:00)
+var HORA_ARCHIVO = 23;           // hora en que se archiva (23:00)
 
 // ----------------------------------------------------------
 // FUNCIÓN PRINCIPAL: sincronizar data de L94
