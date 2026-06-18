@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hub del Coordinador — Local 94</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --brand: #0B1C49;
+      --brand-light: #1a3080;
+    }
+    body { background: #f4f6fb; font-size: 0.875rem; }
+    .navbar-brand { font-weight: 700; letter-spacing: .5px; }
+    .nav-tabs .nav-link { color: #495057; font-weight: 500; }
+    .nav-tabs .nav-link.active { color: var(--brand); border-bottom: 3px solid var(--brand); font-weight: 700; }
+    .tab-content { padding: 1rem 0; }
+    .kpi-card { border-radius: 10px; }
+    .kpi-val { font-size: 2rem; font-weight: 700; }
+    .kpi-label { font-size: .75rem; color: #6c757d; }
+    .table th { white-space: nowrap; }
+    .badge-estado { font-size: .75rem; }
+    .spinner-overlay { display:flex; align-items:center; justify-content:center; padding: 3rem 0; }
+    .section-title { font-weight: 700; color: var(--brand); border-left: 4px solid var(--brand); padding-left: .6rem; margin-bottom: 1rem; }
+    .alert-orden { background: #fff3cd; border-left: 4px solid #fd7e14; }
+    .chart-container { position: relative; height: 280px; }
+    .fleje-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; }
+    .btn-primary { background: var(--brand); border-color: var(--brand); }
+    .btn-primary:hover { background: var(--brand-light); border-color: var(--brand-light); }
+    @media(max-width:576px) { .kpi-val { font-size: 1.4rem; } }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark py-2" style="background:var(--brand)">
+  <div class="container-fluid">
+    <span class="navbar-brand mb-0 h5">
+      <i class="bi bi-grid-3x3-gap-fill me-2"></i>Hub del Coordinador — Local 94
+    </span>
+    <button class="btn btn-sm btn-outline-light" onclick="globalRefresh()">
+      <i class="bi bi-arrow-clockwise"></i> Actualizar todo
+    </button>
+  </div>
+</nav>
+
+<!-- TABS NAV -->
+<div class="container-fluid mt-2">
+  <ul class="nav nav-tabs flex-nowrap overflow-auto" id="mainTabs" role="tablist">
+    <li class="nav-item"><a class="nav-link active" id="tab-atrasos"     data-bs-toggle="tab" href="#atrasos"     role="tab"><i class="bi bi-clock-history me-1"></i>Atrasos</a></li>
+    <li class="nav-item"><a class="nav-link"        id="tab-ingresos"    data-bs-toggle="tab" href="#ingresos"    role="tab"><i class="bi bi-person-plus me-1"></i>Ingresos</a></li>
+    <li class="nav-item"><a class="nav-link"        id="tab-reclamos"    data-bs-toggle="tab" href="#reclamos"    role="tab"><i class="bi bi-exclamation-triangle me-1"></i>Reclamos</a></li>
+    <li class="nav-item"><a class="nav-link"        id="tab-pagos"       data-bs-toggle="tab" href="#pagos"       role="tab"><i class="bi bi-cash-coin me-1"></i>Pagos Extra</a></li>
+    <li class="nav-item"><a class="nav-link"        id="tab-indicadores" data-bs-toggle="tab" href="#indicadores" role="tab"><i class="bi bi-bar-chart-line me-1"></i>Indicadores</a></li>
+    <li class="nav-item"><a class="nav-link"        id="tab-activacion"  data-bs-toggle="tab" href="#activacion"  role="tab"><i class="bi bi-people me-1"></i>Activación</a></li>
+    <li class="nav-item"><a class="nav-link"        id="tab-flejes"      data-bs-toggle="tab" href="#flejes"      role="tab"><i class="bi bi-paperclip me-1"></i>Flejes</a></li>
+    <li class="nav-item"><a class="nav-link"        id="tab-pendientes"  data-bs-toggle="tab" href="#pendientes"  role="tab"><i class="bi bi-hourglass-split me-1"></i>Pendientes Cierre</a></li>
+  </ul>
+
+  <!-- TAB CONTENT -->
+  <div class="tab-content" id="mainTabContent">
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- TAB 1: ATRASOS                           -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="tab-pane fade show active" id="atrasos" role="tabpanel">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="section-title mb-0">Atrasos — Local 94</h5>
+        <button class="btn btn-sm btn-outline-secondary" onclick="loadAtrasos(true)"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+      </div>
+
+      <!-- KPIs -->
+      <div class="row g-2 mb-3" id="at-kpis" style="display:none">
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-warning"><div class="kpi-val text-warning" id="at-kpi-pendientes">—</div><div class="kpi-label">Pendientes</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-success"><div class="kpi-val text-success" id="at-kpi-justificados">—</div><div class="kpi-label">Justificados</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-primary"><div class="kpi-val text-primary" id="at-kpi-total">—</div><div class="kpi-label">Total</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-secondary"><div class="kpi-val text-secondary" id="at-kpi-pct">—</div><div class="kpi-label">% Justificado</div></div></div>
+      </div>
+
+      <div id="at-loading" class="spinner-overlay"><div class="spinner-border text-primary"></div></div>
+
+      <!-- Filtros -->
+      <div id="at-filtros" class="row g-2 mb-3" style="display:none">
+        <div class="col-6 col-md-2">
+          <select class="form-select form-select-sm" id="at-fil-anio" onchange="filtrarAtrasos()"><option value="TODOS">Año: Todos</option></select>
+        </div>
+        <div class="col-6 col-md-2">
+          <select class="form-select form-select-sm" id="at-fil-mes" onchange="filtrarAtrasos()"><option value="TODOS">Mes: Todos</option></select>
+        </div>
+        <div class="col-6 col-md-2">
+          <select class="form-select form-select-sm" id="at-fil-semana" onchange="filtrarAtrasos()"><option value="TODOS">Semana: Todas</option></select>
+        </div>
+        <div class="col-6 col-md-2">
+          <select class="form-select form-select-sm" id="at-fil-estado" onchange="filtrarAtrasos()">
+            <option value="TODOS">Estado: Todos</option>
+            <option value="PENDIENTE">Sin justificar</option>
+            <option value="JUSTIFICADO">Justificados</option>
+          </select>
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+          <input type="text" class="form-control form-control-sm" id="at-buscar" placeholder="Buscar nombre..." oninput="filtrarAtrasos()">
+          <button class="btn btn-sm btn-outline-secondary" onclick="exportAtrasosExcelFn()"><i class="bi bi-file-earmark-excel"></i></button>
+        </div>
+      </div>
+
+      <div id="at-tabla-wrap" style="display:none">
+        <div class="table-responsive">
+          <table class="table table-hover table-sm align-middle" id="at-tabla">
+            <thead class="table-dark">
+              <tr><th>Fecha</th><th>Ventana</th><th>SG</th><th>Nombre</th><th>Justificación</th><th>Observación</th><th>Resp.</th><th></th></tr>
+            </thead>
+            <tbody id="at-tbody"></tbody>
+          </table>
+        </div>
+        <p id="at-empty" class="text-center text-muted py-4" style="display:none">Sin atrasos en el filtro actual.</p>
+      </div>
+
+      <!-- Modal editar atraso -->
+      <div class="modal fade" id="modalAtraso" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Justificar Atraso</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+              <input type="hidden" id="at-edit-row">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Justificación</label>
+                <select class="form-select" id="at-edit-just"></select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Observación</label>
+                <textarea class="form-control" id="at-edit-obs" rows="3"></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button class="btn btn-primary" onclick="guardarAtraso()">Guardar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- TAB 2: INGRESOS                          -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="tab-pane fade" id="ingresos" role="tabpanel">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="section-title mb-0">Ingresos — Local 94</h5>
+        <button class="btn btn-sm btn-outline-secondary" onclick="loadIngresos(true)"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+      </div>
+
+      <div class="row g-2 mb-3" id="ing-kpis" style="display:none">
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-primary"><div class="kpi-val text-primary" id="ing-kpi-total">—</div><div class="kpi-label">Total Ingresos</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-success"><div class="kpi-val text-success" id="ing-kpi-activos">—</div><div class="kpi-label">Activos</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-warning"><div class="kpi-val text-warning" id="ing-kpi-pendientes">—</div><div class="kpi-label">Pendientes</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-info"><div class="kpi-val text-info" id="ing-kpi-sinbolso">—</div><div class="kpi-label">Sin Bolso</div></div></div>
+      </div>
+
+      <div id="ing-loading" class="spinner-overlay"><div class="spinner-border text-primary"></div></div>
+
+      <div id="ing-filtros" class="row g-2 mb-3" style="display:none">
+        <div class="col-6 col-md-2">
+          <select class="form-select form-select-sm" id="ing-fil-anio" onchange="filtrarIngresos()"><option value="TODOS">Año: Todos</option></select>
+        </div>
+        <div class="col-6 col-md-2">
+          <select class="form-select form-select-sm" id="ing-fil-semana" onchange="filtrarIngresos()"><option value="TODOS">Semana: Todas</option></select>
+        </div>
+        <div class="col-6 col-md-2">
+          <select class="form-select form-select-sm" id="ing-fil-estado" onchange="filtrarIngresos()">
+            <option value="TODOS">Estado: Todos</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <input type="text" class="form-control form-control-sm" id="ing-buscar" placeholder="Buscar nombre o RUT..." oninput="filtrarIngresos()">
+        </div>
+      </div>
+
+      <div id="ing-tabla-wrap" style="display:none">
+        <div class="table-responsive">
+          <table class="table table-hover table-sm align-middle">
+            <thead class="table-dark"><tr><th>Fecha</th><th>Nombre</th><th>RUT</th><th>Servicio</th><th>Estado Inducción</th><th>Bolso</th><th>Teléfono</th><th>Semana</th></tr></thead>
+            <tbody id="ing-tbody"></tbody>
+          </table>
+        </div>
+        <p id="ing-empty" class="text-center text-muted py-4" style="display:none">Sin ingresos en el filtro actual.</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- TAB 3: RECLAMOS                          -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="tab-pane fade" id="reclamos" role="tabpanel">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="section-title mb-0">Reclamos — Local 94</h5>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-secondary" onclick="loadReclamos(true)"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+          <button class="btn btn-sm btn-outline-success" onclick="exportarReclamosFn()"><i class="bi bi-file-earmark-excel"></i> Excel</button>
+        </div>
+      </div>
+
+      <div class="row g-2 mb-3" id="rec-kpis" style="display:none">
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-primary"><div class="kpi-val text-primary" id="rec-kpi-total">—</div><div class="kpi-label">Total</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-warning"><div class="kpi-val text-warning" id="rec-kpi-pendientes">—</div><div class="kpi-label">Sin Revisión</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-danger"><div class="kpi-val text-danger" id="rec-kpi-aplica">—</div><div class="kpi-label">Aplica</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-success"><div class="kpi-val text-success" id="rec-kpi-noaplica">—</div><div class="kpi-label">No Aplica</div></div></div>
+      </div>
+
+      <div id="rec-loading" class="spinner-overlay"><div class="spinner-border text-primary"></div></div>
+
+      <div id="rec-filtros" class="row g-2 mb-3" style="display:none">
+        <div class="col-6 col-md-2">
+          <select class="form-select form-select-sm" id="rec-fil-anio" onchange="filtrarReclamos()"><option value="TODOS">Año: Todos</option></select>
+        </div>
+        <div class="col-6 col-md-2">
+          <select class="form-select form-select-sm" id="rec-fil-semana" onchange="filtrarReclamos()"><option value="TODOS">Semana: Todas</option></select>
+        </div>
+        <div class="col-6 col-md-2">
+          <select class="form-select form-select-sm" id="rec-fil-causa" onchange="filtrarReclamos()"><option value="TODOS">Causa: Todas</option></select>
+        </div>
+        <div class="col-6 col-md-2">
+          <select class="form-select form-select-sm" id="rec-fil-aplica" onchange="filtrarReclamos()">
+            <option value="TODOS">Aplica: Todos</option>
+            <option value="aplica">Aplica</option>
+            <option value="no aplica">No Aplica</option>
+            <option value="">Sin Clasificar</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <input type="text" class="form-control form-control-sm" id="rec-buscar" placeholder="Buscar SG o shopper..." oninput="filtrarReclamos()">
+        </div>
+      </div>
+
+      <div id="rec-tabla-wrap" style="display:none">
+        <div class="table-responsive">
+          <table class="table table-hover table-sm align-middle">
+            <thead class="table-dark"><tr><th>Fecha</th><th>N° SG</th><th>Causa</th><th>Shopper</th><th>¿Aplica?</th><th>Acción</th><th>Comentario</th><th></th></tr></thead>
+            <tbody id="rec-tbody"></tbody>
+          </table>
+        </div>
+        <p id="rec-empty" class="text-center text-muted py-4" style="display:none">Sin reclamos en el filtro actual.</p>
+      </div>
+
+      <!-- Modal reclamo -->
+      <div class="modal fade" id="modalReclamo" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Editar Reclamo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+              <input type="hidden" id="rec-edit-row">
+              <div class="mb-3"><label class="form-label fw-semibold">¿Aplica?</label>
+                <select class="form-select" id="rec-edit-aplica">
+                  <option value="">Sin clasificar</option><option value="Aplica">Aplica</option><option value="No Aplica">No Aplica</option>
+                </select>
+              </div>
+              <div class="mb-3"><label class="form-label fw-semibold">Acción Tomada</label><input type="text" class="form-control" id="rec-edit-accion"></div>
+              <div class="mb-3"><label class="form-label fw-semibold">Comentario</label><textarea class="form-control" id="rec-edit-comentario" rows="3"></textarea></div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button class="btn btn-primary" onclick="guardarReclamo()">Guardar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- TAB 4: PAGOS EXTRA                       -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="tab-pane fade" id="pagos" role="tabpanel">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="section-title mb-0">Pagos Extra — Local 94</h5>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-secondary" onclick="loadPagos(true)"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+          <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalAddPago"><i class="bi bi-plus-lg"></i> Nuevo</button>
+        </div>
+      </div>
+
+      <div class="row g-2 mb-3" id="pag-kpis" style="display:none">
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-primary"><div class="kpi-val text-primary" id="pag-kpi-total">—</div><div class="kpi-label">Total Registros</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-warning"><div class="kpi-val text-warning" id="pag-kpi-pendientes">—</div><div class="kpi-label">Pendientes</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-success"><div class="kpi-val text-success" id="pag-kpi-pagados">—</div><div class="kpi-label">Pagados</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-info"><div class="kpi-val text-info" id="pag-kpi-monto">—</div><div class="kpi-label">Monto Total</div></div></div>
+      </div>
+
+      <div id="pag-loading" class="spinner-overlay"><div class="spinner-border text-primary"></div></div>
+
+      <div id="pag-tabla-wrap" style="display:none">
+        <div class="row g-2 mb-2">
+          <div class="col-md-3">
+            <select class="form-select form-select-sm" id="pag-fil-estado" onchange="filtrarPagos()">
+              <option value="TODOS">Estado: Todos</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="Pagado">Pagado</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <input type="text" class="form-control form-control-sm" id="pag-buscar" placeholder="Buscar RUT o apoyo..." oninput="filtrarPagos()">
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover table-sm align-middle">
+            <thead class="table-dark"><tr><th>RUT</th><th>Local</th><th>Fecha</th><th>Apoyo</th><th>Monto</th><th>Estado</th><th></th></tr></thead>
+            <tbody id="pag-tbody"></tbody>
+          </table>
+        </div>
+        <p id="pag-empty" class="text-center text-muted py-4" style="display:none">Sin registros en el filtro actual.</p>
+      </div>
+
+      <!-- Modal nuevo pago -->
+      <div class="modal fade" id="modalAddPago" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Nuevo Pago Extra</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+              <div class="mb-2"><label class="form-label">RUT</label><input type="text" class="form-control" id="add-pago-rut"></div>
+              <div class="mb-2"><label class="form-label">Local</label><input type="text" class="form-control" id="add-pago-local" value="94"></div>
+              <div class="mb-2"><label class="form-label">Fecha (dd-mm-yyyy)</label><input type="text" class="form-control" id="add-pago-fecha"></div>
+              <div class="mb-2"><label class="form-label">Tipo de Apoyo</label><input type="text" class="form-control" id="add-pago-apoyo"></div>
+              <div class="mb-2"><label class="form-label">Monto</label><input type="number" class="form-control" id="add-pago-monto"></div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button class="btn btn-primary" onclick="agregarPago()">Guardar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- TAB 5: INDICADORES + LAT HOY             -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="tab-pane fade" id="indicadores" role="tabpanel">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="section-title mb-0">Indicadores — Local 94</h5>
+        <button class="btn btn-sm btn-outline-secondary" onclick="loadIndicadores(true)"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+      </div>
+
+      <div id="ind-loading" class="spinner-overlay"><div class="spinner-border text-primary"></div></div>
+
+      <!-- LAT Hoy -->
+      <div id="ind-wrap" style="display:none">
+        <div class="mb-3 d-flex align-items-center gap-2">
+          <span class="fw-bold">LAT Hoy</span>
+          <span class="badge bg-secondary" id="lat-actualizacion">—</span>
+        </div>
+        <div class="table-responsive mb-4">
+          <table class="table table-sm table-hover align-middle">
+            <thead class="table-dark"><tr><th>Fecha</th><th>Zona</th><th>Ventana</th><th>Venta</th><th>Ofertado</th><th>Ocupación</th></tr></thead>
+            <tbody id="lat-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Gráficos indicadores históricos -->
+        <h6 class="fw-bold mb-2">Indicadores Históricos</h6>
+        <div class="row g-2 mb-2">
+          <div class="col-md-3">
+            <select class="form-select form-select-sm" id="ind-fil-indicador" onchange="renderIndicadores()"><option value="TODOS">Indicador: Todos</option></select>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select form-select-sm" id="ind-fil-anio" onchange="renderIndicadores()"><option value="TODOS">Año: Todos</option></select>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select form-select-sm" id="ind-fil-semana" onchange="renderIndicadores()"><option value="TODOS">Semana: Todas</option></select>
+          </div>
+        </div>
+        <div class="chart-container mb-4"><canvas id="chartIndicadores"></canvas></div>
+        <div class="table-responsive">
+          <table class="table table-sm table-hover align-middle">
+            <thead class="table-dark"><tr><th>Fecha</th><th>Indicador</th><th>Hora</th><th>Valor</th></tr></thead>
+            <tbody id="ind-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- TAB 6: ACTIVACIÓN / ASISTENCIA           -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="tab-pane fade" id="activacion" role="tabpanel">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="section-title mb-0">Activación Shoppers — Local 94</h5>
+        <button class="btn btn-sm btn-outline-secondary" onclick="loadActivacion(null, true)"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+      </div>
+
+      <div class="row g-2 mb-3">
+        <div class="col-md-3">
+          <label class="form-label mb-1 small fw-semibold">Fecha</label>
+          <select class="form-select form-select-sm" id="activ-fecha" onchange="loadActivacion(this.value, false)"></select>
+        </div>
+      </div>
+
+      <div id="activ-loading" class="spinner-overlay"><div class="spinner-border text-primary"></div></div>
+
+      <div id="activ-wrap" style="display:none">
+        <div class="row g-2 mb-3">
+          <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-primary"><div class="kpi-val text-primary" id="activ-kpi-total">—</div><div class="kpi-label">Programados</div></div></div>
+          <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-success"><div class="kpi-val text-success" id="activ-kpi-presentes">—</div><div class="kpi-label">Presentes</div></div></div>
+          <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-danger"><div class="kpi-val text-danger" id="activ-kpi-ausentes">—</div><div class="kpi-label">Ausentes</div></div></div>
+          <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-secondary"><div class="kpi-val text-secondary" id="activ-kpi-sinmarcar">—</div><div class="kpi-label">Sin Marcar</div></div></div>
+        </div>
+
+        <div class="table-responsive mb-4">
+          <table class="table table-hover table-sm align-middle">
+            <thead class="table-dark"><tr><th>Nombre</th><th>RUT</th><th>Turno</th><th>Asistencia</th></tr></thead>
+            <tbody id="activ-tbody"></tbody>
+          </table>
+        </div>
+
+        <h6 class="fw-bold mb-2">Estadísticas de Asistencia</h6>
+        <div id="activ-stats-wrap">
+          <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle">
+              <thead class="table-dark"><tr><th>Nombre</th><th>RUT</th><th>Presentes</th><th>Ausentes</th><th>Total</th><th>% Cumpl.</th><th>% Aus.</th></tr></thead>
+              <tbody id="activ-stats-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- TAB 7: FLEJES                            -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="tab-pane fade" id="flejes" role="tabpanel">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="section-title mb-0">Flejes — Local 94</h5>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-secondary" onclick="loadFlejes(true)"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+          <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalSubirFleje"><i class="bi bi-upload"></i> Subir</button>
+        </div>
+      </div>
+
+      <div id="fleje-loading" class="spinner-overlay"><div class="spinner-border text-primary"></div></div>
+
+      <div id="fleje-wrap" style="display:none">
+        <div class="row g-2 mb-2">
+          <div class="col-md-3">
+            <select class="form-select form-select-sm" id="fleje-fil-cat" onchange="filtrarFlejes()"><option value="TODOS">Categoría: Todas</option></select>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover table-sm align-middle">
+            <thead class="table-dark"><tr><th>Fecha</th><th>Categoría</th><th>Nombre</th><th></th></tr></thead>
+            <tbody id="fleje-tbody"></tbody>
+          </table>
+        </div>
+        <p id="fleje-empty" class="text-center text-muted py-4" style="display:none">Sin flejes subidos.</p>
+      </div>
+
+      <!-- Modal subir fleje -->
+      <div class="modal fade" id="modalSubirFleje" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Subir Fleje</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+              <div class="mb-2"><label class="form-label">Categoría</label>
+                <select class="form-select" id="fleje-cat">
+                  <option value="Fleje Mañana">Fleje Mañana</option>
+                  <option value="Fleje Tarde">Fleje Tarde</option>
+                  <option value="Fleje Noche">Fleje Noche</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+              <div class="mb-2"><label class="form-label">Nombre personalizado</label><input type="text" class="form-control" id="fleje-nombre-custom" placeholder="Opcional"></div>
+              <div class="mb-2"><label class="form-label">Archivo</label><input type="file" class="form-control" id="fleje-file" accept="image/*,.pdf"></div>
+              <div id="fleje-upload-progress" style="display:none">
+                <div class="progress mt-2"><div class="progress-bar progress-bar-striped progress-bar-animated" style="width:100%">Subiendo…</div></div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button class="btn btn-primary" onclick="subirFleje()">Subir</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- TAB 8: PENDIENTES DE CIERRE              -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="tab-pane fade" id="pendientes" role="tabpanel">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="section-title mb-0">Pendientes de Cierre — Local 94</h5>
+        <button class="btn btn-sm btn-outline-secondary" onclick="loadPendientes(true)"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+      </div>
+
+      <!-- KPIs -->
+      <div class="row g-2 mb-3" id="pc-kpis" style="display:none">
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-secondary"><div class="kpi-val text-secondary" id="pc-kpi-total">—</div><div class="kpi-label">Total Órdenes</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-success"><div class="kpi-val text-success" id="pc-kpi-finalizados">—</div><div class="kpi-label">Finalizados</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-danger"><div class="kpi-val text-danger" id="pc-kpi-alertas">—</div><div class="kpi-label">Alertas</div></div></div>
+        <div class="col-6 col-md-3"><div class="card kpi-card text-center py-2 border-warning"><div class="kpi-val text-warning" id="pc-kpi-pendientes">—</div><div class="kpi-label">Pendientes</div></div></div>
+      </div>
+
+      <div id="pc-loading" class="spinner-overlay"><div class="spinner-border text-primary"></div></div>
+
+      <div id="pc-wrap" style="display:none">
+        <!-- Filtro rápido -->
+        <div class="row g-2 mb-2">
+          <div class="col-md-3">
+            <select class="form-select form-select-sm" id="pc-fil-tipo" onchange="filtrarPendientes()">
+              <option value="TODOS">Mostrar: Todos</option>
+              <option value="ALERTA">Solo Alertas</option>
+              <option value="NORMAL">Solo Normales</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <input type="text" class="form-control form-control-sm" id="pc-buscar" placeholder="Buscar orden o usuario..." oninput="filtrarPendientes()">
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover table-sm align-middle" id="pc-tabla">
+            <thead class="table-dark">
+              <tr>
+                <th>Orden</th>
+                <th>Estado</th>
+                <th>Usuario Móvil</th>
+                <th>Ventana Horaria</th>
+                <th>Notas</th>
+              </tr>
+            </thead>
+            <tbody id="pc-tbody"></tbody>
+          </table>
+        </div>
+        <p id="pc-empty" class="text-center text-muted py-4" style="display:none">No hay órdenes pendientes de cierre.</p>
+      </div>
+    </div>
+
+  </div><!-- /tab-content -->
+</div><!-- /container -->
+
+<!-- TOAST notificaciones -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index:9999">
+  <div id="toastMsg" class="toast align-items-center text-white border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body" id="toastBody"></div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+<script>
+// ════════════════════════════════════════════════
+// UTILIDADES GLOBALES
+// ════════════════════════════════════════════════
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type) {
+  var t = document.getElementById('toastMsg');
+  var b = document.getElementById('toastBody');
+  t.className = 'toast align-items-center text-white border-0 bg-' + (type || 'success');
+  b.textContent = msg;
+  new bootstrap.Toast(t, { delay: 3000 }).show();
+}
+
+function fmtMoney(n) {
+  return '$' + (Math.round(n)||0).toLocaleString('es-CL');
+}
+
+function estadoBadge(estado) {
+  var map = { 'RECOGIDO':'bg-info text-dark','ENTREGADO':'bg-success','PENDIENTE':'bg-warning text-dark','ASIGNADO':'bg-primary','CANCELADO':'bg-danger','ACTIVO':'bg-success','INACTIVO':'bg-secondary' };
+  var cls = map[(estado||'').toUpperCase()] || 'bg-secondary';
+  return '<span class="badge ' + cls + '">' + esc(estado||'—') + '</span>';
+}
+
+// ════════════════════════════════════════════════
+// GLOBAL REFRESH
+// ════════════════════════════════════════════════
+
+var atrasosLoaded     = false;
+var ingresosLoaded    = false;
+var reclamosLoaded    = false;
+var pagosLoaded       = false;
+var indicadoresLoaded = false;
+var activacionLoaded  = false;
+var flejesLoaded      = false;
+var pendientesLoaded  = false;
+
+function globalRefresh() {
+  atrasosLoaded = ingresosLoaded = reclamosLoaded = pagosLoaded =
+    indicadoresLoaded = activacionLoaded = flejesLoaded = pendientesLoaded = false;
+
+  var active = document.querySelector('.nav-link.active');
+  if (active) {
+    var tab = active.getAttribute('href');
+    if (tab === '#atrasos')     loadAtrasos(true);
+    else if (tab === '#ingresos')    loadIngresos(true);
+    else if (tab === '#reclamos')    loadReclamos(true);
+    else if (tab === '#pagos')       loadPagos(true);
+    else if (tab === '#indicadores') loadIndicadores(true);
+    else if (tab === '#activacion')  loadActivacion(null, true);
+    else if (tab === '#flejes')      loadFlejes(true);
+    else if (tab === '#pendientes')  loadPendientes(true);
+  }
+}
+
+// Cargar al mostrar tab
+document.getElementById('tab-atrasos').addEventListener('shown.bs.tab', function() { if (!atrasosLoaded) loadAtrasos(false); });
+document.getElementById('tab-ingresos').addEventListener('shown.bs.tab', function() { if (!ingresosLoaded) loadIngresos(false); });
+document.getElementById('tab-reclamos').addEventListener('shown.bs.tab', function() { if (!reclamosLoaded) loadReclamos(false); });
+document.getElementById('tab-pagos').addEventListener('shown.bs.tab', function() { if (!pagosLoaded) loadPagos(false); });
+document.getElementById('tab-indicadores').addEventListener('shown.bs.tab', function() { if (!indicadoresLoaded) loadIndicadores(false); });
+document.getElementById('tab-activacion').addEventListener('shown.bs.tab', function() { if (!activacionLoaded) loadActivacion(null, false); });
+document.getElementById('tab-flejes').addEventListener('shown.bs.tab', function() { if (!flejesLoaded) loadFlejes(false); });
+document.getElementById('tab-pendientes').addEventListener('shown.bs.tab', function() { if (!pendientesLoaded) loadPendientes(false); });
+
+
+// ════════════════════════════════════════════════
+// MÓDULO 1: ATRASOS
+// ════════════════════════════════════════════════
+
+var _atData  = [];
+var _atJustOpts = [];
+
+function loadAtrasos(force) {
+  show('at-loading'); hide('at-tabla-wrap'); hide('at-kpis'); hide('at-filtros');
+  google.script.run
+    .withSuccessHandler(function(d) {
+      hide('at-loading');
+      if (d && d.error) { showToast('Error atrasos: ' + d.error, 'danger'); return; }
+      _atData = d.statsData || [];
+      _atJustOpts = d.justificacionOptions || [];
+      _populateAtFiltros();
+      filtrarAtrasos();
+      atrasosLoaded = true;
+    })
+    .withFailureHandler(function(e) { hide('at-loading'); showToast('Error: ' + e.message, 'danger'); })
+    .getInitialData(force);
+}
+
+function _populateAtFiltros() {
+  var anios   = [...new Set(_atData.map(r=>r.anio).filter(Boolean))].sort((a,b)=>b-a);
+  var meses   = [...new Set(_atData.map(r=>r.mes).filter(Boolean))].sort((a,b)=>a-b);
+  var semanas = [...new Set(_atData.map(r=>r.semana).filter(Boolean))].sort((a,b)=>a-b);
+  var nm = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+  populateSelect('at-fil-anio',   anios.map(a=>({v:a,l:a})), 'Año: Todos');
+  populateSelect('at-fil-mes',    meses.map(m=>({v:m,l:nm[m]||m})), 'Mes: Todos');
+  populateSelect('at-fil-semana', semanas.map(s=>({v:s,l:'Sem '+s})), 'Semana: Todas');
+
+  show('at-filtros');
+}
+
+function filtrarAtrasos() {
+  var anio   = val('at-fil-anio');
+  var mes    = val('at-fil-mes');
+  var semana = val('at-fil-semana');
+  var estado = val('at-fil-estado');
+  var buscar = val('at-buscar').toLowerCase();
+
+  var filtered = _atData.filter(function(r) {
+    if (anio   !== 'TODOS' && String(r.anio)   !== String(anio))   return false;
+    if (mes    !== 'TODOS' && String(r.mes)    !== String(mes))    return false;
+    if (semana !== 'TODOS' && String(r.semana) !== String(semana)) return false;
+    var isPend = !r.justificacion || String(r.justificacion).trim() === '';
+    if (estado === 'PENDIENTE'  && !isPend) return false;
+    if (estado === 'JUSTIFICADO' && isPend)  return false;
+    if (buscar && !String(r.nombre||'').toLowerCase().includes(buscar)) return false;
+    return true;
+  });
+
+  var pend  = filtered.filter(r => !r.justificacion || !String(r.justificacion).trim()).length;
+  var just  = filtered.length - pend;
+  setTxt('at-kpi-pendientes', pend);
+  setTxt('at-kpi-justificados', just);
+  setTxt('at-kpi-total', filtered.length);
+  setTxt('at-kpi-pct', filtered.length ? Math.round(just/filtered.length*100)+'%' : '—');
+  show('at-kpis');
+
+  var html = filtered.map(function(r) {
+    var isPend = !r.justificacion || !String(r.justificacion).trim();
+    return '<tr class="' + (isPend ? 'table-warning' : '') + '">' +
+      '<td>' + esc(r.fecha) + '</td>' +
+      '<td>' + esc(r.ventana) + '</td>' +
+      '<td>' + esc(r.sg) + '</td>' +
+      '<td>' + esc(r.nombre) + '</td>' +
+      '<td>' + (r.justificacion ? '<span class="badge bg-success">' + esc(r.justificacion) + '</span>' : '<span class="badge bg-warning text-dark">Pendiente</span>') + '</td>' +
+      '<td class="text-muted small">' + esc(r.observacion||'') + '</td>' +
+      '<td><span class="badge bg-secondary">' + esc(r.responsabilidad||'—') + '</span></td>' +
+      '<td><button class="btn btn-xs btn-outline-primary btn-sm py-0 px-1" onclick="abrirEditarAtraso(' + r.rowNumber + ',' + JSON.stringify(esc(r.justificacion||'')) + ',' + JSON.stringify(esc(r.observacion||'')) + ')"><i class="bi bi-pencil"></i></button></td>' +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('at-tbody').innerHTML = html || '';
+  show('at-tabla-wrap');
+  document.getElementById('at-empty').style.display = filtered.length ? 'none' : 'block';
+}
+
+function abrirEditarAtraso(row, just, obs) {
+  document.getElementById('at-edit-row').value = row;
+  var sel = document.getElementById('at-edit-just');
+  sel.innerHTML = _atJustOpts.map(o => '<option value="' + esc(o) + '" ' + (o===just?'selected':'') + '>' + esc(o) + '</option>').join('');
+  if (just && !_atJustOpts.includes(just)) sel.innerHTML += '<option value="' + esc(just) + '" selected>' + esc(just) + '</option>';
+  document.getElementById('at-edit-obs').value = obs;
+  new bootstrap.Modal(document.getElementById('modalAtraso')).show();
+}
+
+function guardarAtraso() {
+  var row  = document.getElementById('at-edit-row').value;
+  var just = document.getElementById('at-edit-just').value;
+  var obs  = document.getElementById('at-edit-obs').value;
+  google.script.run
+    .withSuccessHandler(function() { showToast('Atraso guardado'); bootstrap.Modal.getInstance(document.getElementById('modalAtraso')).hide(); loadAtrasos(true); })
+    .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'danger'); })
+    .updateAtraso(parseInt(row), just, obs);
+}
+
+function exportAtrasosExcelFn() {
+  var anio   = val('at-fil-anio');
+  var mes    = val('at-fil-mes');
+  var semana = val('at-fil-semana');
+  showToast('Generando Excel…', 'info');
+  google.script.run
+    .withSuccessHandler(function(r) {
+      if (r && r.error) { showToast('Error: ' + r.error, 'danger'); return; }
+      downloadBase64(r.base64, r.fileName, r.mimeType);
+      showToast('Descargando Excel…');
+    })
+    .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'danger'); })
+    .exportAtrasosExcel(anio, mes, semana);
+}
+
+
+// ════════════════════════════════════════════════
+// MÓDULO 2: INGRESOS
+// ════════════════════════════════════════════════
+
+var _ingData = [];
+
+function loadIngresos(force) {
+  show('ing-loading'); hide('ing-tabla-wrap'); hide('ing-kpis'); hide('ing-filtros');
+  google.script.run
+    .withSuccessHandler(function(d) {
+      hide('ing-loading');
+      if (d && d.error) { showToast('Error ingresos: ' + d.error, 'danger'); return; }
+      _ingData = Array.isArray(d) ? d : [];
+      _populateIngFiltros();
+      filtrarIngresos();
+      ingresosLoaded = true;
+    })
+    .withFailureHandler(function(e) { hide('ing-loading'); showToast('Error: ' + e.message, 'danger'); })
+    .getIngresosData(force);
+}
+
+function _populateIngFiltros() {
+  var anios   = [...new Set(_ingData.map(r=>r.anio).filter(Boolean))].sort((a,b)=>b-a);
+  var semanas = [...new Set(_ingData.map(r=>r.semana).filter(Boolean))].sort((a,b)=>a-b);
+  populateSelect('ing-fil-anio',   anios.map(a=>({v:a,l:a})), 'Año: Todos');
+  populateSelect('ing-fil-semana', semanas.map(s=>({v:s,l:'Sem '+s})), 'Semana: Todas');
+  show('ing-filtros');
+}
+
+function filtrarIngresos() {
+  var anio   = val('ing-fil-anio');
+  var semana = val('ing-fil-semana');
+  var estado = val('ing-fil-estado');
+  var buscar = val('ing-buscar').toLowerCase();
+
+  var filtered = _ingData.filter(function(r) {
+    if (anio   !== 'TODOS' && String(r.anio)   !== String(anio))   return false;
+    if (semana !== 'TODOS' && String(r.semana) !== String(semana)) return false;
+    if (estado !== 'TODOS' && !String(r.estadoInduccion||'').toLowerCase().includes(estado.toLowerCase())) return false;
+    if (buscar && !String(r.nombre||'').toLowerCase().includes(buscar) && !String(r.rut||'').toLowerCase().includes(buscar)) return false;
+    return true;
+  });
+
+  setTxt('ing-kpi-total', filtered.length);
+  setTxt('ing-kpi-activos', filtered.filter(r=>String(r.estadoInduccion||'').toLowerCase().includes('activ')).length);
+  setTxt('ing-kpi-pendientes', filtered.filter(r=>String(r.estadoInduccion||'').toLowerCase().includes('pend')).length);
+  setTxt('ing-kpi-sinbolso', filtered.filter(r=>!r.bolso||String(r.bolso).toLowerCase()==='no').length);
+  show('ing-kpis');
+
+  var html = filtered.map(function(r) {
+    return '<tr><td>' + esc(r.fecha) + '</td><td>' + esc(r.nombre) + '</td><td>' + esc(r.rut) + '</td>' +
+      '<td>' + esc(r.servicio) + '</td><td><span class="badge bg-secondary">' + esc(r.estadoInduccion) + '</span></td>' +
+      '<td>' + (String(r.bolso||'').toLowerCase()==='no'?'<span class="badge bg-warning text-dark">Sin bolso</span>':'<span class="badge bg-success">OK</span>') + '</td>' +
+      '<td>' + esc(r.telefono) + '</td><td>' + esc(r.semana||'—') + '</td></tr>';
+  }).join('');
+
+  document.getElementById('ing-tbody').innerHTML = html || '';
+  show('ing-tabla-wrap');
+  document.getElementById('ing-empty').style.display = filtered.length ? 'none' : 'block';
+}
+
+
+// ════════════════════════════════════════════════
+// MÓDULO 3: RECLAMOS
+// ════════════════════════════════════════════════
+
+var _recData = [];
+
+function loadReclamos(force) {
+  show('rec-loading'); hide('rec-tabla-wrap'); hide('rec-kpis'); hide('rec-filtros');
+  google.script.run
+    .withSuccessHandler(function(d) {
+      hide('rec-loading');
+      if (d && d.error) { showToast('Error reclamos: ' + d.error, 'danger'); return; }
+      _recData = Array.isArray(d) ? d : [];
+      _populateRecFiltros();
+      filtrarReclamos();
+      reclamosLoaded = true;
+    })
+    .withFailureHandler(function(e) { hide('rec-loading'); showToast('Error: ' + e.message, 'danger'); })
+    .getReclamosData(force);
+}
+
+function _populateRecFiltros() {
+  var anios   = [...new Set(_recData.map(r=>r.anio).filter(Boolean))].sort((a,b)=>b-a);
+  var semanas = [...new Set(_recData.map(r=>r.semana).filter(Boolean))].sort((a,b)=>a-b);
+  var causas  = [...new Set(_recData.map(r=>r.causa).filter(Boolean))].sort();
+  populateSelect('rec-fil-anio',   anios.map(a=>({v:a,l:a})), 'Año: Todos');
+  populateSelect('rec-fil-semana', semanas.map(s=>({v:s,l:'Sem '+s})), 'Semana: Todas');
+  populateSelect('rec-fil-causa',  causas.map(c=>({v:c,l:c})), 'Causa: Todas');
+  show('rec-filtros');
+}
+
+function filtrarReclamos() {
+  var anio   = val('rec-fil-anio');
+  var semana = val('rec-fil-semana');
+  var causa  = val('rec-fil-causa');
+  var aplica = val('rec-fil-aplica');
+  var buscar = val('rec-buscar').toLowerCase();
+
+  var filtered = _recData.filter(function(r) {
+    if (anio   !== 'TODOS' && String(r.anio)   !== String(anio))   return false;
+    if (semana !== 'TODOS' && String(r.semana) !== String(semana)) return false;
+    if (causa  !== 'TODOS' && r.causa !== causa) return false;
+    if (aplica !== 'TODOS') {
+      var ap = String(r.aplica||'').trim().toLowerCase();
+      if (aplica === '' && ap !== '') return false;
+      if (aplica !== '' && ap !== aplica) return false;
+    }
+    if (buscar && !String(r.sg||'').toLowerCase().includes(buscar) && !String(r.shopper||'').toLowerCase().includes(buscar)) return false;
+    return true;
+  });
+
+  var pendRec = filtered.filter(r => !r.aplica && !r.accion && !r.comentario).length;
+  setTxt('rec-kpi-total', filtered.length);
+  setTxt('rec-kpi-pendientes', pendRec);
+  setTxt('rec-kpi-aplica', filtered.filter(r=>String(r.aplica||'').toLowerCase()==='aplica').length);
+  setTxt('rec-kpi-noaplica', filtered.filter(r=>String(r.aplica||'').toLowerCase()==='no aplica').length);
+  show('rec-kpis');
+
+  var html = filtered.map(function(r) {
+    var ap = String(r.aplica||'').toLowerCase();
+    var apBadge = ap === 'aplica' ? '<span class="badge bg-danger">Aplica</span>' : ap === 'no aplica' ? '<span class="badge bg-success">No Aplica</span>' : '<span class="badge bg-secondary">Sin clasif.</span>';
+    return '<tr>' +
+      '<td>' + esc(r.fecha) + '</td><td>' + esc(r.sg) + '</td><td>' + esc(r.causa) + '</td><td>' + esc(r.shopper) + '</td>' +
+      '<td>' + apBadge + '</td><td class="small text-muted">' + esc(r.accion||'') + '</td><td class="small text-muted">' + esc(r.comentario||'') + '</td>' +
+      '<td><button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="abrirEditarReclamo(' + r.rowNumber + ',' + JSON.stringify(r.aplica||'') + ',' + JSON.stringify(r.accion||'') + ',' + JSON.stringify(r.comentario||'') + ')"><i class="bi bi-pencil"></i></button></td>' +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('rec-tbody').innerHTML = html || '';
+  show('rec-tabla-wrap');
+  document.getElementById('rec-empty').style.display = filtered.length ? 'none' : 'block';
+}
+
+function abrirEditarReclamo(row, aplica, accion, comentario) {
+  document.getElementById('rec-edit-row').value = row;
+  document.getElementById('rec-edit-aplica').value = aplica||'';
+  document.getElementById('rec-edit-accion').value = accion||'';
+  document.getElementById('rec-edit-comentario').value = comentario||'';
+  new bootstrap.Modal(document.getElementById('modalReclamo')).show();
+}
+
+function guardarReclamo() {
+  var row  = document.getElementById('rec-edit-row').value;
+  var ap   = document.getElementById('rec-edit-aplica').value;
+  var ac   = document.getElementById('rec-edit-accion').value;
+  var com  = document.getElementById('rec-edit-comentario').value;
+  google.script.run
+    .withSuccessHandler(function() { showToast('Reclamo guardado'); bootstrap.Modal.getInstance(document.getElementById('modalReclamo')).hide(); loadReclamos(true); })
+    .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'danger'); })
+    .updateReclamo(parseInt(row), ap, ac, com);
+}
+
+function exportarReclamosFn() {
+  var desde = '', hasta = '';
+  showToast('Generando Excel…', 'info');
+  google.script.run
+    .withSuccessHandler(function(r) {
+      if (r && r.error) { showToast('Error: ' + r.error, 'danger'); return; }
+      downloadBase64(r.base64, r.fileName, r.mimeType);
+      showToast('Descargando Excel…');
+    })
+    .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'danger'); })
+    .exportReclamosExcel(desde, hasta);
+}
+
+
+// ════════════════════════════════════════════════
+// MÓDULO 4: PAGOS EXTRA
+// ════════════════════════════════════════════════
+
+var _pagData = [];
+
+function loadPagos(force) {
+  show('pag-loading'); hide('pag-tabla-wrap'); hide('pag-kpis');
+  google.script.run
+    .withSuccessHandler(function(d) {
+      hide('pag-loading');
+      if (d && d.error) { showToast('Error pagos: ' + d.error, 'danger'); return; }
+      _pagData = Array.isArray(d) ? d : [];
+      filtrarPagos();
+      pagosLoaded = true;
+    })
+    .withFailureHandler(function(e) { hide('pag-loading'); showToast('Error: ' + e.message, 'danger'); })
+    .getPagosExtraData(force);
+}
+
+function filtrarPagos() {
+  var estado = val('pag-fil-estado');
+  var buscar = val('pag-buscar').toLowerCase();
+
+  var filtered = _pagData.filter(function(r) {
+    if (estado !== 'TODOS' && r.estado !== estado) return false;
+    if (buscar && !String(r.rut||'').toLowerCase().includes(buscar) && !String(r.apoyo||'').toLowerCase().includes(buscar)) return false;
+    return true;
+  });
+
+  var monto = filtered.reduce((a,r)=>a+r.monto,0);
+  setTxt('pag-kpi-total', filtered.length);
+  setTxt('pag-kpi-pendientes', filtered.filter(r=>r.estado==='Pendiente').length);
+  setTxt('pag-kpi-pagados', filtered.filter(r=>r.estado==='Pagado').length);
+  setTxt('pag-kpi-monto', fmtMoney(monto));
+  show('pag-kpis');
+
+  var html = filtered.map(function(r) {
+    var estadoBadge = r.estado === 'Pagado' ? '<span class="badge bg-success">Pagado</span>' : '<span class="badge bg-warning text-dark">Pendiente</span>';
+    return '<tr><td>' + esc(r.rut) + '</td><td>' + esc(r.local) + '</td><td>' + esc(r.fecha) + '</td><td>' + esc(r.apoyo) + '</td>' +
+      '<td>' + fmtMoney(r.monto) + '</td><td>' + estadoBadge + '</td>' +
+      '<td><button class="btn btn-sm btn-outline-' + (r.estado==='Pagado'?'secondary':'success') + ' py-0 px-1" onclick="cambiarEstadoPago(' + r.rowNumber + ',\'' + (r.estado==='Pagado'?'Pendiente':'Pagado') + '\')">' +
+        (r.estado==='Pagado'?'↩ Revertir':'✓ Marcar Pagado') + '</button></td>' +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('pag-tbody').innerHTML = html || '';
+  show('pag-tabla-wrap');
+  document.getElementById('pag-empty').style.display = filtered.length ? 'none' : 'block';
+}
+
+function agregarPago() {
+  var rut   = document.getElementById('add-pago-rut').value.trim();
+  var local = document.getElementById('add-pago-local').value.trim();
+  var fecha = document.getElementById('add-pago-fecha').value.trim();
+  var apoyo = document.getElementById('add-pago-apoyo').value.trim();
+  var monto = parseFloat(document.getElementById('add-pago-monto').value) || 0;
+  if (!rut || !apoyo) { showToast('RUT y Tipo de Apoyo son obligatorios', 'danger'); return; }
+  google.script.run
+    .withSuccessHandler(function() { showToast('Pago registrado'); bootstrap.Modal.getInstance(document.getElementById('modalAddPago')).hide(); loadPagos(true); })
+    .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'danger'); })
+    .addPagoExtra(rut, local, fecha, apoyo, monto);
+}
+
+function cambiarEstadoPago(row, nuevoEstado) {
+  google.script.run
+    .withSuccessHandler(function() { showToast('Estado actualizado'); loadPagos(true); })
+    .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'danger'); })
+    .updateEstadoPagoExtra(row, nuevoEstado);
+}
+
+
+// ════════════════════════════════════════════════
+// MÓDULO 5: INDICADORES + LAT HOY
+// ════════════════════════════════════════════════
+
+var _indData = [];
+var _latData = {};
+var _chartInd = null;
+
+function loadIndicadores(force) {
+  show('ind-loading'); hide('ind-wrap');
+  google.script.run
+    .withSuccessHandler(function(lat) {
+      _latData = lat || {};
+      google.script.run
+        .withSuccessHandler(function(ind) {
+          hide('ind-loading');
+          if (ind && ind.error) { showToast('Error indicadores: ' + ind.error, 'danger'); return; }
+          _indData = Array.isArray(ind) ? ind : [];
+          _populateIndFiltros();
+          renderLat();
+          renderIndicadores();
+          show('ind-wrap');
+          indicadoresLoaded = true;
+        })
+        .withFailureHandler(function(e) { hide('ind-loading'); showToast('Error: ' + e.message, 'danger'); })
+        .getIndicadoresData(force);
+    })
+    .withFailureHandler(function(e) { hide('ind-loading'); showToast('Error LAT: ' + e.message, 'danger'); })
+    .getLatHoyData(force);
+}
+
+function renderLat() {
+  if (!_latData || !_latData.ventanas) return;
+  setTxt('lat-actualizacion', _latData.actualizacion || '—');
+  var html = (_latData.ventanas||[]).map(function(v) {
+    var pct = v.ocupacion || 0;
+    var cls = pct >= 90 ? 'danger' : pct >= 70 ? 'warning' : 'success';
+    return '<tr><td>' + esc(v.fecha) + '</td><td>' + esc(v.zona) + '</td><td>' + esc(v.ventana) + '</td>' +
+      '<td>' + v.venta.toLocaleString('es-CL') + '</td><td>' + v.ofertado.toLocaleString('es-CL') + '</td>' +
+      '<td><span class="badge bg-' + cls + '">' + pct + '%</span></td></tr>';
+  }).join('');
+  document.getElementById('lat-tbody').innerHTML = html || '<tr><td colspan="6" class="text-center text-muted">Sin datos LAT Hoy</td></tr>';
+}
+
+function _populateIndFiltros() {
+  var inds    = [...new Set(_indData.map(r=>r.indicador).filter(Boolean))].sort();
+  var anios   = [...new Set(_indData.map(r=>r.anio).filter(Boolean))].sort((a,b)=>b-a);
+  var semanas = [...new Set(_indData.map(r=>r.semana).filter(Boolean))].sort((a,b)=>a-b);
+  populateSelect('ind-fil-indicador', inds.map(i=>({v:i,l:i})), 'Indicador: Todos');
+  populateSelect('ind-fil-anio',      anios.map(a=>({v:a,l:a})), 'Año: Todos');
+  populateSelect('ind-fil-semana',    semanas.map(s=>({v:s,l:'Sem '+s})), 'Semana: Todas');
+}
+
+function renderIndicadores() {
+  var indF   = val('ind-fil-indicador');
+  var anioF  = val('ind-fil-anio');
+  var semF   = val('ind-fil-semana');
+
+  var filtered = _indData.filter(function(r) {
+    if (indF  !== 'TODOS' && r.indicador !== indF) return false;
+    if (anioF !== 'TODOS' && String(r.anio) !== String(anioF)) return false;
+    if (semF  !== 'TODOS' && String(r.semana) !== String(semF)) return false;
+    return true;
+  });
+
+  var html = filtered.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(function(r) {
+    return '<tr><td>' + esc(r.fecha) + '</td><td>' + esc(r.indicador) + '</td><td>' + esc(r.hora||'—') + '</td><td>' + r.valor + '</td></tr>';
+  }).join('');
+  document.getElementById('ind-tbody').innerHTML = html || '<tr><td colspan="4" class="text-center text-muted">Sin datos en el filtro</td></tr>';
+
+  // Gráfico
+  var byFecha = {};
+  filtered.forEach(function(r) { byFecha[r.fecha] = (byFecha[r.fecha]||0) + r.valor; });
+  var labels = Object.keys(byFecha).sort();
+  var vals   = labels.map(k=>byFecha[k]);
+
+  if (_chartInd) _chartInd.destroy();
+  var ctx = document.getElementById('chartIndicadores').getContext('2d');
+  _chartInd = new Chart(ctx, {
+    type: 'line',
+    data: { labels: labels, datasets: [{ label: indF==='TODOS'?'Total':indF, data: vals, borderColor:'#0B1C49', backgroundColor:'rgba(11,28,73,.1)', fill:true, tension:.3 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:false } } }
+  });
+}
+
+
+// ════════════════════════════════════════════════
+// MÓDULO 6: ACTIVACIÓN / ASISTENCIA
+// ════════════════════════════════════════════════
+
+var _activData = null;
+
+function loadActivacion(fechaISO, force) {
+  show('activ-loading'); hide('activ-wrap');
+  google.script.run
+    .withSuccessHandler(function(d) {
+      hide('activ-loading');
+      if (d && d.error) { showToast('Error activación: ' + d.error, 'danger'); return; }
+      _activData = d;
+
+      // Poblar select de fechas
+      var sel = document.getElementById('activ-fecha');
+      var prev = sel.value;
+      sel.innerHTML = (d.fechasDisponibles||[]).map(function(f) {
+        return '<option value="' + esc(f) + '" ' + (f===d.fecha?'selected':'') + '>' + esc(f) + '</option>';
+      }).join('');
+
+      renderActivacion(d);
+      loadAsistStats();
+      activacionLoaded = true;
+    })
+    .withFailureHandler(function(e) { hide('activ-loading'); showToast('Error: ' + e.message, 'danger'); })
+    .getActivacionData(fechaISO || null, force);
+}
+
+function renderActivacion(d) {
+  var turnos = d.turnos || [];
+  var presentes = turnos.filter(t=>t.asistencia===1).length;
+  var ausentes  = turnos.filter(t=>t.asistencia===0).length;
+  var sinMarcas = turnos.filter(t=>t.asistencia===null).length;
+  setTxt('activ-kpi-total', turnos.length);
+  setTxt('activ-kpi-presentes', presentes);
+  setTxt('activ-kpi-ausentes', ausentes);
+  setTxt('activ-kpi-sinmarcar', sinMarcas);
+
+  var html = turnos.map(function(t) {
+    var cls = t.asistencia===1?'success':t.asistencia===0?'danger':'secondary';
+    var lbl = t.asistencia===1?'Presente':t.asistencia===0?'Ausente':'Sin marcar';
+    return '<tr>' +
+      '<td>' + esc(t.nombre) + '</td><td class="text-muted small">' + esc(t.rut) + '</td>' +
+      '<td><span class="badge bg-primary">' + esc(t.turno) + '</span></td>' +
+      '<td><div class="d-flex gap-1">' +
+        '<button class="btn btn-sm py-0 px-2 btn-' + (t.asistencia===1?'success':'outline-success') + '" onclick="marcarAsist(\'' + esc(t.rut) + '\',\'' + esc(t.nombre) + '\',\'' + esc(d.fecha) + '\',1)">P</button>' +
+        '<button class="btn btn-sm py-0 px-2 btn-' + (t.asistencia===0?'danger':'outline-danger') + '" onclick="marcarAsist(\'' + esc(t.rut) + '\',\'' + esc(t.nombre) + '\',\'' + esc(d.fecha) + '\',0)">A</button>' +
+        '<button class="btn btn-sm py-0 px-2 btn-outline-secondary" onclick="marcarAsist(\'' + esc(t.rut) + '\',\'' + esc(t.nombre) + '\',\'' + esc(d.fecha) + '\',null)">—</button>' +
+      '</div></td>' +
+    '</tr>';
+  }).join('');
+  document.getElementById('activ-tbody').innerHTML = html || '<tr><td colspan="4" class="text-center text-muted">Sin turnos para esta fecha</td></tr>';
+  show('activ-wrap');
+}
+
+function marcarAsist(rut, nombre, fechaISO, estado) {
+  google.script.run
+    .withSuccessHandler(function() { loadActivacion(fechaISO, true); })
+    .withFailureHandler(function(e) { showToast('Error: ' + e.message, 'danger'); })
+    .marcarAsistencia(rut, nombre, fechaISO, estado);
+}
+
+function loadAsistStats() {
+  google.script.run
+    .withSuccessHandler(function(stats) {
+      if (!Array.isArray(stats)) return;
+      var html = stats.map(function(s) {
+        return '<tr><td>' + esc(s.nombre) + '</td><td class="text-muted small">' + esc(s.rut) + '</td>' +
+          '<td class="text-success fw-bold">' + s.presentes + '</td>' +
+          '<td class="text-danger fw-bold">' + s.ausentes + '</td>' +
+          '<td>' + s.total + '</td>' +
+          '<td><div class="progress" style="height:14px;min-width:60px"><div class="progress-bar bg-success" style="width:' + s.pctCumplimiento + '%"></div></div><small>' + s.pctCumplimiento + '%</small></td>' +
+          '<td><span class="badge ' + (s.pctAusentismo>20?'bg-danger':s.pctAusentismo>10?'bg-warning text-dark':'bg-success') + '">' + s.pctAusentismo + '%</span></td>' +
+        '</tr>';
+      }).join('');
+      document.getElementById('activ-stats-tbody').innerHTML = html || '<tr><td colspan="7" class="text-center text-muted">Sin datos de asistencia</td></tr>';
+    })
+    .getAsistenciaStats(false);
+}
+
+
+// ════════════════════════════════════════════════
+// MÓDULO 7: FLEJES
+// ════════════════════════════════════════════════
+
+var _flejeData = [];
+
+function loadFlejes(force) {
+  show('fleje-loading'); hide('fleje-wrap');
+  google.script.run
+    .withSuccessHandler(function(d) {
+      hide('fleje-loading');
+      if (d && d.error) { showToast('Error flejes: ' + d.error, 'danger'); return; }
+      _flejeData = Array.isArray(d) ? d : [];
+      var cats = [...new Set(_flejeData.map(f=>f.categoria).filter(Boolean))].sort();
+      populateSelect('fleje-fil-cat', cats.map(c=>({v:c,l:c})), 'Categoría: Todas');
+      filtrarFlejes();
+      flejesLoaded = true;
+    })
+    .withFailureHandler(function(e) { hide('fleje-loading'); showToast('Error: ' + e.message, 'danger'); })
+    .getFlejesData(force);
+}
+
+function filtrarFlejes() {
+  var cat = val('fleje-fil-cat');
+  var filtered = _flejeData.filter(function(f) {
+    return cat === 'TODOS' || f.categoria === cat;
+  });
+
+  var html = filtered.map(function(f) {
+    var nombre = f.nombreCustom || f.nombreArchivo || 'Sin nombre';
+    var isImg  = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.nombreArchivo||'');
+    var preview = isImg ? '<img src="' + esc(f.url) + '" class="fleje-thumb me-2">' : '<i class="bi bi-file-earmark-pdf fs-3 me-2 text-danger"></i>';
+    return '<tr>' +
+      '<td>' + esc(f.fecha) + '</td>' +
+      '<td><span class="badge bg-secondary">' + esc(f.categoria) + '</span></td>' +
+      '<td>' + preview + esc(nombre) + '</td>' +
+      '<td><a href="' + esc(f.url) + '" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2"><i class="bi bi-box-arrow-up-right"></i> Ver</a></td>' +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('fleje-tbody').innerHTML = html || '';
+  show('fleje-wrap');
+  document.getElementById('fleje-empty').style.display = filtered.length ? 'none' : 'block';
+}
+
+function subirFleje() {
+  var fileInput = document.getElementById('fleje-file');
+  var cat       = document.getElementById('fleje-cat').value;
+  var nombre    = document.getElementById('fleje-nombre-custom').value.trim();
+
+  if (!fileInput.files || !fileInput.files[0]) { showToast('Selecciona un archivo', 'danger'); return; }
+  var file = fileInput.files[0];
+
+  show('fleje-upload-progress');
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    google.script.run
+      .withSuccessHandler(function(r) {
+        hide('fleje-upload-progress');
+        if (r && !r.success) { showToast('Error al subir: ' + (r.error||''), 'danger'); return; }
+        showToast('Fleje subido');
+        bootstrap.Modal.getInstance(document.getElementById('modalSubirFleje')).hide();
+        fileInput.value = '';
+        loadFlejes(true);
+      })
+      .withFailureHandler(function(err) { hide('fleje-upload-progress'); showToast('Error: ' + err.message, 'danger'); })
+      .uploadFleje(e.target.result, file.name, cat, nombre);
+  };
+  reader.readAsDataURL(file);
+}
+
+
+// ════════════════════════════════════════════════
+// MÓDULO 8: PENDIENTES DE CIERRE
+// ════════════════════════════════════════════════
+
+var _pcData = null;
+
+function loadPendientes(force) {
+  show('pc-loading'); hide('pc-wrap'); hide('pc-kpis');
+  google.script.run
+    .withSuccessHandler(processPendientesCierre)
+    .withFailureHandler(function(e) {
+      hide('pc-loading');
+      showToast('Error pendientes: ' + e.message, 'danger');
+    })
+    .getPendientesCierreData(force);
+}
+
+function processPendientesCierre(data) {
+  hide('pc-loading');
+
+  if (!data || !data.ok) {
+    showToast('Error: ' + (data && data.error ? data.error : 'Error desconocido'), 'danger');
+    document.getElementById('pc-tbody').innerHTML =
+      '<tr><td colspan="5" class="text-danger text-center">' + esc(data && data.error ? data.error : 'Error al cargar datos') + '</td></tr>';
+    show('pc-wrap');
+    return;
+  }
+
+  _pcData = data;
+
+  // KPIs
+  setTxt('pc-kpi-total',       data.totalOrdenes || 0);
+  setTxt('pc-kpi-finalizados', data.finalizados  || 0);
+  setTxt('pc-kpi-alertas',     data.alertas      || 0);
+  setTxt('pc-kpi-pendientes',  (data.pendientes||[]).length);
+  show('pc-kpis');
+
+  filtrarPendientes();
+  show('pc-wrap');
+  pendientesLoaded = true;
+}
+
+function filtrarPendientes() {
+  if (!_pcData) return;
+  var tipo   = val('pc-fil-tipo');
+  var buscar = val('pc-buscar').toLowerCase();
+
+  var filtered = (_pcData.pendientes || []).filter(function(p) {
+    if (tipo === 'ALERTA' && !p.esAlerta)  return false;
+    if (tipo === 'NORMAL' && p.esAlerta)   return false;
+    if (buscar && !String(p.orden||'').toLowerCase().includes(buscar) &&
+                  !String(p.usuario||'').toLowerCase().includes(buscar)) return false;
+    return true;
+  });
+
+  var html = filtered.map(function(p) {
+    var rowCls   = p.esAlerta ? 'table-warning alert-orden' : '';
+    var alertIcon = p.esAlerta ? '<i class="bi bi-exclamation-triangle-fill text-danger me-1" title="Alerta: estados combinados inesperados"></i>' : '';
+    var dupBadge  = p.duplicado && !p.esAlerta ? '<span class="badge bg-secondary ms-1 badge-estado" title="Duplicado">dup</span>' : '';
+    var notas = '';
+    if (p.esAlerta && p.estadosCombinados && p.estadosCombinados.length > 0) {
+      notas = '<span class="badge bg-danger me-1">!</span> ' +
+        p.estadosCombinados.map(function(e){ return '<code class="small">' + esc(e) + '</code>'; }).join(' + ');
+    }
+
+    return '<tr class="' + rowCls + '">' +
+      '<td class="fw-semibold">' + alertIcon + esc(p.orden) + dupBadge + '</td>' +
+      '<td>' + estadoBadge(p.estado) + '</td>' +
+      '<td>' + esc(p.usuario || '—') + '</td>' +
+      '<td><span class="badge bg-light text-dark border">' + esc(p.ventana || '—') + '</span></td>' +
+      '<td class="small">' + notas + '</td>' +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('pc-tbody').innerHTML = html || '';
+  document.getElementById('pc-empty').style.display = filtered.length ? 'none' : 'block';
+}
+
+
+// ════════════════════════════════════════════════
+// HELPERS UI
+// ════════════════════════════════════════════════
+
+function show(id) { var el = document.getElementById(id); if (el) el.style.display = ''; }
+function hide(id) { var el = document.getElementById(id); if (el) el.style.display = 'none'; }
+function val(id)  { var el = document.getElementById(id); return el ? el.value : ''; }
+function setTxt(id, txt) { var el = document.getElementById(id); if (el) el.textContent = txt; }
+
+function populateSelect(id, items, allLabel) {
+  var sel = document.getElementById(id);
+  if (!sel) return;
+  var cur = sel.value;
+  sel.innerHTML = '<option value="TODOS">' + esc(allLabel) + '</option>' +
+    items.map(function(i){ return '<option value="' + esc(i.v) + '" ' + (String(i.v)===cur?'selected':'') + '>' + esc(i.l) + '</option>'; }).join('');
+}
+
+function downloadBase64(base64, fileName, mimeType) {
+  var a = document.createElement('a');
+  a.href = 'data:' + mimeType + ';base64,' + base64;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// Cargar tab inicial
+window.addEventListener('load', function() {
+  loadAtrasos(false);
+});
+</script>
+</body>
+</html>
