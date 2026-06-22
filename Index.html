@@ -1,0 +1,2979 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base target="_top">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+  <style>
+    :root {
+      --brand-navy: #0B1C49;
+      --brand-pink: #D64294;
+      --brand-dark-pink: #C01877;
+      --brand-light: #f0f4ff;
+    }
+    body {
+      background-color: #f0f2f8;
+      padding-top: 1.5rem;
+      padding-bottom: 3rem;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    /* ── Header ── */
+    .app-header {
+      background: linear-gradient(135deg, var(--brand-navy) 0%, #1a3580 100%);
+      border-radius: 16px;
+      padding: 1.25rem 1.75rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 24px rgba(11,28,73,0.25);
+    }
+    .app-header h2 { color: #fff; margin: 0; font-weight: 700; font-size: 1.4rem; letter-spacing: -0.3px; }
+    .app-header p  { color: rgba(255,255,255,0.65); margin: 0; font-size: 0.82rem; }
+    .btn-refresh {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      border-radius: 8px;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-refresh:hover { background: rgba(255,255,255,0.22); color: #fff; }
+
+    /* ── Tabs ── */
+    .nav-pills { gap: 4px; flex-wrap: wrap; }
+    .nav-pills .nav-link {
+      border-radius: 10px;
+      color: #495057;
+      font-weight: 500;
+      font-size: 0.88rem;
+      padding: 0.45rem 1rem;
+      transition: all 0.18s;
+    }
+    .nav-pills .nav-link:hover { background: #e2e8f0; }
+    .nav-pills .nav-link.active {
+      background-color: var(--brand-navy);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(11,28,73,0.3);
+    }
+
+    /* ── Cards ── */
+    .card {
+      border: none;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+    .card-header-custom {
+      background: #fff;
+      border-bottom: 1px solid #edf2f9;
+      padding: 0.85rem 1.25rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--brand-navy);
+      border-radius: 14px 14px 0 0;
+    }
+
+    /* ── KPIs ── */
+    .kpi-card { border-left: 4px solid var(--brand-navy); }
+    .kpi-title { font-size: 0.75rem; color: #6c757d; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 0.4rem; }
+    .kpi-value { font-size: 2rem; font-weight: 800; color: var(--brand-navy); line-height: 1; }
+
+    /* ── Tables ── */
+    .table-wrap {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+    .table { margin-bottom: 0; }
+    .table th {
+      background-color: #f8faff;
+      color: var(--brand-navy);
+      border-bottom: 2px solid #dee2e6;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0.75rem 1rem;
+      font-weight: 700;
+    }
+    .table td { padding: 0.65rem 1rem; vertical-align: middle; }
+    .table-hover tbody tr:hover { background-color: #f8faff; }
+
+    /* ── Buttons ── */
+    .btn-brand {
+      background-color: var(--brand-pink);
+      border-color: var(--brand-pink);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.82rem;
+      border-radius: 8px;
+      transition: all 0.18s;
+    }
+    .btn-brand:hover { background-color: var(--brand-dark-pink); border-color: var(--brand-dark-pink); color: #fff; }
+    .btn-brand:disabled { opacity: 0.5; }
+
+    /* ── Progress ── */
+    .progress-cupo { height: 7px; border-radius: 4px; margin-top: 4px; background: #e9ecef; }
+
+    /* ── Status badges ── */
+    .status-badge { font-size: 0.72rem; font-weight: 700; padding: 0.3em 0.7em; border-radius: 6px; }
+
+    /* ── Filter bar ── */
+    .filter-bar {
+      background: #fff;
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Empty state ── */
+    .empty-state { padding: 3rem 1rem; text-align: center; color: #8898aa; }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+
+    /* ── Charts ── */
+    canvas { max-height: 320px; }
+    .chart-lg canvas { max-height: 400px; }
+
+    /* ── Tag pills for estado filter ── */
+    .estado-pill {
+      border-radius: 20px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid #dee2e6;
+      background: #fff;
+      color: #555;
+      transition: all 0.15s;
+    }
+    .estado-pill.active { background: var(--brand-navy); color: #fff; border-color: var(--brand-navy); }
+    .estado-pill:hover:not(.active) { background: #f0f4ff; border-color: var(--brand-navy); }
+
+    /* ── Chip estado pago ── */
+    .chip-estado {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.3em 0.85em;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .chip-pendiente   { background: #fff3cd; color: #856404; box-shadow: 0 0 0 1.5px #ffc107; }
+    .chip-pendiente:hover { background: #ffe69c; }
+    .chip-considerado { background: #d1f5ea; color: #0f5132; box-shadow: 0 0 0 1.5px #20c997; }
+    .chip-considerado:hover { background: #a3e9d3; }
+    .chip-loading { opacity: 0.55; pointer-events: none; }
+
+    /* ── Link cards ── */
+    .link-card {
+      border: 1.5px solid #e8edf5;
+      border-radius: 14px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .link-card:hover {
+      border-color: var(--brand-navy);
+      box-shadow: 0 8px 24px rgba(11,28,73,0.12);
+      transform: translateY(-2px);
+    }
+    .link-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    .link-title { font-size: 1rem; font-weight: 700; color: var(--brand-navy); }
+    .link-desc  { font-size: 0.82rem; color: #8898aa; margin-top: 2px; }
+    .link-arrow { font-size: 1.3rem; color: #c0cfe8; font-weight: 700; transition: color 0.2s; }
+    .link-card:hover .link-arrow { color: var(--brand-navy); }
+
+    /* ── Dotación manual ── */
+    .dot-name-badge {
+      background: var(--brand-light);
+      color: var(--brand-navy);
+      border-radius: 8px;
+      padding: 0.3em 0.8em;
+      font-size: 0.83rem;
+      font-weight: 600;
+    }
+    .dot-section-card {
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      margin-bottom: 1rem;
+    }
+    .dot-section-header {
+      padding: 0.75rem 1.25rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dot-turno-block {
+      background: #fff;
+      padding: 0.75rem 1.25rem;
+    }
+    .dot-turno-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 0.5rem;
+    }
+    .dot-names-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      min-height: 36px;
+    }
+    .dot-person-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0.3em 0.8em 0.3em 1em;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      background: var(--brand-light);
+      color: var(--brand-navy);
+      border: 1.5px solid #c8d8f8;
+    }
+    .dot-person-chip .remove-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #8898aa;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 0;
+      transition: color 0.15s;
+    }
+    .dot-person-chip .remove-btn:hover { color: var(--brand-dark-pink); }
+    .dot-pm-chip {
+      background: #fce4f3;
+      color: #8b0a50;
+      border-color: #f0b8d8;
+    }
+    .dot-runner-chip {
+      background: #e8f5e9;
+      color: #1b5e20;
+      border-color: #a5d6a7;
+    }
+    .dot-add-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.6rem;
+      align-items: center;
+    }
+    .dot-add-input {
+      border: 1.5px solid #dee2e6;
+      border-radius: 8px;
+      padding: 0.3rem 0.7rem;
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 180px;
+    }
+    .dot-add-input:focus { border-color: var(--brand-navy); }
+    .dot-add-btn {
+      background: var(--brand-navy);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .dot-add-btn:hover { background: #1a3580; }
+
+    /* Número editable inline */
+    .dot-number-input {
+      width: 64px;
+      border: 1.5px solid #dee2e6;
+      border-radius: 8px;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      color: var(--brand-navy);
+      transition: border-color 0.15s;
+    }
+    .dot-number-input:focus { border-color: var(--brand-navy); }
+    .dot-number-display { display: none; font-size: 1rem; color: var(--brand-navy); }
+
+    /* En modo PNG: ocultar inputs, mostrar solo el display */
+    .dot-png-mode .dot-edit-only { display: none !important; }
+    .dot-png-mode .dot-number-input { display: none !important; }
+    .dot-png-mode .dot-number-display { display: inline !important; }
+    .dot-png-mode .dot-person-chip .remove-btn { display: none !important; }
+
+    /* Chips en columna para el layout de tabla */
+    .dot-col.dot-names-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+
+    /* ── PNG Download button ── */
+    .btn-download-png {
+      background: linear-gradient(135deg, #20c997, #0f9c6b);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.5rem 1.1rem;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+    .btn-download-png:hover { opacity: 0.88; }
+
+    /* ── Indicadores ── */
+    .ind-kpi-card {
+      border-radius: 14px;
+      padding: 1.1rem 1.3rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      background: #fff;
+      border-left: 4px solid var(--brand-navy);
+      position: relative;
+      overflow: hidden;
+    }
+    .ind-kpi-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #8898aa;
+      margin-bottom: 0.3rem;
+    }
+    .ind-kpi-value {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--brand-navy);
+      line-height: 1;
+    }
+    .ind-kpi-unit {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #aab;
+      margin-left: 2px;
+    }
+    .ind-kpi-trend {
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-top: 0.3rem;
+    }
+    .trend-up { color: #20c997; }
+    .trend-dn { color: var(--brand-dark-pink); }
+
+    /* ── Toggle Atrasos/Reclamos en Análisis ── */
+    .analisis-toggle {
+      display: inline-flex;
+      background: #e8edf5;
+      border-radius: 12px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .analisis-toggle-btn {
+      border: none;
+      background: transparent;
+      color: #6c757d;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.5rem 1.5rem;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .analisis-toggle-btn:hover:not(.active) { background: #f0f4ff; color: var(--brand-navy); }
+    .analisis-toggle-btn.active {
+      background: var(--brand-navy);
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(11,28,73,0.25);
+    }
+
+    /* ── Accion select coloreado ── */
+    .accion-select {
+      font-weight: 600;
+      font-size: 0.8rem;
+      border-radius: 8px;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    /* Mini KPI para activación */
+    .aud-kpi-mini {
+      background: #fff;
+      border-radius: 12px;
+      padding: 0.9rem 1.1rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      border-left: 4px solid var(--brand-navy);
+    }
+    .aud-kpi-mini .label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #8898aa;
+      margin-bottom: 0.25rem;
+    }
+    .aud-kpi-mini .value {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--brand-navy);
+      line-height: 1;
+    }
+
+    /* ── LAT Hoy ── */
+    .lathoy-badge-time {
+      background: #20c997;
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.45em 0.95em;
+      border-radius: 8px;
+    }
+
+  </style>
+</head>
+<body>
+<div class="container-xl">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div>
+      <h2>🏪 Hub del Coordinador</h2>
+      <p>Local 94 · Monitor Integral de Operaciones</p>
+    </div>
+    <button class="btn-refresh" onclick="globalRefresh()">🔄 Actualizar</button>
+  </div>
+
+  <!-- TABS -->
+  <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#cupos"        type="button">📦 Cupos y Ventanas</button></li>
+    <li class="nav-item"><button class="nav-link"        data-bs-toggle="pill" data-bs-target="#pendientes"   type="button">⏱️ Completar Atrasos</button></li>
+    <li class="nav-item"><button class="nav-link"        data-bs-toggle="pill" data-bs-target="#estadisticas" type="button">📊 Análisis Estratégico</button></li>
+    <li class="nav-item"><button class="nav-link"        data-bs-toggle="pill" data-bs-target="#ingresos"     type="button">🧑‍💼 Ingresos</button></li>
+    <li class="nav-item"><button class="nav-link"        data-bs-toggle="pill" data-bs-target="#reclamos"     type="button">⚠️ Reclamos</button></li>
+    <li class="nav-item"><button class="nav-link"        data-bs-toggle="pill" data-bs-target="#pagos"        type="button">💸 Pagos Extra</button></li>
+    <li class="nav-item"><button class="nav-link"        data-bs-toggle="pill" data-bs-target="#dotacion"     type="button">📋 Dotación</button></li>
+    <li class="nav-item"><button class="nav-link"        data-bs-toggle="pill" data-bs-target="#activacion"   type="button">✅ Activación</button></li>
+    <li class="nav-item"><button class="nav-link"        data-bs-toggle="pill" data-bs-target="#indicadores"  type="button">📈 Indicadores</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#flejes" type="button">🏷️ Flejes</button></li>
+    <li class="nav-item"><button class="nav-link"        data-bs-toggle="pill" data-bs-target="#links"        type="button">🔗 Links</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pendientes-cierre" type="button">🔒 Pendientes Cierre</button></li>
+        
+  </ul>
+
+  <div class="tab-content" id="pills-tabContent">
+
+    <!-- ═══════════ TAB: PENDIENTES DE CIERRE ═══════════ -->
+<div class="tab-pane fade" id="pendientes-cierre" role="tabpanel">
+
+  <!-- Filtros -->
+  <div class="filter-bar d-none" id="pc-filters">
+    <div class="row g-2 align-items-end">
+      <div class="col-auto">
+        <label class="form-label text-muted small fw-bold mb-1">Estado</label>
+        <select class="form-select form-select-sm" id="pc-filter-estado" onchange="renderPendientesCierre()" style="min-width:180px">
+          <option value="TODOS">Todos los estados</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <label class="form-label text-muted small fw-bold mb-1">Ventana</label>
+        <select class="form-select form-select-sm" id="pc-filter-ventana" onchange="renderPendientesCierre()" style="min-width:160px">
+          <option value="TODAS">Todas las ventanas</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <label class="form-label text-muted small fw-bold mb-1">Buscar usuario</label>
+        <input type="text" class="form-control form-control-sm" id="pc-filter-usuario" placeholder="Nombre..." oninput="renderPendientesCierre()" style="min-width:180px">
+      </div>
+      <div class="col-auto ms-auto d-flex align-items-end">
+        <span class="badge" id="pc-count-badge" style="background:var(--brand-navy);font-size:0.8rem;padding:0.4em 0.9em;border-radius:8px">0 registros</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spinner -->
+  <div id="loading-pc" class="text-center my-5">
+    <div class="spinner-border" style="color:var(--brand-pink)" role="status"></div>
+    <p class="mt-2 text-muted small">Cargando pendientes de cierre...</p>
+  </div>
+
+  <!-- KPIs -->
+  <div class="row g-3 mb-4 d-none" id="pc-kpis">
+    <div class="col-md-4">
+      <div class="card kpi-card">
+        <div class="card-body">
+          <div class="kpi-title">Total Órdenes</div>
+          <div class="kpi-value" id="pc-kpi-total">–</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card kpi-card" style="border-left-color:var(--brand-dark-pink)">
+        <div class="card-body">
+          <div class="kpi-title">Estados únicos</div>
+          <div class="kpi-value" style="color:var(--brand-dark-pink)" id="pc-kpi-estados">–</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card kpi-card" style="border-left-color:#20c997">
+        <div class="card-body">
+          <div class="kpi-title">Ventanas activas</div>
+          <div class="kpi-value" style="color:#20c997" id="pc-kpi-ventanas">–</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-wrap d-none" id="pc-table-wrap">
+    <table class="table table-hover align-middle">
+      <thead>
+        <tr>
+          <th style="width:130px">Orden</th>
+          <th style="width:180px">Estado</th>
+          <th>Usuario Móvil</th>
+          <th style="width:140px" class="text-center">Ventana Horaria</th>
+        </tr>
+      </thead>
+      <tbody id="pc-body"></tbody>
+    </table>
+  </div>
+</div>
+
+    <!-- ═══════════ TAB 1: CUPOS Y VENTANAS (fuente: LAT Hoy) ═══════════ -->
+    <div class="tab-pane fade" id="flejes" role="tabpanel">
+      <div class="d-flex justify-content-center mb-4">
+        <div class="analisis-toggle">
+          <button class="analisis-toggle-btn active" id="toggle-fleje-subir" onclick="setFlejesView('subir')">⬆️ Subir Fleje</button>
+          <button class="analisis-toggle-btn" id="toggle-fleje-catalogo" onclick="setFlejesView('catalogo')">🖼️ Catálogo</button>
+        </div>
+      </div>
+
+     <div id="flejes-subir-view">
+        <div class="card mx-auto" style="max-width: 600px;">
+          <div class="card-header-custom">Subir nueva imagen de Fleje</div>
+          <div class="card-body p-4">
+            
+            <div class="mb-3">
+              <label class="form-label text-muted small fw-bold mb-1">Nombre / Descripción <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="fleje-nombre" placeholder="Ej: Tomates pasillo 3">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label text-muted small fw-bold mb-1">Categoría <span class="text-danger">*</span></label>
+              <select class="form-select" id="fleje-categoria">
+                <option value="" disabled selected>Selecciona una categoría...</option>
+                <option value="Verduras">Verduras</option>
+                <option value="Panadería">Panadería</option>
+                <option value="Alimentación">Alimentación</option>
+                <option value="Bebestibles">Bebestibles</option>
+                <option value="Hogar">Hogar</option>
+                <option value="Fríos y congelados">Fríos y congelados</option>
+                <option value="Electro">Electro</option>
+                <option value="Librería">Librería</option>
+              </select>
+            </div>
+            
+            <div class="mb-4">
+              <label class="form-label text-muted small fw-bold mb-1">Imagen (JPG/PNG) <span class="text-danger">*</span></label>
+              <input class="form-control" type="file" id="fleje-file" accept="image/*" onchange="previewFleje()">
+              
+              <div id="fleje-preview-container" class="mt-3 text-center d-none p-2 border rounded" style="background:#f8faff;">
+                <img id="fleje-preview-img" src="" alt="Previsualización" style="max-height:200px; max-width:100%; border-radius:8px;">
+              </div>
+            </div>
+            
+            <button class="btn btn-brand w-100 py-2" id="btn-submit-fleje" onclick="submitFleje()">
+              <span id="fleje-btn-text">Subir Fleje</span>
+              <span id="fleje-btn-spinner" class="d-none spinner-border spinner-border-sm ms-1"></span>
+            </button>
+            <div id="fleje-alert" class="d-none mt-3 alert py-2 px-3 rounded-3 small text-center"></div>
+          </div>
+        </div>
+      </div>
+      <div id="flejes-catalogo-view" class="d-none">
+        <div id="loading-flejes" class="text-center my-5">
+          <div class="spinner-border" style="color:var(--brand-pink)" role="status"></div>
+          <p class="mt-2 text-muted small">Cargando catálogo de flejes...</p>
+        </div>
+        
+        <div id="flejes-loaded" class="d-none">
+          <div class="filter-bar mb-4">
+            <span class="text-muted small fw-bold d-block mb-2">Filtrar por Categoría:</span>
+            <div class="d-flex flex-wrap gap-2" id="flejes-filter-container">
+              </div>
+          </div>
+          
+          <div class="row g-4" id="flejes-grid">
+            </div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane fade show active" id="cupos" role="tabpanel">
+      <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2 d-none" id="lathoy-header">
+        <span class="fw-bold" style="color:var(--brand-navy);font-size:0.95rem">📡 LAT Hoy · Sala 94</span>
+        <span class="lathoy-badge-time">🕐 Actualizado: <span id="lathoy-time">—</span></span>
+      </div>
+      <div id="loading-cupos" class="text-center my-5">
+        <div class="spinner-border" style="color:var(--brand-navy)" role="status"></div>
+        <p class="mt-2 text-muted small">Sincronizando LAT Hoy...</p>
+      </div>
+      <div class="table-wrap d-none" id="lathoy-container">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Zona Despacho</th>
+              <th>Ventana</th>
+              <th class="text-center">Venta</th>
+              <th class="text-center">Ofertado</th>
+              <th style="width:180px">Ocupación</th>
+            </tr>
+          </thead>
+          <tbody id="lathoy-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══════════ TAB 2: ATRASOS ═══════════ -->
+    <div class="tab-pane fade" id="pendientes" role="tabpanel">
+      <div class="filter-bar d-none" id="pendientes-filters">
+        <div class="row g-2 align-items-end">
+          <div class="col-auto">
+            <label class="form-label text-muted small fw-bold mb-1">Filtrar por Mes</label>
+            <select class="form-select form-select-sm" id="filter-pendientes-mes" onchange="renderPendientes()" style="min-width:160px">
+              <option value="TODOS">Todos los meses</option>
+            </select>
+          </div>
+          <div class="col-auto">
+            <label class="form-label text-muted small fw-bold mb-1">Picker / Shopper</label>
+            <input type="text" class="form-control form-control-sm" id="filter-pendientes-nombre" placeholder="Buscar nombre..." oninput="renderPendientes()" style="min-width:180px">
+          </div>
+          <div class="col-auto ms-auto d-flex align-items-end">
+            <span class="badge" id="badge-pendientes-count" style="background:var(--brand-navy);font-size:0.8rem;padding:0.4em 0.9em;border-radius:8px">0 registros</span>
+          </div>
+        </div>
+      </div>
+      <div id="loading-spinner" class="text-center my-5">
+        <div class="spinner-border" style="color:var(--brand-pink)" role="status"></div>
+        <p class="mt-2 text-muted small">Cargando base de datos de atrasos...</p>
+      </div>
+      <div class="table-wrap d-none" id="table-container">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Fecha</th><th>Ventana</th><th>SG</th><th>Picker / Shopper</th>
+              <th style="width:230px">Justificación</th><th>Observación</th>
+              <th style="width:95px">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="pendientes-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══════════ TAB 3: ANÁLISIS ═══════════ -->
+    <div class="tab-pane fade" id="estadisticas" role="tabpanel">
+
+      <!-- Switch Atrasos / Reclamos -->
+      <div class="d-flex justify-content-center mb-4">
+        <div class="analisis-toggle">
+          <button class="analisis-toggle-btn active" id="toggle-atrasos" onclick="setAnalisisView('atrasos')">⏱️ Atrasos</button>
+          <button class="analisis-toggle-btn" id="toggle-reclamos" onclick="setAnalisisView('reclamos')">⚠️ Reclamos</button>
+        </div>
+      </div>
+
+      <!-- ── VISTA ATRASOS ── -->
+      <div id="analisis-atrasos-view">
+        <div class="filter-bar">
+          <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label text-muted small fw-bold mb-1">Año</label>
+              <select class="form-select form-select-sm" id="filter-anio" onchange="onFilterChange('anio')"></select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-muted small fw-bold mb-1">Mes</label>
+              <select class="form-select form-select-sm" id="filter-mes" onchange="onFilterChange('mes')"></select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-muted small fw-bold mb-1">Semana</label>
+              <select class="form-select form-select-sm" id="filter-semana" onchange="onFilterChange('semana')"></select>
+            </div>
+              <div class="col-md-3 d-flex align-items-end gap-2">
+              <button class="btn btn-outline-secondary btn-sm flex-fill" onclick="resetFilters()">↺ Limpiar Filtros</button>
+              <button class="btn-download-png" style="padding:0.4rem 0.8rem" onclick="exportAtrasosToExcel()" title="Descargar Excel con los filtros actuales">📥 Excel</button>
+            </div>
+          </div>
+        </div>
+        <div class="row g-3 mb-4">
+          <div class="col-md-4"><div class="card kpi-card"><div class="card-body"><div class="kpi-title">Total Atrasos (filtrados)</div><div class="kpi-value" id="kpi-total">–</div></div></div></div>
+          <div class="col-md-4"><div class="card kpi-card" style="border-left-color:var(--brand-dark-pink)"><div class="card-body"><div class="kpi-title">Pendientes de Justificar</div><div class="kpi-value" style="color:var(--brand-dark-pink)" id="kpi-pendientes">–</div></div></div></div>
+          <div class="col-md-4"><div class="card kpi-card" style="border-left-color:var(--brand-pink)"><div class="card-body"><div class="kpi-title">Problema Principal</div><div class="kpi-value" style="font-size:1.1rem;color:var(--brand-pink);margin-top:0.55rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="kpi-top-problema" title="">–</div></div></div></div>
+        </div>
+        <div class="row g-4 mb-4">
+          <div class="col-lg-6"><div class="card h-100"><div class="card-header-custom">Top Justificaciones (Causa Raíz)</div><div class="card-body chart-lg"><canvas id="chart-justificaciones"></canvas></div></div></div>
+          <div class="col-lg-6"><div class="card h-100"><div class="card-header-custom">Top 10 Pickers / Shoppers con Atrasos</div><div class="card-body chart-lg"><canvas id="chart-shoppers"></canvas></div></div></div>
+        </div>
+        <div class="row g-4 mb-4">
+          <div class="col-lg-8"><div class="card h-100"><div class="card-header-custom">Tendencia Temporal (Por Semana)</div><div class="card-body"><canvas id="chart-tendencia"></canvas></div></div></div>
+          <div class="col-lg-4"><div class="card h-100"><div class="card-header-custom">Responsabilidad</div><div class="card-body"><canvas id="chart-responsabilidad"></canvas></div></div></div>
+        </div>
+        <div class="row g-4">
+          <div class="col-12"><div class="card"><div class="card-header-custom">Atrasos por Ventana Horaria (Cuellos de Botella)</div><div class="card-body"><canvas id="chart-ventanas"></canvas></div></div></div>
+        </div>
+      </div>
+
+      <!-- ── VISTA RECLAMOS ── -->
+      <div id="analisis-reclamos-view" class="d-none">
+        <div id="loading-reclamos-analisis" class="text-center my-5">
+          <div class="spinner-border" style="color:var(--brand-pink)" role="status"></div>
+          <p class="mt-2 text-muted small">Cargando análisis de reclamos...</p>
+        </div>
+        <div class="d-none" id="reclamos-analisis-loaded">
+          <div class="filter-bar">
+            <div class="row g-2 align-items-end">
+              <div class="col-md-3">
+                <label class="form-label text-muted small fw-bold mb-1">Desde</label>
+                <input type="date" class="form-control form-select-sm" id="rec-an-desde" onchange="renderReclamosAnalisis()">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label text-muted small fw-bold mb-1">Hasta</label>
+                <input type="date" class="form-control form-select-sm" id="rec-an-hasta" onchange="renderReclamosAnalisis()">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label text-muted small fw-bold mb-1">Año</label>
+                <select class="form-select form-select-sm" id="rec-an-anio" onchange="onRecAnFilterChange('anio')">
+                  <option value="TODOS">Todos</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label text-muted small fw-bold mb-1">Mes</label>
+                <select class="form-select form-select-sm" id="rec-an-mes" onchange="onRecAnFilterChange('mes')">
+                  <option value="TODOS">Todos</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label text-muted small fw-bold mb-1">Semana</label>
+                <select class="form-select form-select-sm" id="rec-an-semana" onchange="renderReclamosAnalisis()">
+                  <option value="TODOS">Todas</option>
+                </select>
+              </div>
+            </div>
+            <div class="row g-2 mt-1 align-items-center">
+              <div class="col-auto">
+                <button class="btn btn-outline-secondary btn-sm" onclick="resetReclamosAnalisisFiltros()">↺ Limpiar</button>
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-sm" style="background:var(--brand-navy);color:#fff;font-weight:600" onclick="setRecAnLastDays(30)">Últ. 30d</button>
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-sm" style="background:var(--brand-pink);color:#fff;font-weight:600" onclick="setRecAnLastDays(7)">Últ. 7d</button>
+              </div>
+              <div class="col-auto ms-auto">
+                <span class="badge" id="rec-an-count" style="background:var(--brand-navy);font-size:0.8rem;padding:0.4em 0.9em;border-radius:8px">0</span>
+              </div>
+            </div>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6"><div class="card kpi-card" style="border-left-color:var(--brand-dark-pink)"><div class="card-body"><div class="kpi-title">Pendientes de Revisión</div><div class="kpi-value" style="color:var(--brand-dark-pink)" id="kpi-an-reclamos-pendientes">–</div></div></div></div>
+            <div class="col-md-6"><div class="card kpi-card"><div class="card-body"><div class="kpi-title">Total Reclamos (filtrados)</div><div class="kpi-value" id="kpi-an-reclamos-total">–</div></div></div></div>
+          </div>
+          <div class="row g-4 mb-4">
+            <div class="col-lg-6"><div class="card h-100"><div class="card-header-custom">Principales Causas</div><div class="card-body chart-lg"><canvas id="chart-an-reclamos-causas"></canvas></div></div></div>
+            <div class="col-lg-6"><div class="card h-100"><div class="card-header-custom">Top 10 Shoppers con Reclamos</div><div class="card-body chart-lg"><canvas id="chart-an-reclamos-shoppers"></canvas></div></div></div>
+          </div>
+          <div class="row g-4">
+            <div class="col-lg-6"><div class="card h-100"><div class="card-header-custom">¿Aplica vs No Aplica?</div><div class="card-body chart-lg"><canvas id="chart-an-reclamos-aplica"></canvas></div></div></div>
+            <div class="col-lg-6"><div class="card h-100"><div class="card-header-custom">Acciones Tomadas</div><div class="card-body chart-lg"><canvas id="chart-an-reclamos-acciones"></canvas></div></div></div>
+          </div>
+          <!-- Análisis de Descripción -->
+          <div class="row g-4 mt-2">
+            <div class="col-12"><div class="card h-100"><div class="card-header-custom">Top 15 Descripciones de Reclamo</div><div class="card-body" style="height:420px"><canvas id="chart-an-reclamos-descripciones"></canvas></div></div></div>
+          </div>
+          <!-- Feedback por Shopper -->
+          <div class="row g-4 mt-2">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                  <span>Feedback por Shopper</span>
+                  <span class="badge bg-secondary" id="rec-an-feedback-count">0 shoppers</span>
+                </div>
+                <div class="card-body">
+                  <div class="row g-3" id="rec-an-feedback-cards"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Feedback Shopper -->
+      <div class="modal fade" id="modal-shopper-feedback" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header" style="background:var(--brand-navy);color:#fff">
+              <h5 class="modal-title" id="modal-shopper-nombre">Feedback Shopper</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-3 mb-3" id="modal-shopper-kpis"></div>
+              <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle" id="modal-shopper-tabla">
+                  <thead class="table-dark">
+                    <tr>
+                      <th>Fecha</th><th>SG</th><th>Causa</th><th>Descripción</th>
+                      <th>Aplica</th><th>Acción</th><th>Comentario</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════ TAB 4: INGRESOS ═══════════ -->
+    <div class="tab-pane fade" id="ingresos" role="tabpanel">
+      <div id="loading-ingresos" class="text-center my-5">
+        <div class="spinner-border" style="color:var(--brand-navy)" role="status"></div>
+        <p class="mt-2 text-muted small">Sincronizando registros de inducciones...</p>
+      </div>
+      <div class="d-none" id="ingresos-loaded">
+        <div class="filter-bar mb-3">
+          <div class="row g-2 align-items-end mb-2">
+            <div class="col-auto">
+              <label class="form-label text-muted small fw-bold mb-1">Año</label>
+              <select class="form-select form-select-sm" id="filter-ingresos-anio" onchange="onIngresosFilterChange()" style="min-width:120px">
+                <option value="TODOS">Todos</option>
+              </select>
+            </div>
+            <div class="col-auto">
+              <label class="form-label text-muted small fw-bold mb-1">Semana</label>
+              <select class="form-select form-select-sm" id="filter-ingresos-semana" onchange="renderIngresosCurrent()" style="min-width:140px">
+                <option value="TODOS">Todas las semanas</option>
+              </select>
+            </div>
+            <div class="col-auto ms-auto d-flex align-items-end">
+              <span class="badge" id="badge-ingresos-count" style="background:var(--brand-navy);font-size:0.8rem;padding:0.4em 0.9em;border-radius:8px">0 registros</span>
+            </div>
+          </div>
+          <div class="d-flex flex-wrap gap-2 align-items-center" style="border-top:1px solid #edf2f9;padding-top:0.6rem">
+            <span class="text-muted small fw-bold me-1">Estado:</span>
+            <div id="subtabs-estados-container" class="d-flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr><th>Fecha Inducción</th><th>Nombre / RUT</th><th>Servicio</th><th>Estado Inducción</th><th>Entrega Bolso</th><th>Contacto</th></tr>
+            </thead>
+            <tbody id="ingresos-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ TAB 5: RECLAMOS ═══════════ -->
+    <div class="tab-pane fade" id="reclamos" role="tabpanel">
+      <div id="loading-reclamos" class="text-center my-5">
+        <div class="spinner-border" style="color:var(--brand-pink)" role="status"></div>
+        <p class="mt-2 text-muted small">Sincronizando bitácora de reclamos...</p>
+      </div>
+      <div class="d-none" id="reclamos-loaded">
+        <div class="row g-3 mb-4 mt-1">
+          <div class="col-md-6"><div class="card kpi-card" style="border-left-color:var(--brand-dark-pink)"><div class="card-body"><div class="kpi-title">Pendientes de Revisión</div><div class="kpi-value" style="color:var(--brand-dark-pink)" id="kpi-reclamos-pendientes">–</div></div></div></div>
+          <div class="col-md-6"><div class="card kpi-card"><div class="card-body"><div class="kpi-title">Total Reclamos Registrados</div><div class="kpi-value" id="kpi-reclamos-total">–</div></div></div></div>
+        </div>
+        <div class="row g-4 mb-4">
+          <div class="col-lg-6"><div class="card h-100"><div class="card-header-custom">Principales Causas</div><div class="card-body chart-lg"><canvas id="chart-reclamos-causas"></canvas></div></div></div>
+          <div class="col-lg-6"><div class="card h-100"><div class="card-header-custom">Top 10 Shoppers con Reclamos</div><div class="card-body chart-lg"><canvas id="chart-reclamos-shoppers"></canvas></div></div></div>
+        </div>
+         <div class="filter-bar mb-3">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <span class="fw-bold text-secondary small text-uppercase">Estado de Gestión</span>
+            <div class="form-check form-switch fs-5 mb-0">
+              <input class="form-check-input shadow-none" type="checkbox" id="switch-revision" onchange="filterReclamosByStatus()" style="cursor:pointer">
+              <label class="form-check-label fw-medium small user-select-none" id="label-switch-revision" for="switch-revision" style="color:var(--brand-navy);margin-top:2px">👀 Mostrando: Sin Revisión (Pendientes)</label>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2 flex-wrap mt-3" style="border-top:1px solid #edf2f9;padding-top:0.75rem">
+            <span class="text-muted small fw-bold">Exportar a Excel:</span>
+            <label class="text-muted small mb-0">Desde</label>
+            <input type="date" class="form-control form-control-sm" id="rec-export-desde" style="width:140px">
+            <label class="text-muted small mb-0">Hasta</label>
+            <input type="date" class="form-control form-control-sm" id="rec-export-hasta" style="width:140px">
+            <button class="btn-download-png" id="btn-export-reclamos" onclick="exportReclamosToExcel()">📥 Descargar Excel</button>
+            <span class="text-muted small">Si no seleccionas fechas, se exporta el histórico completo.</span>
+          </div>
+        </div>
+        <div class="table-wrap" id="reclamos-container">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th style="width:95px">Fecha</th>
+                <th style="width:105px">N° SG</th>
+                <th style="width:175px">Causa / Shopper</th>
+                <th>Descripción Reclamo</th>
+                <th style="width:130px">¿Aplica?</th>
+                <th style="width:210px">Acción Tomada</th>
+                <th style="width:180px">Comentarios</th>
+                <th style="width:70px" class="text-center">Gst.</th>
+              </tr>
+            </thead>
+            <tbody id="reclamos-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ TAB 6: PAGOS EXTRA ═══════════ -->
+    <div class="tab-pane fade" id="pagos" role="tabpanel">
+      <div class="d-flex justify-content-end mb-3">
+        <a href="https://docs.google.com/spreadsheets/d/1RZFu7fvNoyu7mr2SLwLhD7aYBHnF0GhAmF-JVEoyhLI/edit?gid=0#gid=0" target="_blank" class="btn-download-png text-decoration-none" style="background:linear-gradient(135deg,#0B1C49,#1a3580)">
+          📊 Ir a Pagos (Planilla)
+        </a>
+      </div>
+      <div class="card mb-4" style="border:none;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,0.06)">
+        <div class="card-header-custom d-flex align-items-center gap-2"><span>➕</span> Registrar Nuevo Pago Extra</div>
+        <div class="card-body p-4">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-2">
+              <label class="form-label text-muted small fw-bold mb-1">RUT <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-sm" id="pago-rut" placeholder="12345678-9" oninput="formatRut(this)">
+            </div>
+            <div class="col-md-1">
+              <label class="form-label text-muted small fw-bold mb-1">Local <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-sm" id="pago-local" placeholder="94" value="94">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label text-muted small fw-bold mb-1">Fecha <span class="text-danger">*</span></label>
+              <input type="date" class="form-control form-control-sm" id="pago-fecha">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-muted small fw-bold mb-1">Apoyo <span class="text-danger">*</span></label>
+              <select class="form-select form-select-sm" id="pago-apoyo">
+                <option value="" disabled selected>Seleccione motivo...</option>
+                <option>RF COORDINADOR</option><option>RF RUNNER COMPLETITUD</option>
+                <option>RF RUNNER DE ENTREGA PU/CATEX</option><option>RF OPERADOR ECOMMERCE PU/CATEX</option>
+                <option>RF CONTROL CARGA</option><option>RF AUDITOR CALIDAD</option>
+                <option>RF EMBALADOR</option><option>RF RUNNER DE ENTREGA HD</option>
+                <option>RF ALMACENERO</option><option>Apoyo Coordinación (Operación)</option>
+                <option>Apoyo Coordinación (Licencia)</option><option>Apoyo Coordinación (Inasistencia)</option>
+                <option>SuperPicker Cumple Turno sin Pedidos</option><option>Movimiento Sala 58->647</option>
+                <option>Movimiento Sala</option><option>Retiro Gelpacks</option>
+                <option>Extensión ruta estival</option><option>H. PROMOTOR PDC</option>
+                <option>H. SUPER PICKER</option><option>Inducción Shopper/Driver</option>
+                <option>Inducción Picker</option><option>Traslado PO</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label text-muted small fw-bold mb-1">Monto ($) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control form-control-sm" id="pago-monto" placeholder="0" min="0" step="500">
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-brand w-100" onclick="submitPagoExtra()">
+                <span id="pago-btn-text">Registrar Pago</span>
+                <span id="pago-btn-spinner" class="d-none spinner-border spinner-border-sm ms-1"></span>
+              </button>
+            </div>
+          </div>
+          <div id="pago-alert" class="d-none mt-3 alert alert-sm py-2 px-3 rounded-3" style="font-size:0.85rem"></div>
+        </div>
+      </div>
+      <div class="row g-3 mb-4" id="pagos-kpis" style="display:none!important">
+        <div class="col-md-4"><div class="card kpi-card"><div class="card-body"><div class="kpi-title">Total Registros</div><div class="kpi-value" id="kpi-pagos-total">–</div></div></div></div>
+        <div class="col-md-4"><div class="card kpi-card" style="border-left-color:var(--brand-dark-pink)"><div class="card-body"><div class="kpi-title">Pendientes</div><div class="kpi-value" style="color:var(--brand-dark-pink)" id="kpi-pagos-pendientes">–</div></div></div></div>
+        <div class="col-md-4"><div class="card kpi-card" style="border-left-color:#20c997"><div class="card-body"><div class="kpi-title">Considerados</div><div class="kpi-value" style="color:#20c997" id="kpi-pagos-considerados">–</div></div></div></div>
+      </div>
+      <div id="loading-pagos" class="text-center my-5">
+        <div class="spinner-border" style="color:var(--brand-navy)" role="status"></div>
+        <p class="mt-2 text-muted small">Cargando registros de pagos extra...</p>
+      </div>
+      <div class="d-none" id="pagos-loaded">
+        <div class="filter-bar d-flex align-items-center gap-3 mb-3">
+          <span class="text-muted small fw-bold">Filtrar:</span>
+          <button class="estado-pill active" onclick="filterPagosByEstado('TODOS', this)">Todos</button>
+          <button class="estado-pill" onclick="filterPagosByEstado('Pendiente', this)">🕐 Pendiente</button>
+          <button class="estado-pill" onclick="filterPagosByEstado('Considerado', this)">✅ Considerado</button>
+          <span class="ms-auto text-muted small" id="pagos-count-label"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr><th style="width:110px">RUT</th><th style="width:70px">Local</th><th style="width:110px">Fecha</th><th>Apoyo</th><th style="width:120px">Monto</th><th style="width:140px" class="text-center">Estado</th></tr>
+            </thead>
+            <tbody id="pagos-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ TAB 7: DOTACIÓN (MANUAL) ═══════════ -->
+    <div class="tab-pane fade" id="dotacion" role="tabpanel">
+      <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <label class="text-muted small fw-bold mb-0">Fecha:</label>
+          <input type="date" id="dot-date-picker" class="form-control form-control-sm" style="width:155px" onchange="renderDotacionFecha()">
+        </div>
+        <button class="btn-download-png" onclick="downloadDotacionPNG()">📸 Descargar PNG</button>
+      </div>
+
+      <div id="dotacion-report" style="max-width:680px;margin:0 auto;font-family:'Segoe UI',system-ui,sans-serif">
+        <table style="width:100%;border-collapse:collapse;margin-bottom:0">
+          <tr>
+            <td style="background:var(--brand-navy);color:#fff;font-weight:800;font-size:1rem;letter-spacing:0.5px;padding:0.65rem 1rem;text-transform:uppercase;text-align:left">REPORTE DOTACIONES L94</td>
+            <td style="background:var(--brand-navy);color:#fff;font-weight:700;font-size:0.95rem;padding:0.65rem 1rem;text-align:right;white-space:nowrap" id="dot-fecha-display">—</td>
+          </tr>
+        </table>
+
+        <table style="width:100%;border-collapse:collapse;margin-top:3px">
+          <tr><td colspan="2" style="background:var(--brand-pink);color:#fff;font-weight:800;font-size:0.82rem;text-transform:uppercase;text-align:center;padding:0.4rem 0.7rem;letter-spacing:0.5px">COORDINADOR EN SALA</td></tr>
+          <tr style="background:#fff">
+            <td colspan="2" style="padding:0.5rem 1rem;border:1px solid #e8edf5">
+              <div class="dot-names-wrap" id="coord-names" style="min-height:28px;justify-content:center"></div>
+              <div class="dot-add-row dot-edit-only">
+                <input class="dot-add-input" type="text" id="input-coord" placeholder="Agregar coordinador..." onkeydown="if(event.key==='Enter')addDotPerson('coord','coord-names',this)">
+                <button class="dot-add-btn" onclick="addDotPerson('coord','coord-names',document.getElementById('input-coord'))">+</button>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <table style="width:100%;border-collapse:collapse;margin-top:3px">
+          <tr><td colspan="2" style="background:var(--brand-pink);color:#fff;font-weight:800;font-size:0.82rem;text-transform:uppercase;text-align:center;padding:0.4rem 0.7rem;letter-spacing:0.5px">DOTACIONES LAT</td></tr>
+          <tr style="background:#fff">
+            <td style="width:50%;padding:0.45rem 1rem;border:1px solid #e8edf5;border-right:none;font-weight:700;font-size:0.82rem;color:#555">AM:</td>
+            <td style="width:50%;padding:0.45rem 1rem;border:1px solid #e8edf5;text-align:right">
+              <div class="d-flex align-items-center justify-content-end gap-2">
+                <input type="number" id="lat-am-val" class="dot-number-input dot-edit-only" min="0" value="0" placeholder="0">
+                <span id="lat-am-display" class="dot-number-display fw-bold" style="font-size:1rem;color:var(--brand-navy)">0</span>
+              </div>
+            </td>
+          </tr>
+          <tr style="background:#fafbff">
+            <td style="padding:0.45rem 1rem;border:1px solid #e8edf5;border-right:none;border-top:none;font-weight:700;font-size:0.82rem;color:#555">PM:</td>
+            <td style="padding:0.45rem 1rem;border:1px solid #e8edf5;border-top:none;text-align:right">
+              <div class="d-flex align-items-center justify-content-end gap-2">
+                <input type="number" id="lat-pm-val" class="dot-number-input dot-edit-only" min="0" value="0" placeholder="0">
+                <span id="lat-pm-display" class="dot-number-display fw-bold" style="font-size:1rem;color:var(--brand-navy)">0</span>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <table style="width:100%;border-collapse:collapse;margin-top:3px">
+          <tr><td colspan="2" style="background:var(--brand-pink);color:#fff;font-weight:800;font-size:0.82rem;text-transform:uppercase;text-align:center;padding:0.4rem 0.7rem;letter-spacing:0.5px">MÓVILES ESTIVALES</td></tr>
+          <tr style="background:#fff">
+            <td style="padding:0.45rem 1rem;border:1px solid #e8edf5;border-right:none;font-weight:700;font-size:0.82rem;color:#555">HD : AM</td>
+            <td style="padding:0.45rem 1rem;border:1px solid #e8edf5;text-align:right">
+              <div class="d-flex align-items-center justify-content-end gap-2">
+                <input type="number" id="hdest-am-val" class="dot-number-input dot-edit-only" min="0" value="0" placeholder="0">
+                <span id="hdest-am-display" class="dot-number-display fw-bold" style="font-size:1rem;color:var(--brand-navy)">0</span>
+              </div>
+            </td>
+          </tr>
+          <tr style="background:#fafbff">
+            <td style="padding:0.45rem 1rem;border:1px solid #e8edf5;border-right:none;border-top:none;font-weight:700;font-size:0.82rem;color:#555">HD : PM</td>
+            <td style="padding:0.45rem 1rem;border:1px solid #e8edf5;border-top:none;text-align:right">
+              <div class="d-flex align-items-center justify-content-end gap-2">
+                <input type="number" id="hdest-pm-val" class="dot-number-input dot-edit-only" min="0" value="0" placeholder="0">
+                <span id="hdest-pm-display" class="dot-number-display fw-bold" style="font-size:1rem;color:var(--brand-navy)">0</span>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <table style="width:100%;border-collapse:collapse;margin-top:3px">
+          <tr><td colspan="2" style="background:var(--brand-pink);color:#fff;font-weight:800;font-size:0.82rem;text-transform:uppercase;text-align:center;padding:0.4rem 0.7rem;letter-spacing:0.5px">OPERADOR ECOMMERCE</td></tr>
+          <tr style="background:#f8faff">
+            <td style="width:50%;padding:0.4rem 1rem;border:1px solid #e8edf5;border-right:none;font-weight:700;font-size:0.78rem;color:var(--brand-navy)">AM:</td>
+            <td style="width:50%;padding:0.4rem 1rem;border:1px solid #e8edf5;font-weight:700;font-size:0.78rem;color:var(--brand-pink)">PM:</td>
+          </tr>
+          <tr style="background:#fff" id="ecom-names-row">
+            <td style="padding:0.5rem 1rem;border:1px solid #e8edf5;border-right:none;border-top:none;vertical-align:top">
+              <div class="dot-names-wrap dot-col" id="ecom-am-names" style="flex-direction:column;align-items:flex-start;min-height:28px;gap:3px"></div>
+              <div class="dot-add-row dot-edit-only">
+                <input class="dot-add-input" type="text" id="input-ecom-am" placeholder="Nombre AM..." onkeydown="if(event.key==='Enter')addDotPerson('ecom-am','ecom-am-names',this)">
+                <button class="dot-add-btn" onclick="addDotPerson('ecom-am','ecom-am-names',document.getElementById('input-ecom-am'))">+</button>
+              </div>
+            </td>
+            <td style="padding:0.5rem 1rem;border:1px solid #e8edf5;border-top:none;vertical-align:top">
+              <div class="dot-names-wrap dot-col" id="ecom-pm-names" style="flex-direction:column;align-items:flex-start;min-height:28px;gap:3px"></div>
+              <div class="dot-add-row dot-edit-only">
+                <input class="dot-add-input" type="text" id="input-ecom-pm" placeholder="Nombre PM..." onkeydown="if(event.key==='Enter')addDotPerson('ecom-pm','ecom-pm-names',this,'pm')">
+                <button class="dot-add-btn" onclick="addDotPerson('ecom-pm','ecom-pm-names',document.getElementById('input-ecom-pm'),'pm')">+</button>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <table style="width:100%;border-collapse:collapse;margin-top:3px">
+          <tr><td colspan="2" style="background:var(--brand-pink);color:#fff;font-weight:800;font-size:0.82rem;text-transform:uppercase;text-align:center;padding:0.4rem 0.7rem;letter-spacing:0.5px">CONTROL CARGA</td></tr>
+          <tr style="background:#f8faff">
+            <td style="width:50%;padding:0.4rem 1rem;border:1px solid #e8edf5;border-right:none;font-weight:700;font-size:0.78rem;color:var(--brand-navy)">AM:</td>
+            <td style="width:50%;padding:0.4rem 1rem;border:1px solid #e8edf5;font-weight:700;font-size:0.78rem;color:var(--brand-pink)">PM:</td>
+          </tr>
+          <tr style="background:#fff">
+            <td style="padding:0.5rem 1rem;border:1px solid #e8edf5;border-right:none;border-top:none;vertical-align:top">
+              <div class="dot-names-wrap dot-col" id="carga-am-names" style="flex-direction:column;align-items:flex-start;min-height:28px;gap:3px"></div>
+              <div class="dot-add-row dot-edit-only">
+                <input class="dot-add-input" type="text" id="input-carga-am" placeholder="Nombre AM..." onkeydown="if(event.key==='Enter')addDotPerson('carga-am','carga-am-names',this)">
+                <button class="dot-add-btn" onclick="addDotPerson('carga-am','carga-am-names',document.getElementById('input-carga-am'))">+</button>
+              </div>
+            </td>
+            <td style="padding:0.5rem 1rem;border:1px solid #e8edf5;border-top:none;vertical-align:top">
+              <div class="dot-names-wrap dot-col" id="carga-pm-names" style="flex-direction:column;align-items:flex-start;min-height:28px;gap:3px"></div>
+              <div class="dot-add-row dot-edit-only">
+                <input class="dot-add-input" type="text" id="input-carga-pm" placeholder="Nombre PM..." onkeydown="if(event.key==='Enter')addDotPerson('carga-pm','carga-pm-names',this,'pm')">
+                <button class="dot-add-btn" onclick="addDotPerson('carga-pm','carga-pm-names',document.getElementById('input-carga-pm'),'pm')">+</button>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <table style="width:100%;border-collapse:collapse;margin-top:3px">
+          <tr><td style="background:var(--brand-pink);color:#fff;font-weight:800;font-size:0.82rem;text-transform:uppercase;text-align:center;padding:0.4rem 0.7rem;letter-spacing:0.5px">Runners HD</td></tr>
+          <tr style="background:#fff">
+            <td style="padding:0.5rem 1rem;border:1px solid #e8edf5;text-align:center">
+              <div class="dot-names-wrap" id="runner-names" style="min-height:28px;justify-content:center"></div>
+              <div class="dot-add-row dot-edit-only" style="justify-content:center">
+                <input class="dot-add-input" type="text" id="input-runner" placeholder="Nombre runner..." onkeydown="if(event.key==='Enter')addDotPerson('runner','runner-names',this,'runner')">
+                <button class="dot-add-btn" onclick="addDotPerson('runner','runner-names',document.getElementById('input-runner'),'runner')">+</button>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <table style="width:100%;border-collapse:collapse;margin-top:3px">
+          <tr><td style="background:var(--brand-pink);color:#fff;font-weight:800;font-size:0.82rem;text-transform:uppercase;text-align:center;padding:0.4rem 0.7rem;letter-spacing:0.5px">Comentarios</td></tr>
+          <tr style="background:#fff">
+            <td style="padding:0.6rem 1rem;border:1px solid #e8edf5;min-height:36px">
+              <div id="dot-novedades-display" class="text-muted small" style="min-height:20px"></div>
+              <textarea id="dot-novedades" class="form-control form-control-sm dot-edit-only mt-1" rows="2"
+                placeholder="Ej: Promotora Antonella Yevenes..." oninput="syncComentarios()"></textarea>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══════════ TAB 7b: ACTIVACIÓN ═══════════ -->
+    <div class="tab-pane fade" id="activacion" role="tabpanel">
+      <div class="d-flex justify-content-center mb-4">
+        <div class="analisis-toggle">
+          <button class="analisis-toggle-btn active" id="activ-toggle-hoy" onclick="setActivacionView('hoy')">📅 Activación del Día</button>
+          <button class="analisis-toggle-btn" id="activ-toggle-hist" onclick="setActivacionView('historial')">📊 Historial / Ausentismo</button>
+        </div>
+      </div>
+
+      <div id="activacion-hoy-view">
+        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <label class="text-muted small fw-bold mb-0">Fecha:</label>
+            <input type="date" id="activ-date-picker" class="form-control form-control-sm" style="width:155px" onchange="loadActivacionData()">
+          </div>
+          <button class="btn-refresh" style="background:var(--brand-navy)" onclick="loadActivacionData()">🔄 Recargar turnos</button>
+        </div>
+        <div id="loading-activacion" class="text-center my-5">
+          <div class="spinner-border" style="color:var(--brand-navy)" role="status"></div>
+          <p class="mt-2 text-muted small">Cargando turnos del día...</p>
+        </div>
+        <div class="d-none" id="activacion-loaded">
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3"><div class="aud-kpi-mini"><div class="label">Esperados</div><div class="value" id="activ-kpi-esperados">–</div></div></div>
+            <div class="col-6 col-md-3"><div class="aud-kpi-mini" style="border-left-color:#20c997"><div class="label">Presentes</div><div class="value" style="color:#20c997" id="activ-kpi-presentes">–</div></div></div>
+            <div class="col-6 col-md-3"><div class="aud-kpi-mini" style="border-left-color:#e74c3c"><div class="label">Ausentes</div><div class="value" style="color:#e74c3c" id="activ-kpi-ausentes">–</div></div></div>
+            <div class="col-6 col-md-3"><div class="aud-kpi-mini" style="border-left-color:var(--brand-pink)"><div class="label">% Cumplimiento</div><div class="value" style="color:var(--brand-pink)" id="activ-kpi-pct">–</div></div></div>
+          </div>
+          <div class="filter-bar d-flex align-items-center gap-2 flex-wrap mb-3">
+            <span class="text-muted small fw-bold">Turno:</span>
+            <button class="estado-pill active" onclick="filterActivTurno('TODOS', this)">Todos</button>
+            <button class="estado-pill" onclick="filterActivTurno('AM', this)">☀️ AM</button>
+            <button class="estado-pill" onclick="filterActivTurno('PM', this)">🌙 PM</button>
+            <button class="estado-pill" onclick="filterActivTurno('FULL', this)">🔆 Full</button>
+            <span class="ms-auto text-muted small" id="activ-count-label"></span>
+          </div>
+          <div class="table-wrap">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>Shopper</th>
+                  <th style="width:110px">RUT</th>
+                  <th style="width:90px" class="text-center">Turno</th>
+                  <th style="width:230px" class="text-center">Asistencia</th>
+                </tr>
+              </thead>
+              <tbody id="activ-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="d-none" id="activacion-nodata">
+          <div class="empty-state">
+            <div class="icon">📅</div>
+            <p class="mb-0 fw-semibold">No hay turnos programados para esta fecha</p>
+            <p class="small text-muted mt-1">La hoja Shopper no tiene una columna para el día seleccionado.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="activacion-hist-view" class="d-none">
+        <div id="loading-activ-hist" class="text-center my-5">
+          <div class="spinner-border" style="color:var(--brand-pink)" role="status"></div>
+          <p class="mt-2 text-muted small">Calculando estadísticas de asistencia...</p>
+        </div>
+        <div class="d-none" id="activ-hist-loaded">
+          <div class="row g-3 mb-4">
+            <div class="col-md-4"><div class="aud-kpi-mini"><div class="label">Shoppers con Registro</div><div class="value" id="hist-kpi-total">–</div></div></div>
+            <div class="col-md-4"><div class="aud-kpi-mini" style="border-left-color:#20c997"><div class="label">Cumplimiento Promedio</div><div class="value" style="color:#20c997" id="hist-kpi-cumpl">–</div></div></div>
+            <div class="col-md-4"><div class="aud-kpi-mini" style="border-left-color:#e74c3c"><div class="label">Ausentismo Promedio</div><div class="value" style="color:#e74c3c" id="hist-kpi-ausent">–</div></div></div>
+          </div>
+          <div class="filter-bar mb-3">
+            <div class="position-relative" style="max-width:340px">
+              <span style="position:absolute;left:0.8rem;top:50%;transform:translateY(-50%);color:#8898aa">🔍</span>
+              <input type="text" class="form-control form-control-sm" id="hist-search" placeholder="Buscar shopper..." oninput="renderHistTable()" style="padding-left:2.3rem">
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>Shopper</th>
+                  <th style="width:110px">RUT</th>
+                  <th style="width:90px" class="text-center">Presentes</th>
+                  <th style="width:90px" class="text-center">Ausencias</th>
+                  <th style="width:80px" class="text-center">Total</th>
+                  <th style="width:200px">Cumplimiento</th>
+                </tr>
+              </thead>
+              <tbody id="hist-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ TAB 8: INDICADORES ═══════════ -->
+    <div class="tab-pane fade" id="indicadores" role="tabpanel">
+      <div id="loading-indicadores" class="text-center my-5">
+        <div class="spinner-border" style="color:var(--brand-navy)" role="status"></div>
+        <p class="mt-2 text-muted small">Cargando indicadores históricos L94...</p>
+      </div>
+      <div class="d-none" id="indicadores-loaded">
+        <div class="filter-bar mb-3">
+          <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label text-muted small fw-bold mb-1">Desde</label>
+              <input type="date" class="form-control form-control-sm" id="ind-fecha-desde" onchange="renderIndicadores()">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-muted small fw-bold mb-1">Hasta</label>
+              <input type="date" class="form-control form-control-sm" id="ind-fecha-hasta" onchange="renderIndicadores()">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-muted small fw-bold mb-1">Indicador</label>
+              <select class="form-select form-select-sm" id="ind-indicador-filter" onchange="renderIndicadores()">
+                <option value="TODOS">Todos</option>
+              </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end gap-2">
+              <button class="btn btn-outline-secondary btn-sm flex-fill" onclick="resetIndicadoresFiltros()">↺ Limpiar</button>
+              <button class="btn btn-sm flex-fill" style="background:var(--brand-navy);color:#fff;font-weight:600" onclick="setIndLastDays(30)">Últ. 30d</button>
+              <button class="btn btn-sm flex-fill" style="background:var(--brand-pink);color:#fff;font-weight:600" onclick="setIndLastDays(7)">Últ. 7d</button>
+            </div>
+          </div>
+        </div>
+        <div class="row g-3 mb-4" id="ind-kpis-row"></div>
+        <div class="card mb-4">
+          <div class="card-header-custom d-flex align-items-center justify-content-between">
+            <span>📈 Evolución de Indicadores</span>
+            <span class="text-muted small fw-normal" id="ind-rango-label"></span>
+          </div>
+          <div class="card-body" style="padding:1.25rem">
+            <canvas id="chart-indicadores" style="max-height:380px"></canvas>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <div style="padding:0.75rem 1.25rem;background:#f8faff;border-bottom:2px solid #dee2e6;font-size:0.78rem;font-weight:700;color:var(--brand-navy);text-transform:uppercase;letter-spacing:0.5px">Detalle por Fecha</div>
+          <div style="overflow-x:auto">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr><th>Fecha</th><th>Indicador</th><th>Hora</th><th class="text-end">Valor</th><th class="text-center">Semana</th></tr>
+              </thead>
+              <tbody id="ind-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ TAB 9: LINKS ═══════════ -->
+    <div class="tab-pane fade" id="links" role="tabpanel">
+      <div class="row g-4 mt-1">
+        <div class="col-md-6"><a href="https://script.google.com/a/macros/valdishopper.com/s/AKfycbzSpebbP7CTVxRuLWL6uayyXlfkPMAqyXFpzkBVuh_qS404dClbhVIGlG9I9lASN-KKGg/exec" target="_blank" class="text-decoration-none"><div class="card h-100 link-card"><div class="card-body d-flex align-items-center gap-4 p-4"><div class="link-icon" style="background:linear-gradient(135deg,#0B1C49,#1a3580)">🗺️</div><div><div class="link-title">Ruteador</div><div class="link-desc">Herramienta de ruteo de pedidos</div></div><div class="ms-auto link-arrow">→</div></div></div></a></div>
+        <div class="col-md-6"><a href="https://docs.google.com/spreadsheets/d/1i-jnBEUjE7J-p-gJ5bwtRs_AE9zTGPYnyfeBLI9awDY/edit?gid=0#gid=0" target="_blank" class="text-decoration-none"><div class="card h-100 link-card"><div class="card-body d-flex align-items-center gap-4 p-4"><div class="link-icon" style="background:linear-gradient(135deg,#D64294,#C01877)">☀️</div><div><div class="link-title">Estivales</div><div class="link-desc">Planilla de móviles estivales</div></div><div class="ms-auto link-arrow">→</div></div></div></a></div>
+        <div class="col-md-6"><a href="https://docs.google.com/spreadsheets/d/1Rdsif_BLgDGaQRRQA9yoFwrKVaJemT5aUV16GIuFh38/edit?gid=1131582468#gid=1131582468" target="_blank" class="text-decoration-none"><div class="card h-100 link-card"><div class="card-body d-flex align-items-center gap-4 p-4"><div class="link-icon" style="background:linear-gradient(135deg,#20c997,#0f9c6b)">📊</div><div><div class="link-title">Dispo Estivales</div><div class="link-desc">Disponibilidad de móviles estivales</div></div><div class="ms-auto link-arrow">→</div></div></div></a></div>
+        <div class="col-md-6"><a href="https://docs.google.com/spreadsheets/d/1MIr259Cim9QSP2e8CCWx387Rf4s955Mjv2VxmD7tenA/edit?gid=0#gid=0" target="_blank" class="text-decoration-none"><div class="card h-100 link-card"><div class="card-body d-flex align-items-center gap-4 p-4"><div class="link-icon" style="background:linear-gradient(135deg,#ffc107,#e6a800)">📅</div><div><div class="link-title">Horario OPS</div><div class="link-desc">Horario del equipo de operaciones</div></div><div class="ms-auto link-arrow">→</div></div></div></a></div>
+        <div class="col-md-6"><a href="https://docs.google.com/spreadsheets/d/1fQGVZtfEFMdzOmEP-7A6Cz386tp-BLexAOYHrnWOjE8/edit?gid=837177142#gid=837177142" target="_blank" class="text-decoration-none"><div class="card h-100 link-card"><div class="card-body d-flex align-items-center gap-4 p-4"><div class="link-icon" style="background:linear-gradient(135deg,#4a5b8c,#2d3a6b)">📋</div><div><div class="link-title">Dotación</div><div class="link-desc">Planilla de dotación del equipo</div></div><div class="ms-auto link-arrow">→</div></div></div></a></div>
+        <div class="col-md-6"><a href="https://script.google.com/a/macros/valdishopper.com/s/AKfycbwa1bsmxDZPuTFd9_BDnox6PvrRu3YK2Vc9o7phGrNvLK3ipLY-4tQwhUnFxx49xMGA/exec" target="_blank" class="text-decoration-none"><div class="card h-100 link-card"><div class="card-body d-flex align-items-center gap-4 p-4"><div class="link-icon" style="background:linear-gradient(135deg,#0B1C49,#1a3580)">🖥️</div><div><div class="link-title">Panel Operativo</div><div class="link-desc">Panel de operaciones del local</div></div><div class="ms-auto link-arrow">→</div></div></div></a></div>
+        <div class="col-md-6"><a href="https://script.google.com/a/macros/valdishopper.com/s/AKfycbyDNJqnQhAjLsSlnnKSVzwKmYbEGBvpxziLVv993f_qCg8KKoS8IBO8vBWwBxBGzuXziw/exec" target="_blank" class="text-decoration-none"><div class="card h-100 link-card"><div class="card-body d-flex align-items-center gap-4 p-4"><div class="link-icon" style="background:linear-gradient(135deg,#20c997,#0f9c6b)">📦</div><div><div class="link-title">Control Inventario</div><div class="link-desc">Gestión de inventario</div></div><div class="ms-auto link-arrow">→</div></div></div></a></div>
+        <div class="col-md-6"><a href="https://docs.google.com/spreadsheets/d/1v_7BdlPGrMuoVo1h1p4DoxVzLOLnhueK2geVWyVO2FE/edit?gid=338823720#gid=338823720" target="_blank" class="text-decoration-none"><div class="card h-100 link-card"><div class="card-body d-flex align-items-center gap-4 p-4"><div class="link-icon" style="background:linear-gradient(135deg,#D64294,#C01877)">🚚</div><div><div class="link-title">Flota</div><div class="link-desc">Registro de flota y vehículos</div></div><div class="ms-auto link-arrow">→</div></div></div></a></div>
+        <div class="col-md-6"><a href="https://rotor.cl/" target="_blank" class="text-decoration-none"><div class="card h-100 link-card"><div class="card-body d-flex align-items-center gap-4 p-4"><div class="link-icon" style="background:linear-gradient(135deg,#ffc107,#e6a800)">🔄</div><div><div class="link-title">Rotor</div><div class="link-desc">Plataforma Rotor.cl</div></div><div class="ms-auto link-arrow">→</div></div></div></a></div>
+        <div class="col-md-6"><a href="https://script.google.com/macros/s/AKfycbzs1S61ZwVX62ezzYEAR96pfjVfejjv8Xugi5J_Tmtyw4yZnUXGLin1T8XnJmFfDrUx/exec" target="_blank" class="text-decoration-none"><div class="card h-100 link-card"><div class="card-body d-flex align-items-center gap-4 p-4"><div class="link-icon" style="background:linear-gradient(135deg,#9c1060,#C01877)">🔐</div><div><div class="link-title">Cierres Manuales</div><div class="link-desc">Gestión de cierres manuales</div></div><div class="ms-auto link-arrow">→</div></div></div></a></div>
+      </div>
+    </div>
+
+  </div><!-- /tab-content -->
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script>
+/* ============================================================
+   ESTADO GLOBAL
+   ============================================================ */
+let appData             = null;
+let rawIngresosData     = [];
+let rawReclamosData     = [];
+let rawPagosData        = [];
+let rawIndicadoresData  = [];
+let charts              = {};
+let ingresosLoaded      = false;
+let reclamosLoaded      = false;
+let pagosLoaded         = false;
+let indicadoresLoaded   = false;
+let activacionLoaded    = false;
+let rawActivData        = [];
+let activTurnoFilter    = 'TODOS';
+let activacionView      = 'hoy';
+let rawHistStats        = [];
+let flejesLoaded = false;
+let rawFlejesData = [];
+let flejeCategoriaFiltro = 'TODAS';
+let pendientesCierreLoaded = false;
+let rawPendientesCierre    = [];
+
+const brandNavy     = '#0B1C49';
+const brandPink     = '#D64294';
+const brandDarkPink = '#C01877';
+const chartColors   = [brandNavy, brandPink, brandDarkPink, '#4a5b8c', '#e87bb6',
+                       '#9c1060', '#ffc107', '#20c997', '#6c757d', '#0dcaf0'];
+
+const IND_COLORS = {
+  'ATT':         '#0B1C49',
+  'Completitud': '#D64294',
+  'N2H':         '#20c997',
+  'OTEA':        '#ffc107',
+  'SameDay':     '#C01877'
+};
+
+/* ─── Opciones fijas de Acción Tomada ─── */
+const ACCION_OPTIONS = [
+  { value: 'Baja de dias',          label: 'Baja de días',          bg: '#f4a261', color: '#5c2a00' },
+  { value: 'Suspension Semanal',    label: 'Suspensión Semanal',    bg: '#f4a261', color: '#5c2a00' },
+  { value: 'Reinduccion',           label: 'Reinducción',           bg: '#f9e4a0', color: '#6b5500' },
+  { value: 'No se realiza gestion', label: 'No se realiza gestión', bg: '#c0392b', color: '#ffffff' },
+  { value: 'Feedback realizado',    label: 'Feedback realizado',    bg: '#27ae60', color: '#ffffff' },
+];
+const ACCION_MAP = {};
+ACCION_OPTIONS.forEach(o => { ACCION_MAP[o.value] = o; });
+
+/* ============================================================
+   BOOTSTRAP INIT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  google.script.run.withSuccessHandler(initAtrasos).withFailureHandler(handleError('atrasos')).getInitialData();
+  loadCuposData();
+  setDotDefaultDate();
+
+  document.querySelectorAll('[data-bs-toggle="pill"]').forEach(btn => {
+    btn.addEventListener('shown.bs.tab', e => {
+      const target = e.target.getAttribute('data-bs-target');
+      if (target === '#ingresos'    && !ingresosLoaded)    loadIngresosData();
+      if (target === '#reclamos'    && !reclamosLoaded)    loadReclamosData();
+      if (target === '#pagos'       && !pagosLoaded)       loadPagosData();
+      if (target === '#indicadores' && !indicadoresLoaded) loadIndicadoresData();
+      if (target === '#activacion'  && !activacionLoaded)  initActivacion();
+      if (target === '#activacion'  && !activacionLoaded)  initActivacion();
+      // Nuevo disparador
+      if (target === '#flejes'      && !flejesLoaded)      loadFlejesData();
+      if (target === '#pendientes-cierre' && !pendientesCierreLoaded) loadPendientesCierre();
+    });
+  });
+
+  // ⚡ PREFETCH: tras 1.2s, carga todas las pestañas en paralelo
+  // para que estén listas (y el caché del servidor caliente)
+  // cuando el usuario haga clic.
+  setTimeout(() => {
+    if (!ingresosLoaded)    loadIngresosData();
+    if (!reclamosLoaded)    loadReclamosData();
+    if (!pagosLoaded)       loadPagosData();
+    if (!indicadoresLoaded) loadIndicadoresData();
+    if (!activacionLoaded)  initActivacion();
+  }, 1200);
+});
+
+function handleError(module) {
+  return (err) => console.error(`[${module}]`, err.message || err);
+}
+
+function globalRefresh() {
+  ingresosLoaded = false; reclamosLoaded = false;
+  pagosLoaded = false; indicadoresLoaded = false; activacionLoaded = false;
+  // Primero borra el caché del servidor, luego recarga con datos frescos
+  google.script.run.withSuccessHandler(() => {
+    loadCuposData(true);
+    google.script.run.withSuccessHandler(initAtrasos).withFailureHandler(handleError('atrasos')).getInitialData(true);
+    const activeTarget = document.querySelector('#pills-tab .nav-link.active')?.getAttribute('data-bs-target');
+    if (activeTarget === '#ingresos')    loadIngresosData();
+    if (activeTarget === '#reclamos')    loadReclamosData();
+    if (activeTarget === '#pagos')       loadPagosData();
+    if (activeTarget === '#indicadores') loadIndicadoresData();
+    if (activeTarget === '#activacion')  initActivacion();
+    
+  }).withFailureHandler(() => {
+    loadCuposData(true);
+    google.script.run.withSuccessHandler(initAtrasos).withFailureHandler(handleError('atrasos')).getInitialData(true);
+  }).clearAllCaches();
+}
+
+/* ============================================================
+   TAB 1: CUPOS Y VENTANAS — fuente LAT Hoy (Sala 94)
+   ============================================================ */
+function loadCuposData(force) {
+  document.getElementById('loading-cupos').classList.remove('d-none');
+  document.getElementById('lathoy-container').classList.add('d-none');
+  document.getElementById('lathoy-header').classList.add('d-none');
+  google.script.run
+    .withSuccessHandler(renderLatHoy)
+    .withFailureHandler(err => renderLatHoy({ error: err.message || 'Fallo de conexión' }))
+    .getLatHoyData(force === true);
+}
+
+function renderLatHoy(data) {
+  document.getElementById('loading-cupos').classList.add('d-none');
+  const header    = document.getElementById('lathoy-header');
+  const container = document.getElementById('lathoy-container');
+  const tbody     = document.getElementById('lathoy-body');
+  tbody.innerHTML = '';
+
+  if (!data) {
+    container.classList.remove('d-none');
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">📭</div>Sin datos recibidos.</div></td></tr>`;
+    return;
+  }
+  if (data.error) {
+    container.classList.remove('d-none');
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state text-danger"><div class="icon">⚠️</div>${data.error}</div></td></tr>`;
+    return;
+  }
+
+  // Badge con la fecha/hora de actualización (celda K2 de LAT Hoy)
+  document.getElementById('lathoy-time').textContent = data.actualizacion || '—';
+  header.classList.remove('d-none');
+  container.classList.remove('d-none');
+
+  if (!data.ventanas || !data.ventanas.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">📭</div>No hay ventanas LAT para Sala 94.</div></td></tr>`;
+    return;
+  }
+
+  data.ventanas.forEach(item => {
+    const pct = item.ocupacion;
+    const barColor = pct >= 85 ? 'bg-danger' : pct >= 60 ? 'bg-warning' : 'bg-success';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="text-secondary small fw-medium text-nowrap">${item.fecha}</td>
+      <td><span class="badge bg-light text-dark border">${item.zona}</span></td>
+      <td class="fw-bold" style="color:var(--brand-navy)">${item.ventana}</td>
+      <td class="text-center fw-medium">${item.venta}</td>
+      <td class="text-center">${item.ofertado}</td>
+      <td>
+        <div class="d-flex justify-content-between" style="font-size:0.78rem;font-weight:700;color:#495057">
+          <span>${pct.toFixed(0)}%</span>
+        </div>
+        <div class="progress progress-cupo"><div class="progress-bar ${barColor}" style="width:${Math.min(pct, 100)}%"></div></div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ============================================================
+   TAB 2: ATRASOS
+   ============================================================ */
+const EXTRA_JUSTIFICACIONES = [
+  '4.3 Pedido cancelado (Cliente o stock)','4.4 Pedido reprogramado','4.5 Ferry',
+  '4.6 No gestionado por VS','4.7 Condiciones climáticas','4.8 Caída señal telefónica',
+  '4.9 Sin moradores','4.10 Dirección errónea','4.11 Accidente en ruta','4.12 Calles cerradas'
+];
+
+function initAtrasos(data) {
+  appData = data;
+  const existing = new Set((appData.justificacionOptions || []).map(o => o.trim()));
+  EXTRA_JUSTIFICACIONES.forEach(opt => { if (!existing.has(opt.trim())) appData.justificacionOptions.push(opt); });
+
+  document.getElementById('loading-spinner').classList.add('d-none');
+  document.getElementById('table-container').classList.remove('d-none');
+  document.getElementById('pendientes-filters').classList.remove('d-none');
+  buildPendientesMesFilter();
+  renderPendientes();
+  initStatsFilters();
+  renderAllCharts();
+}
+
+function buildPendientesMesFilter() {
+  const meses = [...new Set((appData.pendingAtrasos || []).map(d => d.mes))].filter(Boolean).sort((a,b)=>a-b);
+  const sel = document.getElementById('filter-pendientes-mes');
+  sel.innerHTML = '<option value="TODOS">Todos los meses</option>';
+  const nm = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  meses.forEach(m => { sel.innerHTML += `<option value="${m}">${nm[parseInt(m)] || 'Mes ' + m}</option>`; });
+}
+
+function renderPendientes() {
+  const tbody = document.getElementById('pendientes-body');
+  tbody.innerHTML = '';
+  if (!appData || !appData.pendingAtrasos) return;
+  const mesFiltro    = document.getElementById('filter-pendientes-mes').value;
+  const nombreFiltro = (document.getElementById('filter-pendientes-nombre').value || '').toLowerCase().trim();
+  const filtered = appData.pendingAtrasos.filter(item => {
+    return (mesFiltro === 'TODOS' || String(item.mes) === String(mesFiltro)) &&
+           (!nombreFiltro || (item.nombre || '').toLowerCase().includes(nombreFiltro));
+  });
+  document.getElementById('badge-pendientes-count').textContent = `${filtered.length} registros`;
+  if (filtered.length === 0) {
+    const msg = appData.pendingAtrasos.length === 0 ? '¡Excelente! No hay atrasos pendientes.' : 'Sin resultados para los filtros seleccionados.';
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">✅</div>${msg}</div></td></tr>`;
+    return;
+  }
+  filtered.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.id = 'row-' + item.rowNumber;
+    let opts = '<option value="" disabled selected>Seleccione...</option>';
+    (appData.justificacionOptions || []).forEach(opt => opts += `<option value="${opt}">${opt}</option>`);
+    tr.innerHTML = `
+      <td class="text-nowrap text-secondary small fw-medium">${item.fecha}</td>
+      <td><span class="badge bg-light text-dark border">${item.ventana}</span></td>
+      <td class="small">${item.sg}</td>
+      <td class="fw-semibold">${item.nombre}</td>
+      <td><select class="form-select form-select-sm" id="just-${item.rowNumber}">${opts}</select></td>
+      <td><input type="text" class="form-control form-control-sm" id="obs-${item.rowNumber}" placeholder="Opcional..."></td>
+      <td><button class="btn btn-brand btn-sm w-100" onclick="saveAtraso(${item.rowNumber})">Guardar</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function saveAtraso(rowNumber) {
+  const just = document.getElementById('just-' + rowNumber).value;
+  const obs  = document.getElementById('obs-'  + rowNumber).value;
+  if (!just) { alert('⚠️ Debe seleccionar una justificación.'); return; }
+  const btn = document.querySelector(`#row-${rowNumber} button`);
+  btn.disabled = true; btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
+  google.script.run.withSuccessHandler(() => {
+    document.getElementById('row-' + rowNumber).remove();
+    appData.pendingAtrasos = appData.pendingAtrasos.filter(i => i.rowNumber !== rowNumber);
+    const idx = appData.statsData.findIndex(i => i.rowNumber === rowNumber);
+    if (idx !== -1) { appData.statsData[idx].justificacion = just; appData.statsData[idx].observacion = obs; }
+    document.getElementById('badge-pendientes-count').textContent = `${appData.pendingAtrasos.length} registros`;
+    if (appData.pendingAtrasos.length === 0) renderPendientes();
+    renderAllCharts();
+  }).updateAtraso(rowNumber, just, obs);
+}
+
+/* ============================================================
+   TAB 3: ANÁLISIS — Switch Atrasos / Reclamos
+   ============================================================ */
+let analisisView = 'atrasos';
+
+function setAnalisisView(view) {
+  analisisView = view;
+  document.getElementById('toggle-atrasos').classList.toggle('active', view === 'atrasos');
+  document.getElementById('toggle-reclamos').classList.toggle('active', view === 'reclamos');
+  document.getElementById('analisis-atrasos-view').classList.toggle('d-none', view !== 'atrasos');
+  document.getElementById('analisis-reclamos-view').classList.toggle('d-none', view !== 'reclamos');
+  if (view === 'atrasos') {
+    renderAllCharts();
+  } else {
+    loadReclamosAnalisis();
+  }
+}
+
+function loadReclamosAnalisis() {
+  if (rawReclamosData && rawReclamosData.length) {
+    document.getElementById('loading-reclamos-analisis').classList.add('d-none');
+    document.getElementById('reclamos-analisis-loaded').classList.remove('d-none');
+    buildRecAnAnioOptions();
+    renderReclamosAnalisis();
+    return;
+  }
+  document.getElementById('loading-reclamos-analisis').classList.remove('d-none');
+  document.getElementById('reclamos-analisis-loaded').classList.add('d-none');
+  google.script.run
+    .withSuccessHandler(data => {
+      document.getElementById('loading-reclamos-analisis').classList.add('d-none');
+      document.getElementById('reclamos-analisis-loaded').classList.remove('d-none');
+      if (data && data.error) { alert('Error: '+data.error); return; }
+      rawReclamosData = data || [];
+      buildRecAnAnioOptions();
+      renderReclamosAnalisis();
+    })
+    .withFailureHandler(err => {
+      document.getElementById('loading-reclamos-analisis').classList.add('d-none');
+      alert('Error al cargar reclamos: '+err.message);
+    })
+    .getReclamosData();
+}
+
+const MESES_NOMBRES = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+function buildRecAnAnioOptions() {
+  const sel = document.getElementById('rec-an-anio');
+  const cur = sel.value;
+  const anios = [...new Set(rawReclamosData.map(r => r.anio).filter(Boolean))].sort((a,b)=>b-a);
+  sel.innerHTML = '<option value="TODOS">Todos</option>' + anios.map(a=>`<option value="${a}">${a}</option>`).join('');
+  if (anios.includes(parseInt(cur))) sel.value = cur;
+  buildRecAnMesOptions();
+}
+
+function buildRecAnMesOptions() {
+  const anio = document.getElementById('rec-an-anio').value;
+  const sel  = document.getElementById('rec-an-mes');
+  const cur  = sel.value;
+  const base = anio === 'TODOS' ? rawReclamosData : rawReclamosData.filter(r => String(r.anio) === String(anio));
+  const meses = [...new Set(base.map(r => r.fechaISO ? parseInt(r.fechaISO.substring(5,7)) : null).filter(Boolean))].sort((a,b)=>a-b);
+  sel.innerHTML = '<option value="TODOS">Todos</option>' + meses.map(m=>`<option value="${m}">${MESES_NOMBRES[m]||m}</option>`).join('');
+  if (meses.includes(parseInt(cur))) sel.value = cur;
+  buildRecAnSemanaOptions();
+}
+
+function buildRecAnSemanaOptions() {
+  const anio = document.getElementById('rec-an-anio').value;
+  const mes  = document.getElementById('rec-an-mes').value;
+  const sel  = document.getElementById('rec-an-semana');
+  const cur  = sel.value;
+  let base = rawReclamosData;
+  if (anio !== 'TODOS') base = base.filter(r => String(r.anio) === String(anio));
+  if (mes  !== 'TODOS') base = base.filter(r => r.fechaISO && parseInt(r.fechaISO.substring(5,7)) === parseInt(mes));
+  const sems = [...new Set(base.map(r => r.semana).filter(Boolean))].sort((a,b)=>a-b);
+  sel.innerHTML = '<option value="TODOS">Todas</option>' + sems.map(s=>`<option value="${s}">Sem ${s}</option>`).join('');
+  if (sems.includes(parseInt(cur))) sel.value = cur;
+}
+
+function onRecAnFilterChange(level) {
+  if (level === 'anio') { buildRecAnMesOptions(); buildRecAnSemanaOptions(); }
+  if (level === 'mes')  buildRecAnSemanaOptions();
+  renderReclamosAnalisis();
+}
+
+function getRecAnFiltered() {
+  const desde = document.getElementById('rec-an-desde').value;
+  const hasta = document.getElementById('rec-an-hasta').value;
+  const anio  = document.getElementById('rec-an-anio').value;
+  const mes   = document.getElementById('rec-an-mes').value;
+  const sem   = document.getElementById('rec-an-semana').value;
+  return rawReclamosData.filter(r => {
+    if (desde && r.fechaISO && r.fechaISO < desde) return false;
+    if (hasta && r.fechaISO && r.fechaISO > hasta) return false;
+    if (anio !== 'TODOS' && String(r.anio) !== String(anio)) return false;
+    const rMes = r.fechaISO ? parseInt(r.fechaISO.substring(5,7)) : null;
+    if (mes !== 'TODOS' && String(rMes) !== String(mes)) return false;
+    if (sem !== 'TODOS' && String(r.semana) !== String(sem)) return false;
+    return true;
+  });
+}
+
+function renderReclamosAnalisis() {
+  const filtered = getRecAnFiltered();
+  document.getElementById('rec-an-count').textContent = `${filtered.length} reclamos`;
+  const pend = filtered.filter(isReclamoSinRevision).length;
+  document.getElementById('kpi-an-reclamos-total').innerText      = filtered.length;
+  document.getElementById('kpi-an-reclamos-pendientes').innerText = pend;
+  drawChart('chart-an-reclamos-causas',   'doughnut', aggregateData(filtered,'causa').sort((a,b)=>b.count-a.count).slice(0,10), { colors:chartColors, unidad:'reclamos' });
+  drawChart('chart-an-reclamos-shoppers', 'bar',      aggregateData(filtered,'shopper').sort((a,b)=>b.count-a.count).slice(0,10), { indexAxis:'y', color:brandPink, unidad:'reclamos' });
+  const aplicaAgg = {};
+  filtered.forEach(r => {
+    let key = String(r.aplica || '').trim();
+    if (!key) key = 'Sin revisar';
+    else if (key.toLowerCase() === 'aplica') key = 'Aplica';
+    else if (key.toLowerCase() === 'no aplica') key = 'No aplica';
+    aplicaAgg[key] = (aplicaAgg[key] || 0) + 1;
+  });
+  drawChart('chart-an-reclamos-aplica', 'doughnut', Object.keys(aplicaAgg).map(k => ({ label:k, count:aplicaAgg[k] })), { colors:[brandNavy, brandPink, '#ffc107'], unidad:'reclamos' });
+  drawChart('chart-an-reclamos-acciones', 'bar', aggregateData(filtered,'accion',true).sort((a,b)=>b.count-a.count).slice(0,10), { indexAxis:'y', color:brandDarkPink, unidad:'reclamos' });
+  renderDescripcionesChart(filtered);
+  renderFeedbackCards(filtered);
+}
+
+function renderDescripcionesChart(filtered) {
+  const raw = aggregateData(filtered,'descripcion',true).sort((a,b)=>b.count-a.count).slice(0,15);
+  const truncated = raw.map(d => ({ label: d.label.length > 70 ? d.label.substring(0,67)+'...' : d.label, count: d.count }));
+  drawChart('chart-an-reclamos-descripciones', 'bar', truncated, { indexAxis:'y', color:'#6366f1', unidad:'reclamos' });
+}
+
+function renderFeedbackCards(filtered) {
+  const container = document.getElementById('rec-an-feedback-cards');
+  const byShop = {};
+  filtered.forEach(r => {
+    const s = String(r.shopper || 'Sin nombre').trim();
+    if (!byShop[s]) byShop[s] = [];
+    byShop[s].push(r);
+  });
+  const shoppers = Object.keys(byShop).sort((a,b) => byShop[b].length - byShop[a].length);
+  document.getElementById('rec-an-feedback-count').textContent = `${shoppers.length} shoppers`;
+  container.innerHTML = shoppers.map(s => {
+    const recs = byShop[s];
+    const total = recs.length;
+    const aplica = recs.filter(r => String(r.aplica||'').toLowerCase() === 'aplica').length;
+    const pct = total ? Math.round(aplica/total*100) : 0;
+    const causas = {};
+    recs.forEach(r => { const c = r.causa||'Sin causa'; causas[c]=(causas[c]||0)+1; });
+    const topCausa = Object.keys(causas).sort((a,b)=>causas[b]-causas[a])[0]||'–';
+    const pend = recs.filter(isReclamoSinRevision).length;
+    return `
+      <div class="col-lg-3 col-md-4 col-sm-6">
+        <div class="card h-100 shadow-sm border-0" style="border-left:4px solid var(--brand-pink)!important">
+          <div class="card-body p-3">
+            <h6 class="fw-bold mb-2" style="color:var(--brand-navy)">${s}</h6>
+            <div class="d-flex justify-content-between small text-muted mb-1">
+              <span>Total reclamos</span><span class="fw-bold text-dark">${total}</span>
+            </div>
+            <div class="d-flex justify-content-between small text-muted mb-1">
+              <span>Aplica %</span><span class="fw-bold" style="color:${pct>50?'#dc3545':'#198754'}">${pct}%</span>
+            </div>
+            <div class="d-flex justify-content-between small text-muted mb-1">
+              <span>Pendientes</span><span class="fw-bold" style="color:${pend>0?'#dc3545':'#198754'}">${pend}</span>
+            </div>
+            <div class="small text-muted mb-2">
+              <span>Top causa:</span> <span class="fw-bold text-dark">${topCausa.length>28?topCausa.substring(0,25)+'...':topCausa}</span>
+            </div>
+            <button class="btn btn-sm w-100" style="background:var(--brand-navy);color:#fff;font-size:0.75rem"
+              onclick="abrirFeedbackShopper('${s.replace(/'/g,"\\'")}')">Ver Feedback</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function abrirFeedbackShopper(nombre) {
+  const recs = rawReclamosData.filter(r => String(r.shopper||'').trim() === nombre);
+  document.getElementById('modal-shopper-nombre').textContent = `Feedback: ${nombre}`;
+  const total  = recs.length;
+  const aplica = recs.filter(r => String(r.aplica||'').toLowerCase() === 'aplica').length;
+  const noAp   = recs.filter(r => String(r.aplica||'').toLowerCase() === 'no aplica').length;
+  const pend   = recs.filter(isReclamoSinRevision).length;
+  document.getElementById('modal-shopper-kpis').innerHTML = `
+    <div class="col-3"><div class="card kpi-card"><div class="card-body p-2 text-center"><div class="kpi-title" style="font-size:.7rem">Total</div><div class="kpi-value" style="font-size:1.6rem">${total}</div></div></div></div>
+    <div class="col-3"><div class="card kpi-card" style="border-left-color:#dc3545"><div class="card-body p-2 text-center"><div class="kpi-title" style="font-size:.7rem">Aplica</div><div class="kpi-value" style="font-size:1.6rem;color:#dc3545">${aplica}</div></div></div></div>
+    <div class="col-3"><div class="card kpi-card" style="border-left-color:#198754"><div class="card-body p-2 text-center"><div class="kpi-title" style="font-size:.7rem">No Aplica</div><div class="kpi-value" style="font-size:1.6rem;color:#198754">${noAp}</div></div></div></div>
+    <div class="col-3"><div class="card kpi-card" style="border-left-color:var(--brand-dark-pink)"><div class="card-body p-2 text-center"><div class="kpi-title" style="font-size:.7rem">Pendientes</div><div class="kpi-value" style="font-size:1.6rem;color:var(--brand-dark-pink)">${pend}</div></div></div></div>`;
+  const tbody = document.querySelector('#modal-shopper-tabla tbody');
+  tbody.innerHTML = recs.sort((a,b) => (b.fechaISO||'').localeCompare(a.fechaISO||'')).map(r => `
+    <tr>
+      <td>${r.fecha||''}</td>
+      <td>${r.sg||''}</td>
+      <td><span class="badge" style="background:var(--brand-pink);font-size:.72rem">${r.causa||''}</span></td>
+      <td style="max-width:220px;font-size:.8rem">${r.descripcion||''}</td>
+      <td>${r.aplica ? `<span class="badge ${String(r.aplica).toLowerCase()==='aplica'?'bg-danger':'bg-success'}">${r.aplica}</span>` : '<span class="badge bg-secondary">Pendiente</span>'}</td>
+      <td style="font-size:.8rem">${r.accion||''}</td>
+      <td style="font-size:.8rem">${r.comentario||''}</td>
+    </tr>`).join('');
+  new bootstrap.Modal(document.getElementById('modal-shopper-feedback')).show();
+}
+
+function resetReclamosAnalisisFiltros() {
+  document.getElementById('rec-an-desde').value = '';
+  document.getElementById('rec-an-hasta').value = '';
+  document.getElementById('rec-an-anio').value   = 'TODOS';
+  buildRecAnMesOptions();
+  buildRecAnSemanaOptions();
+  renderReclamosAnalisis();
+}
+
+function setRecAnLastDays(days) {
+  const today = new Date();
+  const from  = new Date(today); from.setDate(from.getDate() - days);
+  document.getElementById('rec-an-hasta').value = today.toISOString().slice(0,10);
+  document.getElementById('rec-an-desde').value = from.toISOString().slice(0,10);
+  document.getElementById('rec-an-anio').value  = 'TODOS';
+  buildRecAnMesOptions();
+  buildRecAnSemanaOptions();
+  renderReclamosAnalisis();
+}
+
+/* ============================================================
+   TAB 3: ANÁLISIS — Atrasos (filtros)
+   ============================================================ */
+function initStatsFilters() {
+  if (!appData || !appData.statsData) return;
+  buildAnioOptions(); buildMesOptions(); buildSemanaOptions();
+}
+function onFilterChange(level) {
+  if (level === 'anio') { buildMesOptions(); buildSemanaOptions(); }
+  if (level === 'mes')  buildSemanaOptions();
+  renderAllCharts();
+}
+function buildAnioOptions() {
+  const sel = document.getElementById('filter-anio'), cur = sel.value;
+  const anios = [...new Set(appData.statsData.map(d=>d.anio))].filter(Boolean).sort((a,b)=>b-a);
+  sel.innerHTML = '<option value="TODOS">Todos los años</option>';
+  anios.forEach(a => sel.innerHTML += `<option value="${a}">${a}</option>`);
+  if (anios.includes(Number(cur)) || anios.includes(cur)) sel.value = cur;
+}
+function buildMesOptions() {
+  const anio = document.getElementById('filter-anio').value, sel = document.getElementById('filter-mes'), cur = sel.value;
+  let base = appData.statsData;
+  if (anio !== 'TODOS') base = base.filter(d => String(d.anio) === String(anio));
+  const meses = [...new Set(base.map(d=>d.mes))].filter(Boolean).sort((a,b)=>a-b);
+  const nm = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  sel.innerHTML = '<option value="TODOS">Todos los meses</option>';
+  meses.forEach(m => sel.innerHTML += `<option value="${m}">${nm[parseInt(m)]||'Mes '+m}</option>`);
+  sel.value = (meses.includes(Number(cur))||meses.includes(cur)) ? cur : 'TODOS';
+}
+function buildSemanaOptions() {
+  const anio = document.getElementById('filter-anio').value, mes = document.getElementById('filter-mes').value;
+  const sel = document.getElementById('filter-semana'), cur = sel.value;
+  let base = appData.statsData;
+  if (anio !== 'TODOS') base = base.filter(d => String(d.anio)===String(anio));
+  if (mes  !== 'TODOS') base = base.filter(d => String(d.mes) ===String(mes));
+  const semanas = [...new Set(base.map(d=>d.semana))].filter(Boolean).sort((a,b)=>a-b);
+  sel.innerHTML = '<option value="TODOS">Todas las semanas</option>';
+  semanas.forEach(s => sel.innerHTML += `<option value="${s}">Semana ${s}</option>`);
+  sel.value = (semanas.includes(Number(cur))||semanas.includes(cur)) ? cur : 'TODOS';
+}
+function resetFilters() {
+  document.getElementById('filter-anio').value = 'TODOS';
+  buildMesOptions(); buildSemanaOptions(); renderAllCharts();
+}
+function getFilteredData() {
+  const anio = document.getElementById('filter-anio').value;
+  const mes  = document.getElementById('filter-mes').value;
+  const sem  = document.getElementById('filter-semana').value;
+  return (appData.statsData || []).filter(d =>
+    (anio==='TODOS'||String(d.anio)===String(anio)) &&
+    (mes ==='TODOS'||String(d.mes) ===String(mes))  &&
+    (sem ==='TODOS'||String(d.semana)===String(sem))
+  );
+}
+function aggregateData(arr, key, ignoreBlanks=false) {
+  const counts = {};
+  arr.forEach(item => {
+    let val = item[key];
+    if (!val || String(val).trim() === '') { if (ignoreBlanks) return; val = 'Pendiente / Sin Asignar'; }
+    counts[val] = (counts[val]||0)+1;
+  });
+  return Object.keys(counts).map(k => ({ label:k, count:counts[k] }));
+}
+function renderAllCharts() {
+  if (!appData) return;
+  const data = getFilteredData();
+  const pendientes = data.filter(d => !d.justificacion || String(d.justificacion).trim() === '').length;
+  document.getElementById('kpi-total').innerText      = data.length;
+  document.getElementById('kpi-pendientes').innerText  = pendientes;
+  const justData = aggregateData(data, 'justificacion', true).sort((a,b)=>b.count-a.count);
+  const topProb = justData[0] ? justData[0].label : 'N/A';
+  document.getElementById('kpi-top-problema').innerText = topProb;
+  document.getElementById('kpi-top-problema').title = topProb;
+  drawChart('chart-justificaciones', 'bar', justData, { indexAxis:'y', color:brandDarkPink, unidad:'atrasos' });
+  drawChart('chart-shoppers',        'bar', aggregateData(data,'nombre').sort((a,b)=>b.count-a.count).slice(0,10), { indexAxis:'y', color:brandNavy, unidad:'atrasos' });
+  drawChart('chart-tendencia',       'line', aggregateData(data,'semana').sort((a,b)=>parseInt(a.label)-parseInt(b.label)), { color:brandPink, unidad:'atrasos' });
+  drawChart('chart-ventanas',        'bar', aggregateData(data,'ventana').sort((a,b)=>a.label.localeCompare(b.label)), { color:brandNavy, unidad:'atrasos' });
+  drawChart('chart-responsabilidad', 'doughnut', aggregateData(data,'responsabilidad').sort((a,b)=>b.count-a.count), { colors:chartColors, unidad:'atrasos' });
+}
+function hexToRgba(hex, alpha) {
+  const c = hex.replace('#','');
+  return `rgba(${parseInt(c.slice(0,2),16)},${parseInt(c.slice(2,4),16)},${parseInt(c.slice(4,6),16)},${alpha})`;
+}
+function drawChart(canvasId, type, aggregatedData, options={}) {
+  const el = document.getElementById(canvasId); if (!el) return;
+  const ctx = el.getContext('2d');
+  if (charts[canvasId]) charts[canvasId].destroy();
+ 
+  const labels = aggregatedData.map(d=>d.label), values = aggregatedData.map(d=>d.count);
+  const total  = values.reduce((a,b)=>a+b,0);
+  const unidad = options.unidad || 'atrasos';
+ 
+  const dataset = {
+    label:'Total', data:values,
+    backgroundColor: options.colors || (type==='line' ? hexToRgba(options.color,0.18) : options.color),
+    borderColor: options.colors ? '#fff' : options.color,
+    borderWidth: type==='line' ? 3 : 1, borderRadius: type==='bar' ? 5 : 0,
+    fill: type==='line', tension:0.35, pointBackgroundColor:options.color, pointRadius:type==='line'?4:0,
+  };
+  const scaleY = { beginAtZero:true, ticks:{ stepSize:1, precision:0 } };
+ 
+  const configOpts = {
+    responsive:true, maintainAspectRatio:false,
+    layout: { padding: { top: type==='doughnut' ? 0 : (options.indexAxis==='y' ? 0 : 22), right: options.indexAxis==='y' ? 36 : 0 } },
+    plugins:{
+      legend:{ display:type==='doughnut', position:'bottom', labels:{padding:12,font:{size:11}} },
+      tooltip:{
+        callbacks:{
+          label: ctx => {
+            const val = ctx.parsed[options.indexAxis==='y' ? 'x' : (type==='doughnut'?undefined:'y')] ?? ctx.parsed;
+            const v = type==='doughnut' ? ctx.parsed : val;
+            const pct = total > 0 ? ((v/total)*100).toFixed(1) : '0.0';
+            return ` ${v} ${unidad} (${pct}% del total)`;
+          }
+        }
+      },
+      datalabels: {
+        color: type==='doughnut' ? '#fff' : '#495057',
+        font: { weight:'700', size: 11 },
+        formatter: (value) => {
+          if (!value) return '';
+          if (type==='doughnut') {
+            const pct = total > 0 ? ((value/total)*100).toFixed(0) : 0;
+            return value + '\n(' + pct + '%)';
+          }
+          return value;
+        },
+        anchor: type==='doughnut' ? 'center' : (options.indexAxis==='y' ? 'end' : 'end'),
+        align:  type==='doughnut' ? 'center' : (options.indexAxis==='y' ? 'end' : 'top'),
+        offset: type==='doughnut' ? 0 : 4,
+        textAlign: 'center',
+        display: (ctx) => {
+          const v = ctx.dataset.data[ctx.dataIndex];
+          return v !== null && v !== 0;
+        }
+      }
+    }
+  };
+ 
+  if (options.indexAxis === 'y') {
+    configOpts.indexAxis = 'y';
+    configOpts.scales = { x: scaleY, y: { ticks: { autoSkip:false } } };
+  } else if (type !== 'doughnut') {
+    configOpts.scales = { y: scaleY };
+  }
+ 
+  // Footer con el total general, solo para barras/doughnut con datos
+  if (total > 0 && (type==='bar' || type==='doughnut')) {
+    configOpts.plugins.tooltip.footerFont = { weight:'normal', size:10 };
+    configOpts.plugins.tooltip.footer = () => `Total general: ${total} ${unidad}`;
+  }
+ 
+  charts[canvasId] = new Chart(ctx, {
+    type, data:{labels, datasets:[dataset]}, options:configOpts,
+    plugins: [ChartDataLabels]
+  });
+}
+
+/* ============================================================
+   TAB 4: INGRESOS
+   ============================================================ */
+let ingresosEstadoFilter = 'TODOS';
+
+function loadIngresosData() {
+  ingresosLoaded = true;
+  document.getElementById('loading-ingresos').classList.remove('d-none');
+  document.getElementById('ingresos-loaded').classList.add('d-none');
+  google.script.run
+    .withSuccessHandler(processIngresos)
+    .withFailureHandler(err => { document.getElementById('loading-ingresos').classList.add('d-none'); alert('Error al cargar ingresos: '+err.message); })
+    .getIngresosData();
+}
+function processIngresos(data) {
+  document.getElementById('loading-ingresos').classList.add('d-none');
+  document.getElementById('ingresos-loaded').classList.remove('d-none');
+  if (data && data.error) { alert('Error servidor: '+data.error); return; }
+  rawIngresosData = data || [];
+  ingresosEstadoFilter = 'TODOS';
+  const anios = [...new Set(rawIngresosData.map(i=>i.anio).filter(Boolean))].sort((a,b)=>b-a);
+  const selAnio = document.getElementById('filter-ingresos-anio');
+  selAnio.innerHTML = '<option value="TODOS">Todos</option>';
+  anios.forEach(a => selAnio.innerHTML += `<option value="${a}">${a}</option>`);
+  buildIngresosSemanaOptions();
+  renderIngresosCurrent();
+}
+function buildIngresosSemanaOptions() {
+  const anio = document.getElementById('filter-ingresos-anio').value;
+  const sel  = document.getElementById('filter-ingresos-semana');
+  const cur  = sel.value;
+  let base = rawIngresosData;
+  if (anio !== 'TODOS') base = base.filter(i => String(i.anio) === String(anio));
+  const semanas = [...new Set(base.map(i=>i.semana).filter(Boolean))].sort((a,b)=>a-b);
+  sel.innerHTML = '<option value="TODOS">Todas las semanas</option>';
+  semanas.forEach(s => sel.innerHTML += `<option value="${s}">Semana ${s}</option>`);
+  sel.value = (semanas.includes(Number(cur)) || semanas.includes(cur)) ? cur : 'TODOS';
+}
+function onIngresosFilterChange() {
+  buildIngresosSemanaOptions();
+  renderIngresosCurrent();
+}
+function renderIngresosCurrent() {
+  const anio   = document.getElementById('filter-ingresos-anio').value;
+  const semana = document.getElementById('filter-ingresos-semana').value;
+  let base = rawIngresosData.filter(i =>
+    (anio   === 'TODOS' || String(i.anio)   === String(anio)) &&
+    (semana === 'TODOS' || String(i.semana) === String(semana))
+  );
+  const estados = [...new Set(base.map(i=>i.estadoInduccion))].filter(Boolean);
+  const container = document.getElementById('subtabs-estados-container');
+  container.innerHTML = `<button class="estado-pill ${ingresosEstadoFilter==='TODOS'?'active':''}" onclick="filterIngresosByEstado('TODOS',this)">Todos (${base.length})</button>`;
+  estados.forEach(est => {
+    const cnt = base.filter(d=>d.estadoInduccion===est).length;
+    const safe = est.replace(/'/g,"\\'");
+    container.innerHTML += `<button class="estado-pill ${ingresosEstadoFilter===est?'active':''}" onclick="filterIngresosByEstado('${safe}',this)">${est} (${cnt})</button>`;
+  });
+  const finalList = ingresosEstadoFilter === 'TODOS' ? base : base.filter(i=>i.estadoInduccion===ingresosEstadoFilter);
+  document.getElementById('badge-ingresos-count').textContent = `${finalList.length} registros`;
+  renderIngresosTable(finalList);
+}
+function filterIngresosByEstado(estado, btn) {
+  ingresosEstadoFilter = estado;
+  document.querySelectorAll('#subtabs-estados-container .estado-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderIngresosCurrent();
+}
+function renderIngresosTable(list) {
+  const tbody = document.getElementById('ingresos-body');
+  tbody.innerHTML = '';
+  if (!list.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">📭</div>Sin registros.</div></td></tr>`; return; }
+  list.forEach(item => {
+    const lower = (item.estadoInduccion||'').toLowerCase();
+    const badge = lower.includes('aprobado')||lower.includes('ok') ? 'bg-success'
+                : lower.includes('reprobad')||lower.includes('no') ? 'bg-danger'
+                : lower.includes('pendient') ? 'bg-warning text-dark' : 'bg-secondary';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="text-nowrap text-secondary small fw-medium">${item.fecha}${item.semana ? ` <span class="badge bg-light text-muted border ms-1" style="font-size:0.65rem">S${item.semana}</span>` : ''}</td>
+      <td><div class="fw-bold" style="color:var(--brand-navy)">${item.nombre}</div><small class="text-muted">${item.rut}</small></td>
+      <td><span class="badge bg-light text-dark border">${item.servicio}</span></td>
+      <td><span class="badge ${badge} status-badge">${item.estadoInduccion}</span></td>
+      <td class="fw-medium">${item.bolso}</td>
+      <td><a href="tel:${item.telefono}" class="text-decoration-none" style="color:var(--brand-pink);font-weight:600">${item.telefono}</a></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ============================================================
+   TAB 5: RECLAMOS
+   ============================================================ */
+function loadReclamosData() {
+  reclamosLoaded = true;
+  document.getElementById('loading-reclamos').classList.remove('d-none');
+  document.getElementById('reclamos-loaded').classList.add('d-none');
+  google.script.run
+    .withSuccessHandler(processReclamos)
+    .withFailureHandler(err => { document.getElementById('loading-reclamos').classList.add('d-none'); alert('Error: '+err.message); })
+    .getReclamosData();
+}
+
+function processReclamos(data) {
+  document.getElementById('loading-reclamos').classList.add('d-none');
+  document.getElementById('reclamos-loaded').classList.remove('d-none');
+  if (data && data.error) { alert('Error: '+data.error); return; }
+  rawReclamosData = data || [];
+  renderReclamosDashboard();
+  filterReclamosByStatus();
+}
+
+function isReclamoSinRevision(item) {
+  const aplica     = String(item.aplica     || '').trim();
+  const accion     = String(item.accion     || '').trim();
+  const comentario = String(item.comentario || '').trim();
+  return aplica === '' && accion === '' && comentario === '';
+}
+
+function renderReclamosDashboard() {
+  const pend = rawReclamosData.filter(isReclamoSinRevision).length;
+  document.getElementById('kpi-reclamos-total').innerText      = rawReclamosData.length;
+  document.getElementById('kpi-reclamos-pendientes').innerText = pend;
+ drawChart('chart-reclamos-causas',   'doughnut', aggregateData(rawReclamosData,'causa').sort((a,b)=>b.count-a.count).slice(0,10), { colors:chartColors, unidad:'reclamos' });
+  drawChart('chart-reclamos-shoppers', 'bar',      aggregateData(rawReclamosData,'shopper').sort((a,b)=>b.count-a.count).slice(0,10), { indexAxis:'y', color:brandPink, unidad:'reclamos' });
+}
+
+function filterReclamosByStatus() {
+  const isChecked = document.getElementById('switch-revision').checked;
+  const label = document.getElementById('label-switch-revision');
+  label.innerHTML = isChecked ? '✅ Mostrando: Revisados (Con Información)' : '👀 Mostrando: Sin Revisión (Pendientes)';
+  renderReclamosTable(rawReclamosData.filter(isChecked ? i=>!isReclamoSinRevision(i) : isReclamoSinRevision));
+}
+
+function renderReclamosTable(list) {
+  const tbody = document.getElementById('reclamos-body');
+  tbody.innerHTML = '';
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">📭</div>No hay reclamos.</div></td></tr>`;
+    return;
+  }
+
+  list.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.id = 'rec-row-' + item.rowNumber;
+    const opt = String(item.aplica || '').trim().toLowerCase();
+
+    const accionOpts = ACCION_OPTIONS.map(o =>
+      `<option value="${o.value}" ${item.accion === o.value ? 'selected' : ''}>${o.label}</option>`
+    ).join('');
+
+    tr.innerHTML = `
+      <td class="text-nowrap text-secondary small fw-medium">${item.fecha}</td>
+      <td class="fw-bold">${item.sg}</td>
+      <td>
+        <div class="small text-muted text-uppercase fw-bold"
+             style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+             title="${item.causa}">${item.causa}</div>
+        <div class="small fw-semibold text-secondary">${item.shopper}</div>
+      </td>
+      <td><div class="small" style="max-height:58px;overflow-y:auto;line-height:1.25">${item.descripcion}</div></td>
+      <td>
+        <select class="form-select form-select-sm" id="rec-aplica-${item.rowNumber}">
+          <option value="" ${opt === '' ? 'selected' : ''}>- Seleccione -</option>
+          <option value="Aplica"    ${opt === 'aplica'    ? 'selected' : ''}>Aplica</option>
+          <option value="No aplica" ${opt === 'no aplica' ? 'selected' : ''}>No aplica</option>
+        </select>
+      </td>
+      <td>
+        <select class="form-select form-select-sm accion-select"
+                id="rec-accion-${item.rowNumber}"
+                onchange="styleAccionSelect(this)">
+          <option value="">- Acción -</option>
+          ${accionOpts}
+        </select>
+      </td>
+      <td>
+        <input type="text" class="form-control form-control-sm"
+               id="rec-obs-${item.rowNumber}"
+               value="${item.comentario || ''}"
+               placeholder="Notas...">
+      </td>
+      <td class="text-center">
+        <button class="btn btn-brand btn-sm px-2" title="Guardar"
+                onclick="saveReclamo(${item.rowNumber})">💾</button>
+      </td>`;
+    tbody.appendChild(tr);
+
+    const selEl = document.getElementById('rec-accion-' + item.rowNumber);
+    styleAccionSelect(selEl);
+  });
+}
+
+function styleAccionSelect(sel) {
+  const opt = ACCION_MAP[sel.value];
+  if (opt) {
+    sel.style.backgroundColor = opt.bg;
+    sel.style.color            = opt.color;
+    sel.style.fontWeight       = '700';
+    sel.style.borderColor      = opt.bg;
+  } else {
+    sel.style.backgroundColor = '';
+    sel.style.color            = '';
+    sel.style.fontWeight       = '';
+    sel.style.borderColor      = '';
+  }
+}
+
+function saveReclamo(rowNumber) {
+  const aplica = document.getElementById('rec-aplica-' + rowNumber).value;
+  const accion = document.getElementById('rec-accion-' + rowNumber).value;
+  const coment = document.getElementById('rec-obs-'    + rowNumber).value;
+  if (!aplica) { alert("⚠️ Debe clasificar si el reclamo 'Aplica' o 'No aplica'."); return; }
+  const btn = document.querySelector(`#rec-row-${rowNumber} button`), orig = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = `<span class="spinner-border spinner-border-sm" style="width:12px;height:12px"></span>`;
+  google.script.run
+    .withSuccessHandler(() => {
+      const idx = rawReclamosData.findIndex(i=>i.rowNumber===rowNumber);
+      if (idx !== -1) { rawReclamosData[idx].aplica=aplica; rawReclamosData[idx].accion=accion; rawReclamosData[idx].comentario=coment; }
+      btn.className='btn btn-success btn-sm px-2'; btn.innerHTML='✓';
+      setTimeout(() => { renderReclamosDashboard(); filterReclamosByStatus(); }, 600);
+    })
+    .withFailureHandler(err => { btn.disabled=false; btn.innerHTML=orig; alert('Error al guardar: '+err.message); })
+    .updateReclamo(rowNumber, aplica, accion, coment);
+}
+
+/* ============================================================
+   TAB 6: PAGOS EXTRA
+   ============================================================ */
+function formatRut(input) {
+  let val = input.value.replace(/[^0-9kK]/g,'').toUpperCase();
+  if (val.length > 1) val = val.slice(0,-1)+'-'+val.slice(-1);
+  input.value = val;
+}
+function setDefaultDate() {
+  const el = document.getElementById('pago-fecha');
+  if (el && !el.value) el.value = new Date().toISOString().slice(0,10);
+}
+function loadPagosData() {
+  pagosLoaded = true; setDefaultDate();
+  document.getElementById('loading-pagos').classList.remove('d-none');
+  document.getElementById('pagos-loaded').classList.add('d-none');
+  google.script.run
+    .withSuccessHandler(processPagos)
+    .withFailureHandler(err => { document.getElementById('loading-pagos').classList.add('d-none'); showPagoAlert('danger','Error: '+err.message); })
+    .getPagosExtraData();
+}
+function processPagos(data) {
+  document.getElementById('loading-pagos').classList.add('d-none');
+  document.getElementById('pagos-loaded').classList.remove('d-none');
+  if (data && data.error) { showPagoAlert('danger','Error servidor: '+data.error); return; }
+  rawPagosData = data || [];
+  renderPagosKpis(); renderPagosTable(rawPagosData);
+}
+function renderPagosKpis() {
+  const total=rawPagosData.length, pend=rawPagosData.filter(p=>p.estado==='Pendiente').length, cons=rawPagosData.filter(p=>p.estado==='Considerado').length;
+  if (total>0) document.getElementById('pagos-kpis').style.removeProperty('display');
+  document.getElementById('kpi-pagos-total').innerText=total;
+  document.getElementById('kpi-pagos-pendientes').innerText=pend;
+  document.getElementById('kpi-pagos-considerados').innerText=cons;
+}
+let currentPagoFilter = 'TODOS';
+function filterPagosByEstado(estado, btn) {
+  currentPagoFilter = estado;
+  document.querySelectorAll('#pagos .estado-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPagosTable(estado==='TODOS' ? rawPagosData : rawPagosData.filter(p=>p.estado===estado));
+}
+function renderPagosTable(list) {
+  const tbody = document.getElementById('pagos-body');
+  tbody.innerHTML = '';
+  document.getElementById('pagos-count-label').textContent = `${list.length} registro${list.length!==1?'s':''}`;
+  if (!list.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">💸</div>Sin registros.</div></td></tr>`; return; }
+  list.forEach(item => {
+    const isPend = item.estado==='Pendiente';
+    const montoFmt = Number(item.monto).toLocaleString('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0});
+    const tr = document.createElement('tr');
+    tr.id = `pago-row-${item.rowNumber}`;
+    tr.innerHTML = `
+      <td class="fw-semibold" style="color:var(--brand-navy)">${item.rut}</td>
+      <td class="text-center"><span class="badge bg-light text-dark border">${item.local}</span></td>
+      <td class="text-secondary small fw-medium">${item.fecha}</td>
+      <td>${item.apoyo}</td>
+      <td class="fw-bold" style="color:var(--brand-navy)">${montoFmt}</td>
+      <td class="text-center">
+        <button class="chip-estado ${isPend?'chip-pendiente':'chip-considerado'}" id="chip-${item.rowNumber}" onclick="toggleEstadoPago(${item.rowNumber})">
+          ${isPend?'🕐 Pendiente':'✅ Considerado'}
+        </button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+function toggleEstadoPago(rowNumber) {
+  const item = rawPagosData.find(p=>p.rowNumber===rowNumber); if (!item) return;
+  const chip = document.getElementById('chip-'+rowNumber);
+  const nuevo = item.estado==='Pendiente'?'Considerado':'Pendiente';
+  chip.classList.add('chip-loading'); chip.innerHTML = `<span class="spinner-border spinner-border-sm" style="width:11px;height:11px"></span> Guardando...`;
+  google.script.run
+    .withSuccessHandler(() => {
+      item.estado = nuevo;
+      const isPend = nuevo==='Pendiente';
+      chip.classList.remove('chip-loading','chip-pendiente','chip-considerado');
+      chip.classList.add(isPend?'chip-pendiente':'chip-considerado');
+      chip.innerHTML = isPend?'🕐 Pendiente':'✅ Considerado';
+      renderPagosKpis();
+    })
+    .withFailureHandler(err => {
+      chip.classList.remove('chip-loading');
+      chip.classList.add(item.estado==='Pendiente'?'chip-pendiente':'chip-considerado');
+      chip.innerHTML = item.estado==='Pendiente'?'🕐 Pendiente':'✅ Considerado';
+      alert('Error: '+err.message);
+    })
+    .updateEstadoPagoExtra(rowNumber, nuevo);
+}
+function submitPagoExtra() {
+  const rut=document.getElementById('pago-rut').value.trim(), local=document.getElementById('pago-local').value.trim();
+  const fecha=document.getElementById('pago-fecha').value, apoyo=document.getElementById('pago-apoyo').value;
+  const monto=document.getElementById('pago-monto').value;
+  if (!rut||!local||!fecha||!apoyo||!monto) { showPagoAlert('warning','⚠️ Todos los campos son obligatorios.'); return; }
+  if (isNaN(Number(monto))||Number(monto)<=0) { showPagoAlert('warning','⚠️ El monto debe ser mayor a 0.'); return; }
+  const [yyyy,mm,dd] = fecha.split('-');
+  const fechaFmt = `${dd}-${mm}-${yyyy}`;
+  const btnText=document.getElementById('pago-btn-text'), btnSpin=document.getElementById('pago-btn-spinner'), btnEl=btnText.closest('button');
+  btnEl.disabled=true; btnText.textContent='Guardando...'; btnSpin.classList.remove('d-none');
+  google.script.run
+    .withSuccessHandler(newRow => {
+      btnEl.disabled=false; btnText.textContent='Registrar Pago'; btnSpin.classList.add('d-none');
+      showPagoAlert('success','✅ Pago registrado correctamente.');
+      const newItem = { rowNumber:newRow, rut, local, fecha:fechaFmt, apoyo, monto:Number(monto), estado:'Pendiente' };
+      rawPagosData.unshift(newItem); renderPagosKpis();
+      const filtered = currentPagoFilter==='TODOS' ? rawPagosData : rawPagosData.filter(p=>p.estado===currentPagoFilter);
+      renderPagosTable(filtered);
+      document.getElementById('pago-rut').value=''; document.getElementById('pago-apoyo').value=''; document.getElementById('pago-monto').value='';
+      setDefaultDate();
+    })
+    .withFailureHandler(err => { btnEl.disabled=false; btnText.textContent='Registrar Pago'; btnSpin.classList.add('d-none'); showPagoAlert('danger','❌ Error: '+err.message); })
+    .addPagoExtra(rut, local, fechaFmt, apoyo, Number(monto));
+}
+function showPagoAlert(type, msg) {
+  const el = document.getElementById('pago-alert');
+  el.className = `alert alert-${type} mt-3 py-2 px-3 rounded-3`;
+  el.style.fontSize = '0.85rem'; el.textContent = msg; el.classList.remove('d-none');
+  setTimeout(() => el.classList.add('d-none'), 4500);
+}
+
+/* ============================================================
+   TAB 7: DOTACIÓN MANUAL
+   ============================================================ */
+function setDotDefaultDate() {
+  const el = document.getElementById('dot-date-picker');
+  if (el && !el.value) el.value = new Date().toISOString().slice(0,10);
+  renderDotacionFecha();
+  ['lat-am', 'lat-pm', 'hdest-am', 'hdest-pm'].forEach(id => {
+    const input = document.getElementById(id + '-val');
+    const disp  = document.getElementById(id + '-display');
+    if (input && disp) {
+      input.addEventListener('input', () => { disp.textContent = input.value || '0'; });
+    }
+  });
+}
+function renderDotacionFecha() {
+  const val = document.getElementById('dot-date-picker').value;
+  if (!val) return;
+  const fechaObj = new Date(val + 'T12:00:00');
+  document.getElementById('dot-fecha-display').textContent =
+    fechaObj.toLocaleDateString('es-CL', { day:'numeric', month:'numeric', year:'numeric' });
+}
+function syncComentarios() {
+  const ta  = document.getElementById('dot-novedades');
+  const div = document.getElementById('dot-novedades-display');
+  if (div) div.textContent = ta.value || '';
+}
+function addDotPerson(sectionKey, containerId, input, chipType) {
+  const name = (input.value || '').trim();
+  if (!name) return;
+  const container = document.getElementById(containerId);
+  const chip = document.createElement('span');
+  const isPm     = chipType === 'pm' || containerId.includes('-pm-');
+  const isRunner = chipType === 'runner';
+  chip.className = 'dot-person-chip' + (isRunner ? ' dot-runner-chip' : isPm ? ' dot-pm-chip' : '');
+  chip.innerHTML = `${name} <button class="remove-btn" onclick="this.parentElement.remove()" title="Quitar">×</button>`;
+  container.appendChild(chip);
+  input.value = '';
+  input.focus();
+}
+function downloadDotacionPNG() {
+  const btn = document.querySelector('.btn-download-png');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ Generando...';
+  btn.disabled = true;
+  syncComentarios();
+  ['lat-am','lat-pm','hdest-am','hdest-pm'].forEach(id => {
+    const disp = document.getElementById(id + '-display');
+    const inp  = document.getElementById(id + '-val');
+    if (disp && inp) disp.textContent = inp.value || '0';
+  });
+  const area = document.getElementById('dotacion-report');
+  area.classList.add('dot-png-mode');
+  html2canvas(area, { backgroundColor:'#ffffff', scale:2, useCORS:true }).then(canvas => {
+    area.classList.remove('dot-png-mode');
+    btn.innerHTML = orig; btn.disabled = false;
+    const link = document.createElement('a');
+    const val  = document.getElementById('dot-date-picker').value || 'dotacion';
+    link.download = `dotacion_L94_${val}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(err => {
+    area.classList.remove('dot-png-mode');
+    btn.innerHTML = orig; btn.disabled = false;
+    alert('Error al generar PNG: ' + err.message);
+  });
+}
+
+/* ============================================================
+   TAB 8: INDICADORES
+   ============================================================ */
+function loadIndicadoresData() {
+  indicadoresLoaded = true;
+  document.getElementById('loading-indicadores').classList.remove('d-none');
+  document.getElementById('indicadores-loaded').classList.add('d-none');
+  google.script.run
+    .withSuccessHandler(processIndicadores)
+    .withFailureHandler(err => {
+      document.getElementById('loading-indicadores').classList.add('d-none');
+      document.getElementById('indicadores-loaded').classList.remove('d-none');
+      document.getElementById('ind-table-body').innerHTML = `<tr><td colspan="5"><div class="empty-state text-danger"><div class="icon">⚠️</div>Error: ${err.message}</div></td></tr>`;
+    })
+    .getIndicadoresData();
+}
+function processIndicadores(data) {
+  document.getElementById('loading-indicadores').classList.add('d-none');
+  document.getElementById('indicadores-loaded').classList.remove('d-none');
+  if (data && data.error) {
+    document.getElementById('ind-table-body').innerHTML = `<tr><td colspan="5"><div class="empty-state text-danger"><div class="icon">⚠️</div>${data.error}</div></td></tr>`;
+    return;
+  }
+  rawIndicadoresData = data || [];
+  const indicadores = [...new Set(rawIndicadoresData.map(d=>d.indicador))].filter(Boolean).sort();
+  const sel = document.getElementById('ind-indicador-filter');
+  sel.innerHTML = '<option value="TODOS">Todos</option>';
+  indicadores.forEach(i => sel.innerHTML += `<option value="${i}">${i}</option>`);
+  setIndLastDays(30);
+}
+function setIndLastDays(days) {
+  const today = new Date();
+  const from  = new Date(today); from.setDate(from.getDate() - days);
+  document.getElementById('ind-fecha-hasta').value = today.toISOString().slice(0,10);
+  document.getElementById('ind-fecha-desde').value = from.toISOString().slice(0,10);
+  renderIndicadores();
+}
+function resetIndicadoresFiltros() {
+  document.getElementById('ind-fecha-desde').value = '';
+  document.getElementById('ind-fecha-hasta').value = '';
+  document.getElementById('ind-indicador-filter').value = 'TODOS';
+  renderIndicadores();
+}
+function getIndFiltered() {
+  const desde = document.getElementById('ind-fecha-desde').value;
+  const hasta = document.getElementById('ind-fecha-hasta').value;
+  const indFilt = document.getElementById('ind-indicador-filter').value;
+  return rawIndicadoresData.filter(d => {
+    if (desde && d.fecha < desde) return false;
+    if (hasta && d.fecha > hasta) return false;
+    if (indFilt !== 'TODOS' && d.indicador !== indFilt) return false;
+    return true;
+  });
+}
+const KPI_INDICADORES = ['ATT','Completitud','N2H','OTEA','SameDay'];
+function renderIndicadores() {
+  const filtered = getIndFiltered();
+  const desde = document.getElementById('ind-fecha-desde').value;
+  const hasta = document.getElementById('ind-fecha-hasta').value;
+  const label = document.getElementById('ind-rango-label');
+  label.textContent = desde && hasta ? `${desde} → ${hasta}` : desde ? `Desde ${desde}` : hasta ? `Hasta ${hasta}` : 'Todo el historial';
+  const kpisRow = document.getElementById('ind-kpis-row');
+  kpisRow.innerHTML = '';
+  const indFilt = document.getElementById('ind-indicador-filter').value;
+  const kpisToShow = indFilt === 'TODOS' ? KPI_INDICADORES : [...new Set(filtered.map(d=>d.indicador))].filter(Boolean);
+  kpisToShow.forEach(indNombre => {
+    const vals = filtered.filter(d=>d.indicador===indNombre).map(d=>d.valor).filter(v=>!isNaN(v)&&v>0);
+    if (!vals.length) return;
+    const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+    const mx  = Math.max(...vals);
+    const mn  = Math.min(...vals);
+    const color = IND_COLORS[indNombre] || brandNavy;
+    const isPercent = avg <= 1.5;
+    const fmt = v => isPercent ? (v*100).toFixed(1)+'%' : v.toFixed(1)+'%';
+    const col = document.createElement('div');
+    col.className = 'col-md-4 col-lg-2';
+    col.innerHTML = `
+      <div class="ind-kpi-card" style="border-left-color:${color}">
+        <div class="ind-kpi-label">${indNombre}</div>
+        <div class="ind-kpi-value" style="color:${color}">${fmt(avg)}</div>
+        <div class="ind-kpi-trend" style="color:#8898aa;font-size:0.72rem;margin-top:0.35rem">
+          ↑ Max ${fmt(mx)} &nbsp; ↓ Min ${fmt(mn)} &nbsp; n=${vals.length}
+        </div>
+      </div>`;
+    kpisRow.appendChild(col);
+  });
+  renderIndChart(filtered);
+  const tbody = document.getElementById('ind-table-body');
+  tbody.innerHTML = '';
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon">📊</div>Sin datos para el rango seleccionado.</div></td></tr>`;
+    return;
+  }
+  const sorted = [...filtered].sort((a,b) => b.fecha.localeCompare(a.fecha) || a.indicador.localeCompare(b.indicador));
+  sorted.forEach(item => {
+    const isPercent = item.valor <= 1.5;
+    const valFmt = isPercent ? (item.valor*100).toFixed(1)+'%' : item.valor.toFixed(2);
+    const indColor = IND_COLORS[item.indicador] || brandNavy;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="text-secondary small fw-medium">${item.fecha}</td>
+      <td><span class="badge status-badge" style="background:${indColor};color:#fff">${item.indicador}</span></td>
+      <td class="text-muted small">${item.hora || '-'}</td>
+      <td class="text-end fw-bold" style="color:${indColor}">${valFmt}</td>
+      <td class="text-center"><span class="badge bg-light text-dark border">S${item.semana}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+function renderIndChart(filtered) {
+  const el = document.getElementById('chart-indicadores'); if (!el) return;
+  if (charts['chart-indicadores']) charts['chart-indicadores'].destroy();
+  const dateSet = [...new Set(filtered.map(d=>d.fecha))].sort();
+  const indSet  = [...new Set(filtered.map(d=>d.indicador))].sort();
+  const datasets = indSet.map((ind, i) => {
+    const color = IND_COLORS[ind] || chartColors[i % chartColors.length];
+    const dataPoints = dateSet.map(fecha => {
+      const matches = filtered.filter(d=>d.fecha===fecha && d.indicador===ind);
+      if (!matches.length) return null;
+      const avg = matches.reduce((a,b)=>a+b.valor,0)/matches.length;
+      return avg <= 1.5 ? +(avg*100).toFixed(2) : +avg.toFixed(2);
+    });
+    return {
+      label: ind, data: dataPoints, borderColor: color,
+      backgroundColor: hexToRgba(color, 0.08), borderWidth: 2.5,
+      tension: 0.35, fill: false, pointBackgroundColor: color,
+      pointRadius: dateSet.length <= 20 ? 4 : 2, spanGaps: true
+    };
+  });
+  charts['chart-indicadores'] = new Chart(el.getContext('2d'), {
+    type: 'line',
+    data: { labels: dateSet, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 14, font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y !== null ? ctx.parsed.y.toFixed(1)+'%' : 'N/A'}` } }
+      },
+      scales: { y: { beginAtZero: false, ticks: { callback: v => v+'%' } } }
+    }
+  });
+}
+
+/* ============================================================
+   TAB 7b: ACTIVACIÓN / ASISTENCIA
+   ============================================================ */
+function initActivacion() {
+  activacionLoaded = true;
+  const dp = document.getElementById('activ-date-picker');
+  if (!dp.value) dp.value = new Date().toISOString().slice(0,10);
+  loadActivacionData();
+}
+function setActivacionView(view) {
+  activacionView = view;
+  document.getElementById('activ-toggle-hoy').classList.toggle('active', view === 'hoy');
+  document.getElementById('activ-toggle-hist').classList.toggle('active', view === 'historial');
+  document.getElementById('activacion-hoy-view').classList.toggle('d-none', view !== 'hoy');
+  document.getElementById('activacion-hist-view').classList.toggle('d-none', view !== 'historial');
+  if (view === 'historial') loadHistStats();
+}
+function loadActivacionData() {
+  const fecha = document.getElementById('activ-date-picker').value || new Date().toISOString().slice(0,10);
+  document.getElementById('loading-activacion').classList.remove('d-none');
+  document.getElementById('activacion-loaded').classList.add('d-none');
+  document.getElementById('activacion-nodata').classList.add('d-none');
+  google.script.run
+    .withSuccessHandler(processActivacion)
+    .withFailureHandler(err => {
+      document.getElementById('loading-activacion').classList.add('d-none');
+      alert('Error al cargar activación: ' + (err.message || err));
+    })
+    .getActivacionData(fecha);
+}
+function processActivacion(data) {
+  document.getElementById('loading-activacion').classList.add('d-none');
+  if (data && data.error) { alert('Error servidor: ' + data.error); return; }
+  if (!data.tieneColumna) {
+    document.getElementById('activacion-loaded').classList.add('d-none');
+    document.getElementById('activacion-nodata').classList.remove('d-none');
+    return;
+  }
+  document.getElementById('activacion-loaded').classList.remove('d-none');
+  document.getElementById('activacion-nodata').classList.add('d-none');
+  rawActivData = data.turnos || [];
+  activTurnoFilter = 'TODOS';
+  document.querySelectorAll('#activacion-hoy-view .estado-pill').forEach((b,i) => b.classList.toggle('active', i===0));
+  renderActivKpis();
+  renderActivTable();
+}
+function renderActivKpis() {
+  const esperados = rawActivData.length;
+  const presentes = rawActivData.filter(t => t.asistencia === 1).length;
+  const ausentes  = rawActivData.filter(t => t.asistencia === 0).length;
+  const marcados  = presentes + ausentes;
+  const pct = marcados > 0 ? Math.round((presentes / marcados) * 100) : 0;
+  document.getElementById('activ-kpi-esperados').textContent = esperados;
+  document.getElementById('activ-kpi-presentes').textContent = presentes;
+  document.getElementById('activ-kpi-ausentes').textContent  = ausentes;
+  document.getElementById('activ-kpi-pct').textContent       = pct + '%';
+}
+function filterActivTurno(turno, btn) {
+  activTurnoFilter = turno;
+  document.querySelectorAll('#activacion-hoy-view .estado-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderActivTable();
+}
+function renderActivTable() {
+  const tbody = document.getElementById('activ-body');
+  tbody.innerHTML = '';
+  const list = activTurnoFilter === 'TODOS' ? rawActivData : rawActivData.filter(t => t.turno === activTurnoFilter);
+  document.getElementById('activ-count-label').textContent = `${list.length} shopper${list.length!==1?'s':''}`;
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="icon">📭</div>Sin turnos para este filtro.</div></td></tr>`;
+    return;
+  }
+  list.forEach(item => {
+    const turnoBadge = item.turno === 'AM' ? 'background:#e8f0fe;color:#1a3580'
+                     : item.turno === 'PM' ? 'background:#fce4f3;color:#8b0a50'
+                     : 'background:#fff3cd;color:#856404';
+    const tr = document.createElement('tr');
+    tr.id = 'activ-row-' + safeId(item.rut);
+    tr.innerHTML = `
+      <td class="fw-semibold" style="color:var(--brand-navy)">${item.nombre}</td>
+      <td class="text-secondary small">${item.rut}</td>
+      <td class="text-center"><span class="badge status-badge" style="${turnoBadge}">${item.turno}</span></td>
+      <td class="text-center">${buildAsistButtons(item)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+function safeId(rut) { return String(rut).replace(/[^0-9kK]/g,''); }
+function buildAsistButtons(item) {
+  const id = safeId(item.rut);
+  const vinoActive  = item.asistencia === 1;
+  const faltoActive = item.asistencia === 0;
+  return `
+    <div class="d-inline-flex gap-2" id="asist-btns-${id}">
+      <button class="btn btn-sm ${vinoActive ? 'btn-success' : 'btn-outline-success'}"
+        style="font-weight:700;min-width:70px" onclick="marcarAsist('${item.rut}','${escapeQuote(item.nombre)}',1)">✓ Vino</button>
+      <button class="btn btn-sm ${faltoActive ? 'btn-danger' : 'btn-outline-danger'}"
+        style="font-weight:700;min-width:70px" onclick="marcarAsist('${item.rut}','${escapeQuote(item.nombre)}',0)">✗ Faltó</button>
+    </div>`;
+}
+function escapeQuote(s) { return String(s).replace(/'/g, "\\'"); }
+function marcarAsist(rut, nombre, estado) {
+  const fecha = document.getElementById('activ-date-picker').value;
+  const id = safeId(rut);
+  const cont = document.getElementById('asist-btns-' + id);
+  if (cont) cont.innerHTML = `<span class="spinner-border spinner-border-sm" style="color:var(--brand-navy)"></span> <span class="text-muted small ms-1">Guardando...</span>`;
+  const item = rawActivData.find(t => t.rut === rut);
+  const nuevoEstado = (item && item.asistencia === estado) ? null : estado;
+  google.script.run
+    .withSuccessHandler(() => {
+      if (item) item.asistencia = nuevoEstado;
+      renderActivKpis();
+      renderActivTable();
+    })
+    .withFailureHandler(err => {
+      alert('Error al guardar: ' + (err.message || err));
+      renderActivTable();
+    })
+    .marcarAsistencia(rut, nombre, fecha, nuevoEstado);
+}
+function loadHistStats() {
+  document.getElementById('loading-activ-hist').classList.remove('d-none');
+  document.getElementById('activ-hist-loaded').classList.add('d-none');
+  google.script.run
+    .withSuccessHandler(processHistStats)
+    .withFailureHandler(err => {
+      document.getElementById('loading-activ-hist').classList.add('d-none');
+      alert('Error al cargar historial: ' + (err.message || err));
+    })
+    .getAsistenciaStats();
+}
+function processHistStats(data) {
+  document.getElementById('loading-activ-hist').classList.add('d-none');
+  document.getElementById('activ-hist-loaded').classList.remove('d-none');
+  if (data && data.error) { alert('Error: ' + data.error); return; }
+  rawHistStats = data || [];
+  const total = rawHistStats.length;
+  const avgCumpl  = total ? Math.round(rawHistStats.reduce((a,b)=>a+b.pctCumplimiento,0)/total) : 0;
+  const avgAusent = total ? Math.round(rawHistStats.reduce((a,b)=>a+b.pctAusentismo,0)/total) : 0;
+  document.getElementById('hist-kpi-total').textContent  = total;
+  document.getElementById('hist-kpi-cumpl').textContent  = avgCumpl + '%';
+  document.getElementById('hist-kpi-ausent').textContent = avgAusent + '%';
+  renderHistTable();
+}
+function renderHistTable() {
+  const q = (document.getElementById('hist-search').value || '').toLowerCase().trim();
+  const tbody = document.getElementById('hist-body');
+  tbody.innerHTML = '';
+  const list = !q ? rawHistStats : rawHistStats.filter(s =>
+    (s.nombre||'').toLowerCase().includes(q) || (s.rut||'').toLowerCase().includes(q));
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">📊</div>Sin registros de asistencia aún.</div></td></tr>`;
+    return;
+  }
+  list.forEach(s => {
+    const pct = s.pctCumplimiento;
+    const barColor = pct >= 85 ? 'bg-success' : pct >= 60 ? 'bg-warning' : 'bg-danger';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="fw-semibold" style="color:var(--brand-navy)">${s.nombre}</td>
+      <td class="text-secondary small">${s.rut}</td>
+      <td class="text-center text-success fw-bold">${s.presentes}</td>
+      <td class="text-center fw-bold" style="color:#e74c3c">${s.ausentes}</td>
+      <td class="text-center text-muted">${s.total}</td>
+      <td>
+        <div class="d-flex justify-content-between" style="font-size:0.78rem;font-weight:700;color:#495057">
+          <span>${pct}%</span>
+        </div>
+        <div class="progress progress-cupo"><div class="progress-bar ${barColor}" style="width:${pct}%"></div></div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+/* ============================================================
+   EXPORTACIÓN A EXCEL — RECLAMOS
+   ============================================================ */
+function exportReclamosToExcel() {
+  const btn = document.getElementById('btn-export-reclamos');
+  const orig = btn.innerHTML;
+  const desde = document.getElementById('rec-export-desde').value || '';
+  const hasta = document.getElementById('rec-export-hasta').value || '';
+ 
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Generando Excel...';
+ 
+  google.script.run
+    .withSuccessHandler(result => {
+      btn.disabled = false; btn.innerHTML = orig;
+      if (result && result.error) { alert('Error al generar Excel: ' + result.error); return; }
+      _downloadBase64File(result.base64, result.fileName, result.mimeType);
+    })
+    .withFailureHandler(err => {
+      btn.disabled = false; btn.innerHTML = orig;
+      alert('Error al generar Excel: ' + (err.message || err));
+    })
+    .exportReclamosExcel(desde, hasta);
+}
+ 
+/* ============================================================
+   EXPORTACIÓN A EXCEL — ATRASOS
+   ============================================================ */
+function exportAtrasosToExcel() {
+  const anio   = document.getElementById('filter-anio').value;
+  const mes    = document.getElementById('filter-mes').value;
+  const semana = document.getElementById('filter-semana').value;
+ 
+  // Buscamos el botón recién insertado (puede no tener id fijo, así que lo localizamos por onclick)
+  const btn = [...document.querySelectorAll('#analisis-atrasos-view button')]
+    .find(b => b.getAttribute('onclick') === 'exportAtrasosToExcel()');
+  const orig = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Generando...'; }
+ 
+  google.script.run
+    .withSuccessHandler(result => {
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+      if (result && result.error) { alert('Error al generar Excel: ' + result.error); return; }
+      _downloadBase64File(result.base64, result.fileName, result.mimeType);
+    })
+    .withFailureHandler(err => {
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+      alert('Error al generar Excel: ' + (err.message || err));
+    })
+    .exportAtrasosExcel(anio, mes, semana);
+}
+ 
+/* ============================================================
+   HELPER: descarga un archivo a partir de un string base64
+   ============================================================ */
+function _downloadBase64File(base64, fileName, mimeType) {
+  const byteChars = atob(base64);
+  const byteNumbers = new Array(byteChars.length);
+  for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: mimeType });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+}
+/* ============================================================
+   MÓDULO 10: FLEJES
+   ============================================================ */
+function setFlejesView(view) {
+  document.getElementById('toggle-fleje-subir').classList.toggle('active', view === 'subir');
+  document.getElementById('toggle-fleje-catalogo').classList.toggle('active', view === 'catalogo');
+  document.getElementById('flejes-subir-view').classList.toggle('d-none', view !== 'subir');
+  document.getElementById('flejes-catalogo-view').classList.toggle('d-none', view !== 'catalogo');
+  
+  if (view === 'catalogo' && !flejesLoaded) {
+    loadFlejesData();
+  }
+}
+
+// Lógica de Previsualización (solo al subir)
+function previewFleje() {
+  const fileInput = document.getElementById('fleje-file');
+  const previewCont = document.getElementById('fleje-preview-container');
+  const previewImg = document.getElementById('fleje-preview-img');
+  
+  if (fileInput.files && fileInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      previewImg.src = e.target.result;
+      previewCont.classList.remove('d-none');
+    }
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    previewCont.classList.add('d-none');
+    previewImg.src = '';
+  }
+}
+
+// Lógica de Subida
+function submitFleje() {
+  const fileInput = document.getElementById('fleje-file');
+  const categoria = document.getElementById('fleje-categoria').value;
+  const nombreCustom = document.getElementById('fleje-nombre').value.trim();
+  
+  if (!nombreCustom) { showFlejeAlert('warning', '⚠️ Debes ingresar un nombre para el fleje.'); return; }
+  if (!categoria) { showFlejeAlert('warning', '⚠️ Debes seleccionar una categoría.'); return; }
+  if (!fileInput.files || fileInput.files.length === 0) { showFlejeAlert('warning', '⚠️ Debes seleccionar una imagen.'); return; }
+  
+  const file = fileInput.files[0];
+  const btnText = document.getElementById('fleje-btn-text');
+  const btnSpin = document.getElementById('fleje-btn-spinner');
+  const btnEl = btnText.closest('button');
+  
+  btnEl.disabled = true;
+  btnText.textContent = 'Subiendo...';
+  btnSpin.classList.remove('d-none');
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const base64Data = e.target.result;
+    
+    google.script.run
+      .withSuccessHandler(result => {
+        btnEl.disabled = false;
+        btnText.textContent = 'Subir Fleje';
+        btnSpin.classList.add('d-none');
+        showFlejeAlert('success', '✅ Fleje subido correctamente al catálogo.');
+        
+        // Limpiar formulario
+        fileInput.value = '';
+        document.getElementById('fleje-categoria').value = '';
+        document.getElementById('fleje-nombre').value = '';
+        document.getElementById('fleje-preview-container').classList.add('d-none');
+        
+        // Invalida el estado local para forzar recarga al ver el catálogo
+        flejesLoaded = false; 
+      })
+      .withFailureHandler(err => {
+        btnEl.disabled = false;
+        btnText.textContent = 'Subir Fleje';
+        btnSpin.classList.add('d-none');
+        showFlejeAlert('danger', '❌ Error: ' + err.message);
+      })
+      .uploadFleje(base64Data, file.name, categoria, nombreCustom);
+  };
+  reader.readAsDataURL(file);
+}
+
+function showFlejeAlert(type, msg) {
+  const el = document.getElementById('fleje-alert');
+  el.className = `alert alert-${type} mt-3 py-2 px-3 rounded-3 small text-center`;
+  el.textContent = msg;
+  el.classList.remove('d-none');
+  setTimeout(() => el.classList.add('d-none'), 5000);
+}
+
+// Lógica del Catálogo
+function loadFlejesData() {
+  flejesLoaded = true;
+  document.getElementById('loading-flejes').classList.remove('d-none');
+  document.getElementById('flejes-loaded').classList.add('d-none');
+  
+  google.script.run
+    .withSuccessHandler(processFlejesData)
+    .withFailureHandler(err => {
+      document.getElementById('loading-flejes').classList.add('d-none');
+      alert('Error al cargar flejes: ' + err.message);
+    })
+    .getFlejesData();
+}
+
+function processFlejesData(data) {
+  document.getElementById('loading-flejes').classList.add('d-none');
+  document.getElementById('flejes-loaded').classList.remove('d-none');
+  
+  // Defensa contra errores en caché
+  if (!data || data.error) { 
+    rawFlejesData = []; 
+    const msg = data ? data.error : 'No se recibieron datos';
+    document.getElementById('flejes-grid').innerHTML = `<div class="alert alert-danger w-100 text-center">⚠️ <strong>Problema al leer:</strong> ${msg}. Por favor haz clic en "🔄 Actualizar" arriba.</div>`;
+    return; 
+  }
+  
+  rawFlejesData = Array.isArray(data) ? data : [];
+  renderFlejesFilters();
+  renderFlejesGrid();
+}
+
+function renderFlejesFilters() {
+  const container = document.getElementById('flejes-filter-container');
+  if (!container) return;
+  
+  const categoriasBase = ["Verduras", "Panadería", "Alimentación", "Bebestibles", "Hogar", "Fríos y congelados", "Electro", "Librería"];
+  const existentes = rawFlejesData.map(f => f.categoria);
+  const categoriasUnicas = [...new Set([...categoriasBase, ...existentes])].filter(Boolean);
+  
+  container.innerHTML = `<button class="estado-pill ${flejeCategoriaFiltro==='TODAS'?'active':''}" onclick="filterFlejes('TODAS', this)">Todas (${rawFlejesData.length})</button>`;
+  
+  categoriasUnicas.forEach(cat => {
+    const conteo = rawFlejesData.filter(f => f.categoria === cat).length;
+    container.innerHTML += `<button class="estado-pill ${flejeCategoriaFiltro===cat?'active':''}" onclick="filterFlejes('${cat}', this)">${cat} (${conteo})</button>`;
+  });
+}
+
+function filterFlejes(categoria, btnElement) {
+  flejeCategoriaFiltro = categoria;
+  document.querySelectorAll('#flejes-filter-container .estado-pill').forEach(b => b.classList.remove('active'));
+  btnElement.classList.add('active');
+  renderFlejesGrid();
+}
+
+function renderFlejesGrid() {
+  const grid = document.getElementById('flejes-grid');
+  grid.innerHTML = '';
+  
+  const list = flejeCategoriaFiltro === 'TODAS' 
+    ? rawFlejesData 
+    : rawFlejesData.filter(f => f.categoria === flejeCategoriaFiltro);
+    
+  if (!list || list.length === 0) {
+    grid.innerHTML = `<div class="col-12"><div class="empty-state"><div class="icon">🏷️</div>No hay registros para esta categoría.</div></div>`;
+    return;
+  }
+  
+  // Diseño de Tabla: Lista limpia sin vista previa
+  let tableHTML = `
+    <div class="col-12">
+      <div class="table-wrap">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th style="width:150px">Fecha</th>
+              <th style="width:160px">Categoría</th>
+              <th>Nombre / Descripción</th>
+              <th style="width:120px" class="text-center">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+  `;
+  
+  list.forEach(item => {
+    const titulo = item.nombreCustom || item.nombreArchivo || 'Sin nombre'; 
+    const urlSegura = item.url || '#';
+    
+    tableHTML += `
+      <tr>
+        <td class="text-secondary small fw-medium">${item.fecha || '-'}</td>
+        <td><span class="badge bg-light text-dark border">${item.categoria || 'Sin categoría'}</span></td>
+        <td class="fw-bold" style="color:var(--brand-navy)">
+          <a href="${urlSegura}" target="_blank" class="text-decoration-none" style="color:inherit;">${titulo}</a>
+        </td>
+        <td class="text-center">
+          <a href="${urlSegura}" target="_blank" class="btn btn-sm btn-outline-primary fw-bold" style="border-radius:8px">🖼️ Ver Foto</a>
+        </td>
+      </tr>
+    `;
+  });
+  
+  tableHTML += `</tbody></table></div></div>`;
+  grid.innerHTML = tableHTML;
+}
+</script>
+</body>
+</html>
