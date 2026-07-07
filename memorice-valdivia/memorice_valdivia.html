@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>Memorice Patrimonial de Valdivia</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DejaVu Sans', 'Segoe UI', Arial, sans-serif; color: #22333f; }
+  .page { width: 210mm; height: 297mm; padding: 9mm 12mm; page-break-after: always; overflow: hidden; }
+  .pagehead { text-align: center; font-size: 9pt; color: #6d7883; margin-bottom: 3mm; }
+  .grid { display: grid; grid-template-columns: repeat(3, 58mm); grid-auto-rows: 65mm;
+           gap: 3.5mm; justify-content: center; }
+  .card { border: 0.45mm dashed #93a1ac; border-radius: 2.5mm; overflow: hidden;
+           display: flex; flex-direction: column; background: #ffffff; }
+  .card .art { height: 53mm; }
+  .card .art svg { width: 100%; height: 100%; display: block; }
+  .card .name { flex: 1; display: flex; align-items: center; justify-content: center;
+                 text-align: center; color: #ffffff; font-weight: 700; font-size: 10pt;
+                 padding: 0 2mm; letter-spacing: 0.2px;
+                 -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .card.back svg { width: 100%; height: 100%; display: block; }
+
+  .portada { background: linear-gradient(180deg, #eaf4f9 0%, #fdfaf2 45%);
+              display: flex; flex-direction: column;
+              -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .p-titulo { text-align: center; padding: 6mm 0 5mm; }
+  .p-kicker { font-size: 9.5pt; letter-spacing: 2px; text-transform: uppercase; color: #4a90b8; }
+  .portada h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 27pt;
+                 color: #1f5f74; margin: 2mm 0 1.5mm; line-height: 1.1; }
+  .p-sub { font-size: 10.5pt; color: #6d7883; font-style: italic; }
+  .p-cols { display: grid; grid-template-columns: 62mm 1fr; gap: 5mm; flex: 1; min-height: 0; }
+  .p-box { background: #ffffff; border: 0.4mm solid #d8e2e8; border-radius: 3mm; padding: 5mm; }
+  .p-box h2 { font-size: 12pt; color: #1f5f74; margin-bottom: 3mm;
+               border-bottom: 0.5mm solid #e8794a; padding-bottom: 1.5mm; }
+  .p-box ol { padding-left: 5mm; font-size: 9.3pt; line-height: 1.45; }
+  .p-box ol li { margin-bottom: 2.4mm; }
+  .guia { display: grid; grid-template-columns: 1fr 1fr; gap: 2.2mm 4mm; }
+  .guia-item { display: flex; gap: 2.5mm; align-items: flex-start; font-size: 7.6pt; line-height: 1.3; }
+  .guia-item b { font-size: 8.2pt; color: #1f5f74; }
+  .guia-item span { color: #55636e; }
+  .guia-icon { width: 11mm; height: 11mm; flex: none; border-radius: 2mm; overflow: hidden;
+                border: 0.3mm solid #d8e2e8; }
+  .guia-icon svg { width: 100%; height: 100%; display: block; }
+  .p-pie { text-align: center; font-size: 8.5pt; color: #93a1ac; padding-top: 3mm; }
+</style></head><body>
+
+<div class="page portada">
+  <div class="p-titulo">
+    <div class="p-kicker">Juego de memoria para recortar · 12 pares · 24 cartas</div>
+    <h1>Memorice Patrimonial<br>de Valdivia</h1>
+    <div class="p-sub">Descubre jugando los tesoros históricos de la Perla del Sur</div>
+  </div>
+  <div class="p-cols">
+    <div class="p-box">
+      <h2>Cómo se juega</h2>
+      <ol>
+        <li>Imprime las páginas 2 y 3 (idealmente en papel grueso o cartulina).</li>
+        <li>Si quieres reverso decorado, imprime la página 4 por detrás de cada página de cartas.</li>
+        <li>Recorta las 24 cartas por las líneas punteadas.</li>
+        <li>Mezcla las cartas y ponlas boca abajo formando una cuadrícula.</li>
+        <li>Por turnos, cada jugador da vuelta 2 cartas: si son iguales, se las queda y juega de nuevo; si no, las devuelve boca abajo.</li>
+        <li>Gana quien reúna más pares. ¡De yapa, cuenta algo del patrimonio que encontraste!</li>
+      </ol>
+    </div>
+    <div class="p-box">
+      <h2>Los 12 patrimonios del juego</h2>
+      <div class="guia"><div class="guia-item"><div class="guia-icon"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#d9edf9"/>
+<circle cx="80" cy="18" r="8" fill="#ffd66b"/>
+<rect y="78" width="100" height="22" fill="#8fc97e"/>
+<ellipse cx="17" cy="82" rx="12" ry="6" fill="#5fa564"/>
+<ellipse cx="85" cy="85" rx="10" ry="5" fill="#5fa564"/>
+<rect x="36" y="40" width="28" height="42" rx="3" fill="#f4ede0" stroke="#b7a98f" stroke-width="1.5"/>
+<line x1="36" y1="52" x2="64" y2="52" stroke="#d9cdb6" stroke-width="1"/>
+<line x1="36" y1="62" x2="64" y2="62" stroke="#d9cdb6" stroke-width="1"/>
+<rect x="32" y="38" width="36" height="5" rx="2.5" fill="#a8927a"/>
+<polygon points="31,40 69,40 50,14" fill="#c0392b"/>
+<rect x="45" y="64" width="10" height="18" rx="5" fill="#7a5230"/>
+<rect x="42" y="46" width="4" height="9" rx="2" fill="#5e7285"/>
+<rect x="54" y="46" width="4" height="9" rx="2" fill="#5e7285"/>
+</svg></div><div><b>Torreón Los Canelos</b><br><span>Torreón colonial español (1774) que vigilaba la entrada sur de la ciudad. Monumento Histórico.</span></div></div>
+<div class="guia-item"><div class="guia-icon"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#dbe9f0"/>
+<ellipse cx="30" cy="16" rx="16" ry="5" fill="#ffffff" opacity="0.9"/>
+<ellipse cx="72" cy="24" rx="14" ry="4.5" fill="#ffffff" opacity="0.8"/>
+<rect y="64" width="100" height="36" fill="#3f7fb5"/>
+<path d="M0,70 Q8,66 16,70 T32,70 T48,70 T64,70 T80,70 T96,70" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.6"/>
+<polygon points="0,64 58,64 62,34 0,30" fill="#7fae6f"/>
+<rect x="6" y="32" width="48" height="16" fill="#9aa5ad"/>
+<rect x="6" y="26" width="9" height="7" fill="#9aa5ad"/>
+<rect x="25" y="26" width="9" height="7" fill="#9aa5ad"/>
+<rect x="45" y="26" width="9" height="7" fill="#9aa5ad"/>
+<line x1="6" y1="40" x2="54" y2="40" stroke="#7f8b93" stroke-width="1"/>
+<line x1="18" y1="32" x2="18" y2="40" stroke="#7f8b93" stroke-width="1"/>
+<line x1="38" y1="40" x2="38" y2="48" stroke="#7f8b93" stroke-width="1"/>
+<g transform="rotate(18 62 42)">
+  <rect x="56" y="40" width="20" height="5" rx="2.5" fill="#3b3f45"/>
+</g>
+<circle cx="58" cy="48" r="4" fill="#2c3036"/>
+</svg></div><div><b>Castillo de Niebla</b><br><span>Fuerte español (1671) que defendía la bahía de Corral. Hoy es museo de sitio y Monumento Histórico.</span></div></div>
+<div class="guia-item"><div class="guia-icon"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#fdf3e0"/>
+<rect x="16" y="42" width="4" height="42" fill="#8a5a33"/>
+<rect x="80" y="42" width="4" height="42" fill="#8a5a33"/>
+<polygon points="10,24 90,24 94,42 6,42" fill="#e8794a"/>
+<polygon points="24,24 38,24 39,42 22,42" fill="#f9f1e2"/>
+<polygon points="52,24 66,24 68,42 49,42" fill="#f9f1e2"/>
+<circle cx="14" cy="42" r="4.5" fill="#e8794a"/>
+<circle cx="31" cy="42" r="4.5" fill="#f9f1e2"/>
+<circle cx="49" cy="42" r="4.5" fill="#e8794a"/>
+<circle cx="67" cy="42" r="4.5" fill="#f9f1e2"/>
+<circle cx="86" cy="42" r="4.5" fill="#e8794a"/>
+<rect x="20" y="62" width="60" height="6" fill="#a9743f"/>
+<rect x="24" y="68" width="5" height="18" fill="#8a5a33"/>
+<rect x="71" y="68" width="5" height="18" fill="#8a5a33"/>
+<ellipse cx="40" cy="57" rx="12" ry="5" fill="#9db8c9"/>
+<polygon points="50,57 58,52 58,62" fill="#9db8c9"/>
+<circle cx="33" cy="56" r="1.3" fill="#2e3d49"/>
+<ellipse cx="62" cy="59" rx="10" ry="4.2" fill="#c9d6df"/>
+<polygon points="70,59 77,55 77,63" fill="#c9d6df"/>
+<circle cx="56" cy="58" r="1.1" fill="#2e3d49"/>
+</svg></div><div><b>Mercado Fluvial</b><br><span>Mercado a orillas del río Valdivia, famoso por sus pescados, mariscos y productos del campo.</span></div></div>
+<div class="guia-item"><div class="guia-icon"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#cde6f2"/>
+<rect y="70" width="100" height="30" fill="#4a90b8"/>
+<path d="M0,76 Q10,72 20,76 T40,76 T60,76 T80,76 T100,76" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.5"/>
+<rect x="8" y="60" width="84" height="12" rx="2" fill="#b3a58f"/>
+<line x1="24" y1="60" x2="24" y2="72" stroke="#93866f" stroke-width="1.5"/>
+<line x1="44" y1="60" x2="44" y2="72" stroke="#93866f" stroke-width="1.5"/>
+<line x1="64" y1="60" x2="64" y2="72" stroke="#93866f" stroke-width="1.5"/>
+<line x1="82" y1="60" x2="82" y2="72" stroke="#93866f" stroke-width="1.5"/>
+<path d="M30,60 C31,44 40,34 52,31 C50,44 52,52 62,60 Z" fill="#8a5a3b"/>
+<ellipse cx="66" cy="58" rx="9" ry="4" fill="#8a5a3b"/>
+<circle cx="53" cy="27" r="8.5" fill="#8a5a3b"/>
+<ellipse cx="60" cy="30" rx="4.5" ry="3.4" fill="#6e4526"/>
+<circle cx="63" cy="29" r="1.2" fill="#2d1d10"/>
+<circle cx="53" cy="24" r="1.4" fill="#2d1d10"/>
+<line x1="63" y1="32" x2="70" y2="31" stroke="#5a3a20" stroke-width="0.8"/>
+<line x1="63" y1="33" x2="69" y2="34" stroke="#5a3a20" stroke-width="0.8"/>
+<ellipse cx="38" cy="59" rx="7" ry="3.2" fill="#6e4526" transform="rotate(-18 38 59)"/>
+</svg></div><div><b>Lobos Marinos</b><br><span>La colonia que descansa junto al Mercado Fluvial es un símbolo querido de la ciudad.</span></div></div>
+<div class="guia-item"><div class="guia-icon"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#e8eef7"/>
+<rect y="80" width="100" height="20" fill="#9fc48b"/>
+<rect x="20" y="46" width="42" height="36" fill="#f2ede1" stroke="#cdc4b2" stroke-width="1"/>
+<polygon points="16,48 66,48 41,22" fill="#b3552e"/>
+<path d="M33,82 h16 v-16 a8,8 0 0 0 -16,0 Z" fill="#6b4f3a"/>
+<rect x="26" y="54" width="4" height="12" rx="2" fill="#7fa8c9"/>
+<rect x="52" y="54" width="4" height="12" rx="2" fill="#7fa8c9"/>
+<rect x="68" y="30" width="14" height="52" fill="#e3dbc9" stroke="#cdc4b2" stroke-width="1"/>
+<rect x="70" y="36" width="10" height="8" fill="#5e7285"/>
+<rect x="70" y="50" width="10" height="8" fill="#5e7285"/>
+<rect x="74" y="14" width="2.6" height="14" fill="#8a7a5f"/>
+<rect x="70.5" y="17.5" width="9.6" height="2.6" fill="#8a7a5f"/>
+<circle cx="41" cy="36" r="4" fill="#f7d774" stroke="#cdc4b2" stroke-width="1"/>
+</svg></div><div><b>Catedral de Valdivia</b><br><span>Catedral Nuestra Señora del Rosario, reconstruida tras el terremoto de 1960, frente a la Plaza de la República.</span></div></div>
+<div class="guia-item"><div class="guia-icon"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#d9edf9"/>
+<circle cx="18" cy="16" r="7" fill="#ffd66b"/>
+<ellipse cx="78" cy="26" rx="16" ry="6" fill="#ffffff" opacity="0.8"/>
+<rect y="68" width="100" height="32" fill="#4a90b8"/>
+<path d="M0,74 Q10,70 20,74 T40,74 T60,74 T80,74 T100,74" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.5"/>
+<path d="M4,68 Q27,46 50,68" fill="none" stroke="#7d8892" stroke-width="4.5"/>
+<path d="M50,68 Q73,46 96,68" fill="none" stroke="#7d8892" stroke-width="4.5"/>
+<rect x="0" y="50" width="100" height="7" fill="#95a0aa"/>
+<rect x="0" y="46" width="100" height="2" fill="#6d7883"/>
+<line x1="8" y1="46" x2="8" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="22" y1="46" x2="22" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="36" y1="46" x2="36" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="50" y1="46" x2="50" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="64" y1="46" x2="64" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="78" y1="46" x2="78" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="92" y1="46" x2="92" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<rect x="46" y="57" width="8" height="12" fill="#7d8892"/>
+</svg></div><div><b>Puente Pedro de Valdivia</b><br><span>Inaugurado en 1954, une el centro de la ciudad con la Isla Teja sobre el río Valdivia.</span></div></div>
+<div class="guia-item"><div class="guia-icon"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#e6f2e2"/>
+<rect y="82" width="100" height="18" fill="#8fc97e"/>
+<rect x="22" y="46" width="56" height="36" fill="#f5efe0" stroke="#c9bfa8" stroke-width="1"/>
+<line x1="22" y1="54" x2="78" y2="54" stroke="#ddd2ba" stroke-width="1"/>
+<line x1="22" y1="62" x2="78" y2="62" stroke="#ddd2ba" stroke-width="1"/>
+<line x1="22" y1="70" x2="78" y2="70" stroke="#ddd2ba" stroke-width="1"/>
+<polygon points="16,46 84,46 50,22" fill="#7c8a94"/>
+<rect x="46" y="30" width="8" height="8" fill="#f5efe0" stroke="#c9bfa8" stroke-width="1"/>
+<rect x="28" y="52" width="9" height="11" fill="#ffffff" stroke="#5f8a5f" stroke-width="1.6"/>
+<rect x="63" y="52" width="9" height="11" fill="#ffffff" stroke="#5f8a5f" stroke-width="1.6"/>
+<rect x="28" y="68" width="9" height="11" fill="#ffffff" stroke="#5f8a5f" stroke-width="1.6"/>
+<rect x="63" y="68" width="9" height="11" fill="#ffffff" stroke="#5f8a5f" stroke-width="1.6"/>
+<rect x="45" y="64" width="10" height="18" rx="1.5" fill="#6b4f3a"/>
+<ellipse cx="12" cy="84" rx="8" ry="5" fill="#5fa564"/>
+<ellipse cx="90" cy="86" rx="7" ry="4.5" fill="#5fa564"/>
+</svg></div><div><b>Casa Anwandter</b><br><span>Casona de colonos alemanes del siglo XIX; hoy alberga el Museo Histórico y Antropológico en la Isla Teja.</span></div></div>
+<div class="guia-item"><div class="guia-icon"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#eaf2f7"/>
+<rect y="82" width="100" height="18" fill="#b8bfc6"/>
+<rect x="8" y="44" width="26" height="38" fill="#e3b23c"/>
+<polygon points="6,44 36,44 21,32" fill="#8a6b4a"/>
+<rect x="13" y="50" width="7" height="9" fill="#ffffff" stroke="#8a6b4a" stroke-width="1.2"/>
+<rect x="23" y="50" width="7" height="9" fill="#ffffff" stroke="#8a6b4a" stroke-width="1.2"/>
+<rect x="16" y="66" width="10" height="16" fill="#6b4f3a"/>
+<rect x="37" y="36" width="27" height="46" fill="#5f9ea0"/>
+<polygon points="35,36 66,36 50.5,24" fill="#46666e"/>
+<rect x="42" y="42" width="7" height="9" fill="#ffffff" stroke="#3d5a60" stroke-width="1.2"/>
+<rect x="52" y="42" width="7" height="9" fill="#ffffff" stroke="#3d5a60" stroke-width="1.2"/>
+<rect x="42" y="56" width="7" height="9" fill="#ffffff" stroke="#3d5a60" stroke-width="1.2"/>
+<rect x="52" y="56" width="7" height="9" fill="#ffffff" stroke="#3d5a60" stroke-width="1.2"/>
+<rect x="45" y="68" width="10" height="14" fill="#2f4147"/>
+<rect x="67" y="46" width="25" height="36" fill="#d97862"/>
+<polygon points="65,46 94,46 79.5,34" fill="#9a4a38"/>
+<rect x="72" y="52" width="7" height="9" fill="#ffffff" stroke="#9a4a38" stroke-width="1.2"/>
+<rect x="82" y="52" width="7" height="9" fill="#ffffff" stroke="#9a4a38" stroke-width="1.2"/>
+<rect x="75" y="66" width="10" height="16" fill="#6b3226"/>
+</svg></div><div><b>Calle General Lagos</b><br><span>Zona Típica con casonas patrimoniales de madera de la época de la colonización alemana.</span></div></div>
+<div class="guia-item"><div class="guia-icon"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#d3e8f2"/>
+<ellipse cx="24" cy="18" rx="14" ry="5" fill="#ffffff" opacity="0.8"/>
+<rect y="66" width="100" height="34" fill="#4a90b8"/>
+<path d="M0,72 Q10,68 20,72 T40,72 T60,72 T80,72 T100,72" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.5"/>
+<ellipse cx="50" cy="60" rx="37" ry="12" fill="#4c565f"/>
+<rect x="42" y="36" width="16" height="16" rx="2" fill="#3c454d"/>
+<rect x="48" y="27" width="2.6" height="10" fill="#3c454d"/>
+<rect x="48" y="27" width="7" height="2.6" fill="#3c454d"/>
+<circle cx="32" cy="60" r="3" fill="#cfd8e0"/>
+<circle cx="44" cy="62" r="3" fill="#cfd8e0"/>
+<circle cx="56" cy="62" r="3" fill="#cfd8e0"/>
+<circle cx="68" cy="60" r="3" fill="#cfd8e0"/>
+<polygon points="84,54 93,50 93,62 84,60" fill="#3c454d"/>
+</svg></div><div><b>Submarino O'Brien</b><br><span>Museo flotante amarrado en el Muelle Schuster, en la costanera de Valdivia.</span></div></div>
+<div class="guia-item"><div class="guia-icon"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#d9ecf5"/>
+<rect y="76" width="100" height="24" fill="#8fae7a"/>
+<rect x="8" y="44" width="84" height="38" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<rect x="8" y="38" width="12" height="8" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<rect x="32" y="38" width="12" height="8" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<rect x="56" y="38" width="12" height="8" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<rect x="80" y="38" width="12" height="8" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<line x1="8" y1="56" x2="92" y2="56" stroke="#b3a081" stroke-width="1"/>
+<line x1="8" y1="68" x2="92" y2="68" stroke="#b3a081" stroke-width="1"/>
+<line x1="26" y1="44" x2="26" y2="56" stroke="#b3a081" stroke-width="1"/>
+<line x1="60" y1="56" x2="60" y2="68" stroke="#b3a081" stroke-width="1"/>
+<line x1="34" y1="68" x2="34" y2="82" stroke="#b3a081" stroke-width="1"/>
+<path d="M40,82 h20 v-16 a10,10 0 0 0 -20,0 Z" fill="#5a4632"/>
+<rect x="72" y="12" width="2" height="28" fill="#5a4632"/>
+<rect x="74" y="12" width="9" height="5" fill="#ffffff"/>
+<rect x="74" y="12" width="4.5" height="5" fill="#2a5caa"/>
+<rect x="74" y="17" width="18" height="5" fill="#d43d2a"/>
+<rect x="83" y="12" width="9" height="5" fill="#d43d2a"/>
+<polygon points="76.2,13 77,14.8 79,14.9 77.5,16.1 78,18 76.2,17 74.4,18 74.9,16.1 73.4,14.9 75.4,14.8" fill="#ffffff"/>
+</svg></div><div><b>Fuerte de Corral</b><br><span>Castillo San Sebastián de la Cruz (1645), parte del sistema de fuertes de la bahía de Corral.</span></div></div>
+<div class="guia-item"><div class="guia-icon"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#f7efdb"/>
+<circle cx="50" cy="52" r="34" fill="#efe2c2"/>
+<rect x="34" y="42" width="27" height="34" rx="4" fill="#e8a33d" stroke="#b97a24" stroke-width="1.5"/>
+<line x1="40" y1="46" x2="40" y2="72" stroke="#f2c069" stroke-width="3"/>
+<line x1="48" y1="46" x2="48" y2="72" stroke="#f2c069" stroke-width="3"/>
+<line x1="56" y1="46" x2="56" y2="72" stroke="#f2c069" stroke-width="3"/>
+<path d="M61,48 h6 a7,7 0 0 1 7,7 v8 a7,7 0 0 1 -7,7 h-6" fill="none" stroke="#b97a24" stroke-width="4"/>
+<circle cx="38" cy="40" r="5.5" fill="#ffffff"/>
+<circle cx="47" cy="37" r="6.5" fill="#ffffff"/>
+<circle cx="56" cy="40" r="5.5" fill="#ffffff"/>
+<circle cx="42" cy="34" r="4" fill="#ffffff"/>
+<circle cx="52" cy="33" r="4" fill="#ffffff"/>
+<g stroke="#7a8a3f" stroke-width="1.6" fill="#9db35a">
+  <line x1="20" y1="78" x2="26" y2="56"/>
+  <ellipse cx="24" cy="58" rx="2.6" ry="4.2" transform="rotate(15 24 58)"/>
+  <ellipse cx="21.5" cy="65" rx="2.6" ry="4.2" transform="rotate(20 21.5 65)"/>
+  <line x1="80" y1="78" x2="74" y2="56"/>
+  <ellipse cx="76" cy="58" rx="2.6" ry="4.2" transform="rotate(-15 76 58)"/>
+  <ellipse cx="78.5" cy="65" rx="2.6" ry="4.2" transform="rotate(-20 78.5 65)"/>
+</g>
+</svg></div><div><b>Cervecería Kunstmann</b><br><span>Herencia de la tradición cervecera alemana de Valdivia; su museo está en el sector de Torobayo.</span></div></div>
+<div class="guia-item"><div class="guia-icon"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#dff0f7"/>
+<circle cx="82" cy="16" r="8" fill="#ffd66b"/>
+<path d="M0,44 Q22,26 44,44 L44,52 L0,52 Z" fill="#7fae6f"/>
+<path d="M36,46 Q64,24 100,46 L100,54 L36,54 Z" fill="#5f9457"/>
+<rect y="52" width="100" height="48" fill="#4a90b8"/>
+<path d="M0,60 Q10,56 20,60 T40,60 T60,60 T80,60 T100,60" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.5"/>
+<path d="M0,78 Q12,74 24,78 T48,78 T72,78 T96,78" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.35"/>
+<path d="M28,66 L72,66 L64,78 Q50,83 36,78 Z" fill="#8a5a33"/>
+<path d="M28,66 L72,66 L70,69 L30,69 Z" fill="#a9743f"/>
+<line x1="38" y1="58" x2="24" y2="74" stroke="#5a3a20" stroke-width="2"/>
+<line x1="62" y1="58" x2="76" y2="74" stroke="#5a3a20" stroke-width="2"/>
+<circle cx="50" cy="56" r="4.5" fill="#33424e"/>
+<path d="M44,66 Q50,58 56,66 Z" fill="#33424e"/>
+</svg></div><div><b>Río Calle-Calle</b><br><span>Eje de la vida valdiviana: navegación, remo y paisaje que inspiró canciones tradicionales.</span></div></div></div>
+    </div>
+  </div>
+  <div class="p-pie">Valdivia, Región de Los Ríos, Chile · Material educativo imprimible</div>
+</div>
+<div class="page"><div class="pagehead">✂ Memorice Patrimonial de Valdivia — cartas 1 de 2</div><div class="grid"><div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#dbe9f0"/>
+<ellipse cx="30" cy="16" rx="16" ry="5" fill="#ffffff" opacity="0.9"/>
+<ellipse cx="72" cy="24" rx="14" ry="4.5" fill="#ffffff" opacity="0.8"/>
+<rect y="64" width="100" height="36" fill="#3f7fb5"/>
+<path d="M0,70 Q8,66 16,70 T32,70 T48,70 T64,70 T80,70 T96,70" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.6"/>
+<polygon points="0,64 58,64 62,34 0,30" fill="#7fae6f"/>
+<rect x="6" y="32" width="48" height="16" fill="#9aa5ad"/>
+<rect x="6" y="26" width="9" height="7" fill="#9aa5ad"/>
+<rect x="25" y="26" width="9" height="7" fill="#9aa5ad"/>
+<rect x="45" y="26" width="9" height="7" fill="#9aa5ad"/>
+<line x1="6" y1="40" x2="54" y2="40" stroke="#7f8b93" stroke-width="1"/>
+<line x1="18" y1="32" x2="18" y2="40" stroke="#7f8b93" stroke-width="1"/>
+<line x1="38" y1="40" x2="38" y2="48" stroke="#7f8b93" stroke-width="1"/>
+<g transform="rotate(18 62 42)">
+  <rect x="56" y="40" width="20" height="5" rx="2.5" fill="#3b3f45"/>
+</g>
+<circle cx="58" cy="48" r="4" fill="#2c3036"/>
+</svg></div><div class="name" style="background:#5f8aa8">Castillo de Niebla</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#eaf2f7"/>
+<rect y="82" width="100" height="18" fill="#b8bfc6"/>
+<rect x="8" y="44" width="26" height="38" fill="#e3b23c"/>
+<polygon points="6,44 36,44 21,32" fill="#8a6b4a"/>
+<rect x="13" y="50" width="7" height="9" fill="#ffffff" stroke="#8a6b4a" stroke-width="1.2"/>
+<rect x="23" y="50" width="7" height="9" fill="#ffffff" stroke="#8a6b4a" stroke-width="1.2"/>
+<rect x="16" y="66" width="10" height="16" fill="#6b4f3a"/>
+<rect x="37" y="36" width="27" height="46" fill="#5f9ea0"/>
+<polygon points="35,36 66,36 50.5,24" fill="#46666e"/>
+<rect x="42" y="42" width="7" height="9" fill="#ffffff" stroke="#3d5a60" stroke-width="1.2"/>
+<rect x="52" y="42" width="7" height="9" fill="#ffffff" stroke="#3d5a60" stroke-width="1.2"/>
+<rect x="42" y="56" width="7" height="9" fill="#ffffff" stroke="#3d5a60" stroke-width="1.2"/>
+<rect x="52" y="56" width="7" height="9" fill="#ffffff" stroke="#3d5a60" stroke-width="1.2"/>
+<rect x="45" y="68" width="10" height="14" fill="#2f4147"/>
+<rect x="67" y="46" width="25" height="36" fill="#d97862"/>
+<polygon points="65,46 94,46 79.5,34" fill="#9a4a38"/>
+<rect x="72" y="52" width="7" height="9" fill="#ffffff" stroke="#9a4a38" stroke-width="1.2"/>
+<rect x="82" y="52" width="7" height="9" fill="#ffffff" stroke="#9a4a38" stroke-width="1.2"/>
+<rect x="75" y="66" width="10" height="16" fill="#6b3226"/>
+</svg></div><div class="name" style="background:#5f9ea0">Calle General Lagos</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#d9ecf5"/>
+<rect y="76" width="100" height="24" fill="#8fae7a"/>
+<rect x="8" y="44" width="84" height="38" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<rect x="8" y="38" width="12" height="8" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<rect x="32" y="38" width="12" height="8" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<rect x="56" y="38" width="12" height="8" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<rect x="80" y="38" width="12" height="8" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<line x1="8" y1="56" x2="92" y2="56" stroke="#b3a081" stroke-width="1"/>
+<line x1="8" y1="68" x2="92" y2="68" stroke="#b3a081" stroke-width="1"/>
+<line x1="26" y1="44" x2="26" y2="56" stroke="#b3a081" stroke-width="1"/>
+<line x1="60" y1="56" x2="60" y2="68" stroke="#b3a081" stroke-width="1"/>
+<line x1="34" y1="68" x2="34" y2="82" stroke="#b3a081" stroke-width="1"/>
+<path d="M40,82 h20 v-16 a10,10 0 0 0 -20,0 Z" fill="#5a4632"/>
+<rect x="72" y="12" width="2" height="28" fill="#5a4632"/>
+<rect x="74" y="12" width="9" height="5" fill="#ffffff"/>
+<rect x="74" y="12" width="4.5" height="5" fill="#2a5caa"/>
+<rect x="74" y="17" width="18" height="5" fill="#d43d2a"/>
+<rect x="83" y="12" width="9" height="5" fill="#d43d2a"/>
+<polygon points="76.2,13 77,14.8 79,14.9 77.5,16.1 78,18 76.2,17 74.4,18 74.9,16.1 73.4,14.9 75.4,14.8" fill="#ffffff"/>
+</svg></div><div class="name" style="background:#a8946f">Fuerte de Corral</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#e6f2e2"/>
+<rect y="82" width="100" height="18" fill="#8fc97e"/>
+<rect x="22" y="46" width="56" height="36" fill="#f5efe0" stroke="#c9bfa8" stroke-width="1"/>
+<line x1="22" y1="54" x2="78" y2="54" stroke="#ddd2ba" stroke-width="1"/>
+<line x1="22" y1="62" x2="78" y2="62" stroke="#ddd2ba" stroke-width="1"/>
+<line x1="22" y1="70" x2="78" y2="70" stroke="#ddd2ba" stroke-width="1"/>
+<polygon points="16,46 84,46 50,22" fill="#7c8a94"/>
+<rect x="46" y="30" width="8" height="8" fill="#f5efe0" stroke="#c9bfa8" stroke-width="1"/>
+<rect x="28" y="52" width="9" height="11" fill="#ffffff" stroke="#5f8a5f" stroke-width="1.6"/>
+<rect x="63" y="52" width="9" height="11" fill="#ffffff" stroke="#5f8a5f" stroke-width="1.6"/>
+<rect x="28" y="68" width="9" height="11" fill="#ffffff" stroke="#5f8a5f" stroke-width="1.6"/>
+<rect x="63" y="68" width="9" height="11" fill="#ffffff" stroke="#5f8a5f" stroke-width="1.6"/>
+<rect x="45" y="64" width="10" height="18" rx="1.5" fill="#6b4f3a"/>
+<ellipse cx="12" cy="84" rx="8" ry="5" fill="#5fa564"/>
+<ellipse cx="90" cy="86" rx="7" ry="4.5" fill="#5fa564"/>
+</svg></div><div class="name" style="background:#5f8a5f">Casa Anwandter</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#f7efdb"/>
+<circle cx="50" cy="52" r="34" fill="#efe2c2"/>
+<rect x="34" y="42" width="27" height="34" rx="4" fill="#e8a33d" stroke="#b97a24" stroke-width="1.5"/>
+<line x1="40" y1="46" x2="40" y2="72" stroke="#f2c069" stroke-width="3"/>
+<line x1="48" y1="46" x2="48" y2="72" stroke="#f2c069" stroke-width="3"/>
+<line x1="56" y1="46" x2="56" y2="72" stroke="#f2c069" stroke-width="3"/>
+<path d="M61,48 h6 a7,7 0 0 1 7,7 v8 a7,7 0 0 1 -7,7 h-6" fill="none" stroke="#b97a24" stroke-width="4"/>
+<circle cx="38" cy="40" r="5.5" fill="#ffffff"/>
+<circle cx="47" cy="37" r="6.5" fill="#ffffff"/>
+<circle cx="56" cy="40" r="5.5" fill="#ffffff"/>
+<circle cx="42" cy="34" r="4" fill="#ffffff"/>
+<circle cx="52" cy="33" r="4" fill="#ffffff"/>
+<g stroke="#7a8a3f" stroke-width="1.6" fill="#9db35a">
+  <line x1="20" y1="78" x2="26" y2="56"/>
+  <ellipse cx="24" cy="58" rx="2.6" ry="4.2" transform="rotate(15 24 58)"/>
+  <ellipse cx="21.5" cy="65" rx="2.6" ry="4.2" transform="rotate(20 21.5 65)"/>
+  <line x1="80" y1="78" x2="74" y2="56"/>
+  <ellipse cx="76" cy="58" rx="2.6" ry="4.2" transform="rotate(-15 76 58)"/>
+  <ellipse cx="78.5" cy="65" rx="2.6" ry="4.2" transform="rotate(-20 78.5 65)"/>
+</g>
+</svg></div><div class="name" style="background:#b97a24">Cervecería Kunstmann</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#d9edf9"/>
+<circle cx="80" cy="18" r="8" fill="#ffd66b"/>
+<rect y="78" width="100" height="22" fill="#8fc97e"/>
+<ellipse cx="17" cy="82" rx="12" ry="6" fill="#5fa564"/>
+<ellipse cx="85" cy="85" rx="10" ry="5" fill="#5fa564"/>
+<rect x="36" y="40" width="28" height="42" rx="3" fill="#f4ede0" stroke="#b7a98f" stroke-width="1.5"/>
+<line x1="36" y1="52" x2="64" y2="52" stroke="#d9cdb6" stroke-width="1"/>
+<line x1="36" y1="62" x2="64" y2="62" stroke="#d9cdb6" stroke-width="1"/>
+<rect x="32" y="38" width="36" height="5" rx="2.5" fill="#a8927a"/>
+<polygon points="31,40 69,40 50,14" fill="#c0392b"/>
+<rect x="45" y="64" width="10" height="18" rx="5" fill="#7a5230"/>
+<rect x="42" y="46" width="4" height="9" rx="2" fill="#5e7285"/>
+<rect x="54" y="46" width="4" height="9" rx="2" fill="#5e7285"/>
+</svg></div><div class="name" style="background:#c0392b">Torreón Los Canelos</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#e8eef7"/>
+<rect y="80" width="100" height="20" fill="#9fc48b"/>
+<rect x="20" y="46" width="42" height="36" fill="#f2ede1" stroke="#cdc4b2" stroke-width="1"/>
+<polygon points="16,48 66,48 41,22" fill="#b3552e"/>
+<path d="M33,82 h16 v-16 a8,8 0 0 0 -16,0 Z" fill="#6b4f3a"/>
+<rect x="26" y="54" width="4" height="12" rx="2" fill="#7fa8c9"/>
+<rect x="52" y="54" width="4" height="12" rx="2" fill="#7fa8c9"/>
+<rect x="68" y="30" width="14" height="52" fill="#e3dbc9" stroke="#cdc4b2" stroke-width="1"/>
+<rect x="70" y="36" width="10" height="8" fill="#5e7285"/>
+<rect x="70" y="50" width="10" height="8" fill="#5e7285"/>
+<rect x="74" y="14" width="2.6" height="14" fill="#8a7a5f"/>
+<rect x="70.5" y="17.5" width="9.6" height="2.6" fill="#8a7a5f"/>
+<circle cx="41" cy="36" r="4" fill="#f7d774" stroke="#cdc4b2" stroke-width="1"/>
+</svg></div><div class="name" style="background:#b3552e">Catedral de Valdivia</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#fdf3e0"/>
+<rect x="16" y="42" width="4" height="42" fill="#8a5a33"/>
+<rect x="80" y="42" width="4" height="42" fill="#8a5a33"/>
+<polygon points="10,24 90,24 94,42 6,42" fill="#e8794a"/>
+<polygon points="24,24 38,24 39,42 22,42" fill="#f9f1e2"/>
+<polygon points="52,24 66,24 68,42 49,42" fill="#f9f1e2"/>
+<circle cx="14" cy="42" r="4.5" fill="#e8794a"/>
+<circle cx="31" cy="42" r="4.5" fill="#f9f1e2"/>
+<circle cx="49" cy="42" r="4.5" fill="#e8794a"/>
+<circle cx="67" cy="42" r="4.5" fill="#f9f1e2"/>
+<circle cx="86" cy="42" r="4.5" fill="#e8794a"/>
+<rect x="20" y="62" width="60" height="6" fill="#a9743f"/>
+<rect x="24" y="68" width="5" height="18" fill="#8a5a33"/>
+<rect x="71" y="68" width="5" height="18" fill="#8a5a33"/>
+<ellipse cx="40" cy="57" rx="12" ry="5" fill="#9db8c9"/>
+<polygon points="50,57 58,52 58,62" fill="#9db8c9"/>
+<circle cx="33" cy="56" r="1.3" fill="#2e3d49"/>
+<ellipse cx="62" cy="59" rx="10" ry="4.2" fill="#c9d6df"/>
+<polygon points="70,59 77,55 77,63" fill="#c9d6df"/>
+<circle cx="56" cy="58" r="1.1" fill="#2e3d49"/>
+</svg></div><div class="name" style="background:#e8794a">Mercado Fluvial</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#d9edf9"/>
+<circle cx="18" cy="16" r="7" fill="#ffd66b"/>
+<ellipse cx="78" cy="26" rx="16" ry="6" fill="#ffffff" opacity="0.8"/>
+<rect y="68" width="100" height="32" fill="#4a90b8"/>
+<path d="M0,74 Q10,70 20,74 T40,74 T60,74 T80,74 T100,74" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.5"/>
+<path d="M4,68 Q27,46 50,68" fill="none" stroke="#7d8892" stroke-width="4.5"/>
+<path d="M50,68 Q73,46 96,68" fill="none" stroke="#7d8892" stroke-width="4.5"/>
+<rect x="0" y="50" width="100" height="7" fill="#95a0aa"/>
+<rect x="0" y="46" width="100" height="2" fill="#6d7883"/>
+<line x1="8" y1="46" x2="8" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="22" y1="46" x2="22" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="36" y1="46" x2="36" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="50" y1="46" x2="50" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="64" y1="46" x2="64" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="78" y1="46" x2="78" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="92" y1="46" x2="92" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<rect x="46" y="57" width="8" height="12" fill="#7d8892"/>
+</svg></div><div class="name" style="background:#6d7883">Puente Pedro de Valdivia</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#d3e8f2"/>
+<ellipse cx="24" cy="18" rx="14" ry="5" fill="#ffffff" opacity="0.8"/>
+<rect y="66" width="100" height="34" fill="#4a90b8"/>
+<path d="M0,72 Q10,68 20,72 T40,72 T60,72 T80,72 T100,72" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.5"/>
+<ellipse cx="50" cy="60" rx="37" ry="12" fill="#4c565f"/>
+<rect x="42" y="36" width="16" height="16" rx="2" fill="#3c454d"/>
+<rect x="48" y="27" width="2.6" height="10" fill="#3c454d"/>
+<rect x="48" y="27" width="7" height="2.6" fill="#3c454d"/>
+<circle cx="32" cy="60" r="3" fill="#cfd8e0"/>
+<circle cx="44" cy="62" r="3" fill="#cfd8e0"/>
+<circle cx="56" cy="62" r="3" fill="#cfd8e0"/>
+<circle cx="68" cy="60" r="3" fill="#cfd8e0"/>
+<polygon points="84,54 93,50 93,62 84,60" fill="#3c454d"/>
+</svg></div><div class="name" style="background:#4c565f">Submarino O'Brien</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#cde6f2"/>
+<rect y="70" width="100" height="30" fill="#4a90b8"/>
+<path d="M0,76 Q10,72 20,76 T40,76 T60,76 T80,76 T100,76" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.5"/>
+<rect x="8" y="60" width="84" height="12" rx="2" fill="#b3a58f"/>
+<line x1="24" y1="60" x2="24" y2="72" stroke="#93866f" stroke-width="1.5"/>
+<line x1="44" y1="60" x2="44" y2="72" stroke="#93866f" stroke-width="1.5"/>
+<line x1="64" y1="60" x2="64" y2="72" stroke="#93866f" stroke-width="1.5"/>
+<line x1="82" y1="60" x2="82" y2="72" stroke="#93866f" stroke-width="1.5"/>
+<path d="M30,60 C31,44 40,34 52,31 C50,44 52,52 62,60 Z" fill="#8a5a3b"/>
+<ellipse cx="66" cy="58" rx="9" ry="4" fill="#8a5a3b"/>
+<circle cx="53" cy="27" r="8.5" fill="#8a5a3b"/>
+<ellipse cx="60" cy="30" rx="4.5" ry="3.4" fill="#6e4526"/>
+<circle cx="63" cy="29" r="1.2" fill="#2d1d10"/>
+<circle cx="53" cy="24" r="1.4" fill="#2d1d10"/>
+<line x1="63" y1="32" x2="70" y2="31" stroke="#5a3a20" stroke-width="0.8"/>
+<line x1="63" y1="33" x2="69" y2="34" stroke="#5a3a20" stroke-width="0.8"/>
+<ellipse cx="38" cy="59" rx="7" ry="3.2" fill="#6e4526" transform="rotate(-18 38 59)"/>
+</svg></div><div class="name" style="background:#8a5a3b">Lobos Marinos</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#d3e8f2"/>
+<ellipse cx="24" cy="18" rx="14" ry="5" fill="#ffffff" opacity="0.8"/>
+<rect y="66" width="100" height="34" fill="#4a90b8"/>
+<path d="M0,72 Q10,68 20,72 T40,72 T60,72 T80,72 T100,72" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.5"/>
+<ellipse cx="50" cy="60" rx="37" ry="12" fill="#4c565f"/>
+<rect x="42" y="36" width="16" height="16" rx="2" fill="#3c454d"/>
+<rect x="48" y="27" width="2.6" height="10" fill="#3c454d"/>
+<rect x="48" y="27" width="7" height="2.6" fill="#3c454d"/>
+<circle cx="32" cy="60" r="3" fill="#cfd8e0"/>
+<circle cx="44" cy="62" r="3" fill="#cfd8e0"/>
+<circle cx="56" cy="62" r="3" fill="#cfd8e0"/>
+<circle cx="68" cy="60" r="3" fill="#cfd8e0"/>
+<polygon points="84,54 93,50 93,62 84,60" fill="#3c454d"/>
+</svg></div><div class="name" style="background:#4c565f">Submarino O'Brien</div></div></div></div>
+<div class="page"><div class="pagehead">✂ Memorice Patrimonial de Valdivia — cartas 2 de 2</div><div class="grid"><div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#dff0f7"/>
+<circle cx="82" cy="16" r="8" fill="#ffd66b"/>
+<path d="M0,44 Q22,26 44,44 L44,52 L0,52 Z" fill="#7fae6f"/>
+<path d="M36,46 Q64,24 100,46 L100,54 L36,54 Z" fill="#5f9457"/>
+<rect y="52" width="100" height="48" fill="#4a90b8"/>
+<path d="M0,60 Q10,56 20,60 T40,60 T60,60 T80,60 T100,60" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.5"/>
+<path d="M0,78 Q12,74 24,78 T48,78 T72,78 T96,78" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.35"/>
+<path d="M28,66 L72,66 L64,78 Q50,83 36,78 Z" fill="#8a5a33"/>
+<path d="M28,66 L72,66 L70,69 L30,69 Z" fill="#a9743f"/>
+<line x1="38" y1="58" x2="24" y2="74" stroke="#5a3a20" stroke-width="2"/>
+<line x1="62" y1="58" x2="76" y2="74" stroke="#5a3a20" stroke-width="2"/>
+<circle cx="50" cy="56" r="4.5" fill="#33424e"/>
+<path d="M44,66 Q50,58 56,66 Z" fill="#33424e"/>
+</svg></div><div class="name" style="background:#4a90b8">Río Calle-Calle</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#d9edf9"/>
+<circle cx="18" cy="16" r="7" fill="#ffd66b"/>
+<ellipse cx="78" cy="26" rx="16" ry="6" fill="#ffffff" opacity="0.8"/>
+<rect y="68" width="100" height="32" fill="#4a90b8"/>
+<path d="M0,74 Q10,70 20,74 T40,74 T60,74 T80,74 T100,74" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.5"/>
+<path d="M4,68 Q27,46 50,68" fill="none" stroke="#7d8892" stroke-width="4.5"/>
+<path d="M50,68 Q73,46 96,68" fill="none" stroke="#7d8892" stroke-width="4.5"/>
+<rect x="0" y="50" width="100" height="7" fill="#95a0aa"/>
+<rect x="0" y="46" width="100" height="2" fill="#6d7883"/>
+<line x1="8" y1="46" x2="8" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="22" y1="46" x2="22" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="36" y1="46" x2="36" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="50" y1="46" x2="50" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="64" y1="46" x2="64" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="78" y1="46" x2="78" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<line x1="92" y1="46" x2="92" y2="50" stroke="#6d7883" stroke-width="1.6"/>
+<rect x="46" y="57" width="8" height="12" fill="#7d8892"/>
+</svg></div><div class="name" style="background:#6d7883">Puente Pedro de Valdivia</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#cde6f2"/>
+<rect y="70" width="100" height="30" fill="#4a90b8"/>
+<path d="M0,76 Q10,72 20,76 T40,76 T60,76 T80,76 T100,76" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.5"/>
+<rect x="8" y="60" width="84" height="12" rx="2" fill="#b3a58f"/>
+<line x1="24" y1="60" x2="24" y2="72" stroke="#93866f" stroke-width="1.5"/>
+<line x1="44" y1="60" x2="44" y2="72" stroke="#93866f" stroke-width="1.5"/>
+<line x1="64" y1="60" x2="64" y2="72" stroke="#93866f" stroke-width="1.5"/>
+<line x1="82" y1="60" x2="82" y2="72" stroke="#93866f" stroke-width="1.5"/>
+<path d="M30,60 C31,44 40,34 52,31 C50,44 52,52 62,60 Z" fill="#8a5a3b"/>
+<ellipse cx="66" cy="58" rx="9" ry="4" fill="#8a5a3b"/>
+<circle cx="53" cy="27" r="8.5" fill="#8a5a3b"/>
+<ellipse cx="60" cy="30" rx="4.5" ry="3.4" fill="#6e4526"/>
+<circle cx="63" cy="29" r="1.2" fill="#2d1d10"/>
+<circle cx="53" cy="24" r="1.4" fill="#2d1d10"/>
+<line x1="63" y1="32" x2="70" y2="31" stroke="#5a3a20" stroke-width="0.8"/>
+<line x1="63" y1="33" x2="69" y2="34" stroke="#5a3a20" stroke-width="0.8"/>
+<ellipse cx="38" cy="59" rx="7" ry="3.2" fill="#6e4526" transform="rotate(-18 38 59)"/>
+</svg></div><div class="name" style="background:#8a5a3b">Lobos Marinos</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#f7efdb"/>
+<circle cx="50" cy="52" r="34" fill="#efe2c2"/>
+<rect x="34" y="42" width="27" height="34" rx="4" fill="#e8a33d" stroke="#b97a24" stroke-width="1.5"/>
+<line x1="40" y1="46" x2="40" y2="72" stroke="#f2c069" stroke-width="3"/>
+<line x1="48" y1="46" x2="48" y2="72" stroke="#f2c069" stroke-width="3"/>
+<line x1="56" y1="46" x2="56" y2="72" stroke="#f2c069" stroke-width="3"/>
+<path d="M61,48 h6 a7,7 0 0 1 7,7 v8 a7,7 0 0 1 -7,7 h-6" fill="none" stroke="#b97a24" stroke-width="4"/>
+<circle cx="38" cy="40" r="5.5" fill="#ffffff"/>
+<circle cx="47" cy="37" r="6.5" fill="#ffffff"/>
+<circle cx="56" cy="40" r="5.5" fill="#ffffff"/>
+<circle cx="42" cy="34" r="4" fill="#ffffff"/>
+<circle cx="52" cy="33" r="4" fill="#ffffff"/>
+<g stroke="#7a8a3f" stroke-width="1.6" fill="#9db35a">
+  <line x1="20" y1="78" x2="26" y2="56"/>
+  <ellipse cx="24" cy="58" rx="2.6" ry="4.2" transform="rotate(15 24 58)"/>
+  <ellipse cx="21.5" cy="65" rx="2.6" ry="4.2" transform="rotate(20 21.5 65)"/>
+  <line x1="80" y1="78" x2="74" y2="56"/>
+  <ellipse cx="76" cy="58" rx="2.6" ry="4.2" transform="rotate(-15 76 58)"/>
+  <ellipse cx="78.5" cy="65" rx="2.6" ry="4.2" transform="rotate(-20 78.5 65)"/>
+</g>
+</svg></div><div class="name" style="background:#b97a24">Cervecería Kunstmann</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#eaf2f7"/>
+<rect y="82" width="100" height="18" fill="#b8bfc6"/>
+<rect x="8" y="44" width="26" height="38" fill="#e3b23c"/>
+<polygon points="6,44 36,44 21,32" fill="#8a6b4a"/>
+<rect x="13" y="50" width="7" height="9" fill="#ffffff" stroke="#8a6b4a" stroke-width="1.2"/>
+<rect x="23" y="50" width="7" height="9" fill="#ffffff" stroke="#8a6b4a" stroke-width="1.2"/>
+<rect x="16" y="66" width="10" height="16" fill="#6b4f3a"/>
+<rect x="37" y="36" width="27" height="46" fill="#5f9ea0"/>
+<polygon points="35,36 66,36 50.5,24" fill="#46666e"/>
+<rect x="42" y="42" width="7" height="9" fill="#ffffff" stroke="#3d5a60" stroke-width="1.2"/>
+<rect x="52" y="42" width="7" height="9" fill="#ffffff" stroke="#3d5a60" stroke-width="1.2"/>
+<rect x="42" y="56" width="7" height="9" fill="#ffffff" stroke="#3d5a60" stroke-width="1.2"/>
+<rect x="52" y="56" width="7" height="9" fill="#ffffff" stroke="#3d5a60" stroke-width="1.2"/>
+<rect x="45" y="68" width="10" height="14" fill="#2f4147"/>
+<rect x="67" y="46" width="25" height="36" fill="#d97862"/>
+<polygon points="65,46 94,46 79.5,34" fill="#9a4a38"/>
+<rect x="72" y="52" width="7" height="9" fill="#ffffff" stroke="#9a4a38" stroke-width="1.2"/>
+<rect x="82" y="52" width="7" height="9" fill="#ffffff" stroke="#9a4a38" stroke-width="1.2"/>
+<rect x="75" y="66" width="10" height="16" fill="#6b3226"/>
+</svg></div><div class="name" style="background:#5f9ea0">Calle General Lagos</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#dbe9f0"/>
+<ellipse cx="30" cy="16" rx="16" ry="5" fill="#ffffff" opacity="0.9"/>
+<ellipse cx="72" cy="24" rx="14" ry="4.5" fill="#ffffff" opacity="0.8"/>
+<rect y="64" width="100" height="36" fill="#3f7fb5"/>
+<path d="M0,70 Q8,66 16,70 T32,70 T48,70 T64,70 T80,70 T96,70" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.6"/>
+<polygon points="0,64 58,64 62,34 0,30" fill="#7fae6f"/>
+<rect x="6" y="32" width="48" height="16" fill="#9aa5ad"/>
+<rect x="6" y="26" width="9" height="7" fill="#9aa5ad"/>
+<rect x="25" y="26" width="9" height="7" fill="#9aa5ad"/>
+<rect x="45" y="26" width="9" height="7" fill="#9aa5ad"/>
+<line x1="6" y1="40" x2="54" y2="40" stroke="#7f8b93" stroke-width="1"/>
+<line x1="18" y1="32" x2="18" y2="40" stroke="#7f8b93" stroke-width="1"/>
+<line x1="38" y1="40" x2="38" y2="48" stroke="#7f8b93" stroke-width="1"/>
+<g transform="rotate(18 62 42)">
+  <rect x="56" y="40" width="20" height="5" rx="2.5" fill="#3b3f45"/>
+</g>
+<circle cx="58" cy="48" r="4" fill="#2c3036"/>
+</svg></div><div class="name" style="background:#5f8aa8">Castillo de Niebla</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#d9edf9"/>
+<circle cx="80" cy="18" r="8" fill="#ffd66b"/>
+<rect y="78" width="100" height="22" fill="#8fc97e"/>
+<ellipse cx="17" cy="82" rx="12" ry="6" fill="#5fa564"/>
+<ellipse cx="85" cy="85" rx="10" ry="5" fill="#5fa564"/>
+<rect x="36" y="40" width="28" height="42" rx="3" fill="#f4ede0" stroke="#b7a98f" stroke-width="1.5"/>
+<line x1="36" y1="52" x2="64" y2="52" stroke="#d9cdb6" stroke-width="1"/>
+<line x1="36" y1="62" x2="64" y2="62" stroke="#d9cdb6" stroke-width="1"/>
+<rect x="32" y="38" width="36" height="5" rx="2.5" fill="#a8927a"/>
+<polygon points="31,40 69,40 50,14" fill="#c0392b"/>
+<rect x="45" y="64" width="10" height="18" rx="5" fill="#7a5230"/>
+<rect x="42" y="46" width="4" height="9" rx="2" fill="#5e7285"/>
+<rect x="54" y="46" width="4" height="9" rx="2" fill="#5e7285"/>
+</svg></div><div class="name" style="background:#c0392b">Torreón Los Canelos</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#e6f2e2"/>
+<rect y="82" width="100" height="18" fill="#8fc97e"/>
+<rect x="22" y="46" width="56" height="36" fill="#f5efe0" stroke="#c9bfa8" stroke-width="1"/>
+<line x1="22" y1="54" x2="78" y2="54" stroke="#ddd2ba" stroke-width="1"/>
+<line x1="22" y1="62" x2="78" y2="62" stroke="#ddd2ba" stroke-width="1"/>
+<line x1="22" y1="70" x2="78" y2="70" stroke="#ddd2ba" stroke-width="1"/>
+<polygon points="16,46 84,46 50,22" fill="#7c8a94"/>
+<rect x="46" y="30" width="8" height="8" fill="#f5efe0" stroke="#c9bfa8" stroke-width="1"/>
+<rect x="28" y="52" width="9" height="11" fill="#ffffff" stroke="#5f8a5f" stroke-width="1.6"/>
+<rect x="63" y="52" width="9" height="11" fill="#ffffff" stroke="#5f8a5f" stroke-width="1.6"/>
+<rect x="28" y="68" width="9" height="11" fill="#ffffff" stroke="#5f8a5f" stroke-width="1.6"/>
+<rect x="63" y="68" width="9" height="11" fill="#ffffff" stroke="#5f8a5f" stroke-width="1.6"/>
+<rect x="45" y="64" width="10" height="18" rx="1.5" fill="#6b4f3a"/>
+<ellipse cx="12" cy="84" rx="8" ry="5" fill="#5fa564"/>
+<ellipse cx="90" cy="86" rx="7" ry="4.5" fill="#5fa564"/>
+</svg></div><div class="name" style="background:#5f8a5f">Casa Anwandter</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#e8eef7"/>
+<rect y="80" width="100" height="20" fill="#9fc48b"/>
+<rect x="20" y="46" width="42" height="36" fill="#f2ede1" stroke="#cdc4b2" stroke-width="1"/>
+<polygon points="16,48 66,48 41,22" fill="#b3552e"/>
+<path d="M33,82 h16 v-16 a8,8 0 0 0 -16,0 Z" fill="#6b4f3a"/>
+<rect x="26" y="54" width="4" height="12" rx="2" fill="#7fa8c9"/>
+<rect x="52" y="54" width="4" height="12" rx="2" fill="#7fa8c9"/>
+<rect x="68" y="30" width="14" height="52" fill="#e3dbc9" stroke="#cdc4b2" stroke-width="1"/>
+<rect x="70" y="36" width="10" height="8" fill="#5e7285"/>
+<rect x="70" y="50" width="10" height="8" fill="#5e7285"/>
+<rect x="74" y="14" width="2.6" height="14" fill="#8a7a5f"/>
+<rect x="70.5" y="17.5" width="9.6" height="2.6" fill="#8a7a5f"/>
+<circle cx="41" cy="36" r="4" fill="#f7d774" stroke="#cdc4b2" stroke-width="1"/>
+</svg></div><div class="name" style="background:#b3552e">Catedral de Valdivia</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#d9ecf5"/>
+<rect y="76" width="100" height="24" fill="#8fae7a"/>
+<rect x="8" y="44" width="84" height="38" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<rect x="8" y="38" width="12" height="8" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<rect x="32" y="38" width="12" height="8" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<rect x="56" y="38" width="12" height="8" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<rect x="80" y="38" width="12" height="8" fill="#c9b79b" stroke="#a8946f" stroke-width="1"/>
+<line x1="8" y1="56" x2="92" y2="56" stroke="#b3a081" stroke-width="1"/>
+<line x1="8" y1="68" x2="92" y2="68" stroke="#b3a081" stroke-width="1"/>
+<line x1="26" y1="44" x2="26" y2="56" stroke="#b3a081" stroke-width="1"/>
+<line x1="60" y1="56" x2="60" y2="68" stroke="#b3a081" stroke-width="1"/>
+<line x1="34" y1="68" x2="34" y2="82" stroke="#b3a081" stroke-width="1"/>
+<path d="M40,82 h20 v-16 a10,10 0 0 0 -20,0 Z" fill="#5a4632"/>
+<rect x="72" y="12" width="2" height="28" fill="#5a4632"/>
+<rect x="74" y="12" width="9" height="5" fill="#ffffff"/>
+<rect x="74" y="12" width="4.5" height="5" fill="#2a5caa"/>
+<rect x="74" y="17" width="18" height="5" fill="#d43d2a"/>
+<rect x="83" y="12" width="9" height="5" fill="#d43d2a"/>
+<polygon points="76.2,13 77,14.8 79,14.9 77.5,16.1 78,18 76.2,17 74.4,18 74.9,16.1 73.4,14.9 75.4,14.8" fill="#ffffff"/>
+</svg></div><div class="name" style="background:#a8946f">Fuerte de Corral</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#fdf3e0"/>
+<rect x="16" y="42" width="4" height="42" fill="#8a5a33"/>
+<rect x="80" y="42" width="4" height="42" fill="#8a5a33"/>
+<polygon points="10,24 90,24 94,42 6,42" fill="#e8794a"/>
+<polygon points="24,24 38,24 39,42 22,42" fill="#f9f1e2"/>
+<polygon points="52,24 66,24 68,42 49,42" fill="#f9f1e2"/>
+<circle cx="14" cy="42" r="4.5" fill="#e8794a"/>
+<circle cx="31" cy="42" r="4.5" fill="#f9f1e2"/>
+<circle cx="49" cy="42" r="4.5" fill="#e8794a"/>
+<circle cx="67" cy="42" r="4.5" fill="#f9f1e2"/>
+<circle cx="86" cy="42" r="4.5" fill="#e8794a"/>
+<rect x="20" y="62" width="60" height="6" fill="#a9743f"/>
+<rect x="24" y="68" width="5" height="18" fill="#8a5a33"/>
+<rect x="71" y="68" width="5" height="18" fill="#8a5a33"/>
+<ellipse cx="40" cy="57" rx="12" ry="5" fill="#9db8c9"/>
+<polygon points="50,57 58,52 58,62" fill="#9db8c9"/>
+<circle cx="33" cy="56" r="1.3" fill="#2e3d49"/>
+<ellipse cx="62" cy="59" rx="10" ry="4.2" fill="#c9d6df"/>
+<polygon points="70,59 77,55 77,63" fill="#c9d6df"/>
+<circle cx="56" cy="58" r="1.1" fill="#2e3d49"/>
+</svg></div><div class="name" style="background:#e8794a">Mercado Fluvial</div></div>
+<div class="card"><div class="art"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#dff0f7"/>
+<circle cx="82" cy="16" r="8" fill="#ffd66b"/>
+<path d="M0,44 Q22,26 44,44 L44,52 L0,52 Z" fill="#7fae6f"/>
+<path d="M36,46 Q64,24 100,46 L100,54 L36,54 Z" fill="#5f9457"/>
+<rect y="52" width="100" height="48" fill="#4a90b8"/>
+<path d="M0,60 Q10,56 20,60 T40,60 T60,60 T80,60 T100,60" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.5"/>
+<path d="M0,78 Q12,74 24,78 T48,78 T72,78 T96,78" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.35"/>
+<path d="M28,66 L72,66 L64,78 Q50,83 36,78 Z" fill="#8a5a33"/>
+<path d="M28,66 L72,66 L70,69 L30,69 Z" fill="#a9743f"/>
+<line x1="38" y1="58" x2="24" y2="74" stroke="#5a3a20" stroke-width="2"/>
+<line x1="62" y1="58" x2="76" y2="74" stroke="#5a3a20" stroke-width="2"/>
+<circle cx="50" cy="56" r="4.5" fill="#33424e"/>
+<path d="M44,66 Q50,58 56,66 Z" fill="#33424e"/>
+</svg></div><div class="name" style="background:#4a90b8">Río Calle-Calle</div></div></div></div>
+<div class="page"><div class="pagehead">Reverso de las cartas — imprime esta página por el otro lado de cada página de cartas (opcional)</div><div class="grid"><div class="card back"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#1f5f74"/>
+<circle cx="50" cy="44" r="26" fill="none" stroke="#ffffff" stroke-width="1.6" opacity="0.85"/>
+<g fill="#ffffff" opacity="0.92">
+  <rect x="43" y="38" width="14" height="22" rx="2"/>
+  <polygon points="40,39 60,39 50,26"/>
+  <rect x="47" y="50" width="6" height="10" rx="3" fill="#1f5f74"/>
+</g>
+<path d="M28,66 Q34,62 40,66 T52,66 T64,66 T76,66" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.85"/>
+<path d="M32,72 Q38,68 44,72 T56,72 T68,72" stroke="#ffffff" fill="none" stroke-width="1.6" opacity="0.6"/>
+<text x="50" y="87" text-anchor="middle" font-family="Georgia, serif" font-size="6.4" letter-spacing="0.6" fill="#ffffff" opacity="0.95">MEMORICE VALDIVIA</text>
+<g fill="#f2c069" opacity="0.9">
+  <circle cx="12" cy="12" r="2"/><circle cx="88" cy="12" r="2"/>
+  <circle cx="12" cy="92" r="2"/><circle cx="88" cy="92" r="2"/>
+</g>
+</svg></div>
+<div class="card back"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#1f5f74"/>
+<circle cx="50" cy="44" r="26" fill="none" stroke="#ffffff" stroke-width="1.6" opacity="0.85"/>
+<g fill="#ffffff" opacity="0.92">
+  <rect x="43" y="38" width="14" height="22" rx="2"/>
+  <polygon points="40,39 60,39 50,26"/>
+  <rect x="47" y="50" width="6" height="10" rx="3" fill="#1f5f74"/>
+</g>
+<path d="M28,66 Q34,62 40,66 T52,66 T64,66 T76,66" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.85"/>
+<path d="M32,72 Q38,68 44,72 T56,72 T68,72" stroke="#ffffff" fill="none" stroke-width="1.6" opacity="0.6"/>
+<text x="50" y="87" text-anchor="middle" font-family="Georgia, serif" font-size="6.4" letter-spacing="0.6" fill="#ffffff" opacity="0.95">MEMORICE VALDIVIA</text>
+<g fill="#f2c069" opacity="0.9">
+  <circle cx="12" cy="12" r="2"/><circle cx="88" cy="12" r="2"/>
+  <circle cx="12" cy="92" r="2"/><circle cx="88" cy="92" r="2"/>
+</g>
+</svg></div>
+<div class="card back"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#1f5f74"/>
+<circle cx="50" cy="44" r="26" fill="none" stroke="#ffffff" stroke-width="1.6" opacity="0.85"/>
+<g fill="#ffffff" opacity="0.92">
+  <rect x="43" y="38" width="14" height="22" rx="2"/>
+  <polygon points="40,39 60,39 50,26"/>
+  <rect x="47" y="50" width="6" height="10" rx="3" fill="#1f5f74"/>
+</g>
+<path d="M28,66 Q34,62 40,66 T52,66 T64,66 T76,66" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.85"/>
+<path d="M32,72 Q38,68 44,72 T56,72 T68,72" stroke="#ffffff" fill="none" stroke-width="1.6" opacity="0.6"/>
+<text x="50" y="87" text-anchor="middle" font-family="Georgia, serif" font-size="6.4" letter-spacing="0.6" fill="#ffffff" opacity="0.95">MEMORICE VALDIVIA</text>
+<g fill="#f2c069" opacity="0.9">
+  <circle cx="12" cy="12" r="2"/><circle cx="88" cy="12" r="2"/>
+  <circle cx="12" cy="92" r="2"/><circle cx="88" cy="92" r="2"/>
+</g>
+</svg></div>
+<div class="card back"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#1f5f74"/>
+<circle cx="50" cy="44" r="26" fill="none" stroke="#ffffff" stroke-width="1.6" opacity="0.85"/>
+<g fill="#ffffff" opacity="0.92">
+  <rect x="43" y="38" width="14" height="22" rx="2"/>
+  <polygon points="40,39 60,39 50,26"/>
+  <rect x="47" y="50" width="6" height="10" rx="3" fill="#1f5f74"/>
+</g>
+<path d="M28,66 Q34,62 40,66 T52,66 T64,66 T76,66" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.85"/>
+<path d="M32,72 Q38,68 44,72 T56,72 T68,72" stroke="#ffffff" fill="none" stroke-width="1.6" opacity="0.6"/>
+<text x="50" y="87" text-anchor="middle" font-family="Georgia, serif" font-size="6.4" letter-spacing="0.6" fill="#ffffff" opacity="0.95">MEMORICE VALDIVIA</text>
+<g fill="#f2c069" opacity="0.9">
+  <circle cx="12" cy="12" r="2"/><circle cx="88" cy="12" r="2"/>
+  <circle cx="12" cy="92" r="2"/><circle cx="88" cy="92" r="2"/>
+</g>
+</svg></div>
+<div class="card back"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#1f5f74"/>
+<circle cx="50" cy="44" r="26" fill="none" stroke="#ffffff" stroke-width="1.6" opacity="0.85"/>
+<g fill="#ffffff" opacity="0.92">
+  <rect x="43" y="38" width="14" height="22" rx="2"/>
+  <polygon points="40,39 60,39 50,26"/>
+  <rect x="47" y="50" width="6" height="10" rx="3" fill="#1f5f74"/>
+</g>
+<path d="M28,66 Q34,62 40,66 T52,66 T64,66 T76,66" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.85"/>
+<path d="M32,72 Q38,68 44,72 T56,72 T68,72" stroke="#ffffff" fill="none" stroke-width="1.6" opacity="0.6"/>
+<text x="50" y="87" text-anchor="middle" font-family="Georgia, serif" font-size="6.4" letter-spacing="0.6" fill="#ffffff" opacity="0.95">MEMORICE VALDIVIA</text>
+<g fill="#f2c069" opacity="0.9">
+  <circle cx="12" cy="12" r="2"/><circle cx="88" cy="12" r="2"/>
+  <circle cx="12" cy="92" r="2"/><circle cx="88" cy="92" r="2"/>
+</g>
+</svg></div>
+<div class="card back"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#1f5f74"/>
+<circle cx="50" cy="44" r="26" fill="none" stroke="#ffffff" stroke-width="1.6" opacity="0.85"/>
+<g fill="#ffffff" opacity="0.92">
+  <rect x="43" y="38" width="14" height="22" rx="2"/>
+  <polygon points="40,39 60,39 50,26"/>
+  <rect x="47" y="50" width="6" height="10" rx="3" fill="#1f5f74"/>
+</g>
+<path d="M28,66 Q34,62 40,66 T52,66 T64,66 T76,66" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.85"/>
+<path d="M32,72 Q38,68 44,72 T56,72 T68,72" stroke="#ffffff" fill="none" stroke-width="1.6" opacity="0.6"/>
+<text x="50" y="87" text-anchor="middle" font-family="Georgia, serif" font-size="6.4" letter-spacing="0.6" fill="#ffffff" opacity="0.95">MEMORICE VALDIVIA</text>
+<g fill="#f2c069" opacity="0.9">
+  <circle cx="12" cy="12" r="2"/><circle cx="88" cy="12" r="2"/>
+  <circle cx="12" cy="92" r="2"/><circle cx="88" cy="92" r="2"/>
+</g>
+</svg></div>
+<div class="card back"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#1f5f74"/>
+<circle cx="50" cy="44" r="26" fill="none" stroke="#ffffff" stroke-width="1.6" opacity="0.85"/>
+<g fill="#ffffff" opacity="0.92">
+  <rect x="43" y="38" width="14" height="22" rx="2"/>
+  <polygon points="40,39 60,39 50,26"/>
+  <rect x="47" y="50" width="6" height="10" rx="3" fill="#1f5f74"/>
+</g>
+<path d="M28,66 Q34,62 40,66 T52,66 T64,66 T76,66" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.85"/>
+<path d="M32,72 Q38,68 44,72 T56,72 T68,72" stroke="#ffffff" fill="none" stroke-width="1.6" opacity="0.6"/>
+<text x="50" y="87" text-anchor="middle" font-family="Georgia, serif" font-size="6.4" letter-spacing="0.6" fill="#ffffff" opacity="0.95">MEMORICE VALDIVIA</text>
+<g fill="#f2c069" opacity="0.9">
+  <circle cx="12" cy="12" r="2"/><circle cx="88" cy="12" r="2"/>
+  <circle cx="12" cy="92" r="2"/><circle cx="88" cy="92" r="2"/>
+</g>
+</svg></div>
+<div class="card back"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#1f5f74"/>
+<circle cx="50" cy="44" r="26" fill="none" stroke="#ffffff" stroke-width="1.6" opacity="0.85"/>
+<g fill="#ffffff" opacity="0.92">
+  <rect x="43" y="38" width="14" height="22" rx="2"/>
+  <polygon points="40,39 60,39 50,26"/>
+  <rect x="47" y="50" width="6" height="10" rx="3" fill="#1f5f74"/>
+</g>
+<path d="M28,66 Q34,62 40,66 T52,66 T64,66 T76,66" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.85"/>
+<path d="M32,72 Q38,68 44,72 T56,72 T68,72" stroke="#ffffff" fill="none" stroke-width="1.6" opacity="0.6"/>
+<text x="50" y="87" text-anchor="middle" font-family="Georgia, serif" font-size="6.4" letter-spacing="0.6" fill="#ffffff" opacity="0.95">MEMORICE VALDIVIA</text>
+<g fill="#f2c069" opacity="0.9">
+  <circle cx="12" cy="12" r="2"/><circle cx="88" cy="12" r="2"/>
+  <circle cx="12" cy="92" r="2"/><circle cx="88" cy="92" r="2"/>
+</g>
+</svg></div>
+<div class="card back"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#1f5f74"/>
+<circle cx="50" cy="44" r="26" fill="none" stroke="#ffffff" stroke-width="1.6" opacity="0.85"/>
+<g fill="#ffffff" opacity="0.92">
+  <rect x="43" y="38" width="14" height="22" rx="2"/>
+  <polygon points="40,39 60,39 50,26"/>
+  <rect x="47" y="50" width="6" height="10" rx="3" fill="#1f5f74"/>
+</g>
+<path d="M28,66 Q34,62 40,66 T52,66 T64,66 T76,66" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.85"/>
+<path d="M32,72 Q38,68 44,72 T56,72 T68,72" stroke="#ffffff" fill="none" stroke-width="1.6" opacity="0.6"/>
+<text x="50" y="87" text-anchor="middle" font-family="Georgia, serif" font-size="6.4" letter-spacing="0.6" fill="#ffffff" opacity="0.95">MEMORICE VALDIVIA</text>
+<g fill="#f2c069" opacity="0.9">
+  <circle cx="12" cy="12" r="2"/><circle cx="88" cy="12" r="2"/>
+  <circle cx="12" cy="92" r="2"/><circle cx="88" cy="92" r="2"/>
+</g>
+</svg></div>
+<div class="card back"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#1f5f74"/>
+<circle cx="50" cy="44" r="26" fill="none" stroke="#ffffff" stroke-width="1.6" opacity="0.85"/>
+<g fill="#ffffff" opacity="0.92">
+  <rect x="43" y="38" width="14" height="22" rx="2"/>
+  <polygon points="40,39 60,39 50,26"/>
+  <rect x="47" y="50" width="6" height="10" rx="3" fill="#1f5f74"/>
+</g>
+<path d="M28,66 Q34,62 40,66 T52,66 T64,66 T76,66" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.85"/>
+<path d="M32,72 Q38,68 44,72 T56,72 T68,72" stroke="#ffffff" fill="none" stroke-width="1.6" opacity="0.6"/>
+<text x="50" y="87" text-anchor="middle" font-family="Georgia, serif" font-size="6.4" letter-spacing="0.6" fill="#ffffff" opacity="0.95">MEMORICE VALDIVIA</text>
+<g fill="#f2c069" opacity="0.9">
+  <circle cx="12" cy="12" r="2"/><circle cx="88" cy="12" r="2"/>
+  <circle cx="12" cy="92" r="2"/><circle cx="88" cy="92" r="2"/>
+</g>
+</svg></div>
+<div class="card back"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#1f5f74"/>
+<circle cx="50" cy="44" r="26" fill="none" stroke="#ffffff" stroke-width="1.6" opacity="0.85"/>
+<g fill="#ffffff" opacity="0.92">
+  <rect x="43" y="38" width="14" height="22" rx="2"/>
+  <polygon points="40,39 60,39 50,26"/>
+  <rect x="47" y="50" width="6" height="10" rx="3" fill="#1f5f74"/>
+</g>
+<path d="M28,66 Q34,62 40,66 T52,66 T64,66 T76,66" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.85"/>
+<path d="M32,72 Q38,68 44,72 T56,72 T68,72" stroke="#ffffff" fill="none" stroke-width="1.6" opacity="0.6"/>
+<text x="50" y="87" text-anchor="middle" font-family="Georgia, serif" font-size="6.4" letter-spacing="0.6" fill="#ffffff" opacity="0.95">MEMORICE VALDIVIA</text>
+<g fill="#f2c069" opacity="0.9">
+  <circle cx="12" cy="12" r="2"/><circle cx="88" cy="12" r="2"/>
+  <circle cx="12" cy="92" r="2"/><circle cx="88" cy="92" r="2"/>
+</g>
+</svg></div>
+<div class="card back"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#1f5f74"/>
+<circle cx="50" cy="44" r="26" fill="none" stroke="#ffffff" stroke-width="1.6" opacity="0.85"/>
+<g fill="#ffffff" opacity="0.92">
+  <rect x="43" y="38" width="14" height="22" rx="2"/>
+  <polygon points="40,39 60,39 50,26"/>
+  <rect x="47" y="50" width="6" height="10" rx="3" fill="#1f5f74"/>
+</g>
+<path d="M28,66 Q34,62 40,66 T52,66 T64,66 T76,66" stroke="#ffffff" fill="none" stroke-width="2" opacity="0.85"/>
+<path d="M32,72 Q38,68 44,72 T56,72 T68,72" stroke="#ffffff" fill="none" stroke-width="1.6" opacity="0.6"/>
+<text x="50" y="87" text-anchor="middle" font-family="Georgia, serif" font-size="6.4" letter-spacing="0.6" fill="#ffffff" opacity="0.95">MEMORICE VALDIVIA</text>
+<g fill="#f2c069" opacity="0.9">
+  <circle cx="12" cy="12" r="2"/><circle cx="88" cy="12" r="2"/>
+  <circle cx="12" cy="92" r="2"/><circle cx="88" cy="92" r="2"/>
+</g>
+</svg></div></div></div>
+</body></html>
