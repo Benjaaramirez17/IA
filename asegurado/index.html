@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador Asegurado SHOPPERS</title>
+<script src="exceljs.min.js"></script>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --border: #d9dfe5;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --accent-dark: #1d4ed8;
+    --ok: #16a34a;
+    --warn-bg: #fff8e1;
+    --warn-border: #f0c34d;
+    --warn-text: #8a6100;
+    --err-bg: #fdecea;
+    --err-border: #f5b3ac;
+    --err-text: #a3271e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  p.sub { color: var(--muted); margin: 0 0 24px; font-size: 14px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .drop {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 32px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .drop.drag { border-color: var(--accent); background: #eef4ff; }
+  .drop input { display: none; }
+  .drop .icon { font-size: 32px; margin-bottom: 8px; }
+  .drop .main { font-size: 15px; font-weight: 600; }
+  .drop .hint { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .filename { font-size: 13px; color: var(--accent-dark); margin-top: 10px; font-weight: 600; }
+  button {
+    font: inherit;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-primary:disabled { background: #9ab4e8; cursor: not-allowed; }
+  .btn-download { background: var(--ok); color: #fff; margin-top: 6px; }
+  .btn-download:hover { background: #128a3e; }
+  .actions { margin-top: 16px; display: flex; gap: 10px; align-items: center; }
+  .status { font-size: 13px; color: var(--muted); }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stat {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .stat .num { font-size: 20px; font-weight: 700; }
+  .stat .label { font-size: 12px; color: var(--muted); }
+  .msg-list { margin: 0; padding: 0; list-style: none; }
+  .msg-list li {
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .msg-warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-text); }
+  .msg-err { background: var(--err-bg); border: 1px solid var(--err-border); color: var(--err-text); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 6px 8px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  th { background: #f1f5f9; position: sticky; top: 0; }
+  tbody tr:nth-child(even) { background: #fafbfc; }
+  tr.blank-row td { background: #f0f0f0; height: 8px; padding: 2px; }
+  tr.fixed-cell td.fixed { background: #fff3cd; }
+  .table-scroll { max-height: 420px; overflow: auto; border: 1px solid var(--border); border-radius: 8px; }
+  .hidden { display: none; }
+  footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 24px; }
+  code { background: #eef1f4; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Generador de archivo Asegurado (SHOPPERS)</h1>
+  <p class="sub">Subí el Excel con los datos de dotación/demanda y generá el archivo <code>Asegurado S##.xlsx</code> listo para enviar.</p>
+
+  <div class="card">
+    <div class="drop" id="drop">
+      <input type="file" id="fileInput" accept=".xlsx,.xls">
+      <div class="icon">📄</div>
+      <div class="main">Arrastrá el Excel acá o hacé clic para elegirlo</div>
+      <div class="hint">Se acepta .xlsx / .xls</div>
+      <div class="filename" id="fileName"></div>
+    </div>
+    <div class="actions">
+      <button class="btn-primary" id="processBtn" disabled>Procesar archivo</button>
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+
+  <div class="card hidden" id="resultsCard">
+    <h2>Resumen</h2>
+    <div class="summary-grid" id="summaryGrid"></div>
+
+    <div id="messagesWrap"></div>
+
+    <div style="margin: 16px 0;">
+      <button class="btn-download" id="downloadBtn">⬇ Descargar Excel</button>
+    </div>
+
+    <h2>Vista previa (hoja SHOPPERS)</h2>
+    <div class="table-scroll">
+      <table id="previewTable">
+        <thead><tr id="previewHead"></tr></thead>
+        <tbody id="previewBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>Procesamiento 100% local en el navegador — el archivo no se sube a ningún servidor.</footer>
+</div>
+
+<script>
+'use strict';
+
+const HEADERS = ['Semana','Fecha','Local','Dotacion Total','Demanda 17 hrs','PPS','Ocupación','G. Asegurado','Q Prestadores Asegurados'];
+
+// alias lists (normalized: lowercase, no accents, trimmed) used to locate each column in the source file
+const FIELD_ALIASES = {
+  semana: ['semana'],
+  fecha: ['fecha'],
+  local: ['local'],
+  dotacion: ['dotacion total', 'dotacion'],
+  demanda: ['demanda 17 hrs', 'demanda 17hs', 'demanda'],
+  pps: ['pps'],
+  ocupacion: ['ocupacion', 'ocupacion %', '% ocupacion'],
+  gAsegurado: ['g. asegurado', 'g asegurado', 'gestion asegurado', 'asegurado'],
+  qPrestadores: ['q prestadores asegurados', 'q prestadores', 'prestadores asegurados', 'q. prestadores asegurados']
+};
+
+const ERROR_RE = /^#(DIV\/0!?|N\/A|VALUE!?|REF!?|NAME\?|NULL!?|NUM!?)$/i;
+
+function normalize(s) {
+  if (s === null || s === undefined) return '';
+  return String(s)
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function cellToPlain(v) {
+  if (v === null || v === undefined) return null;
+  if (typeof v === 'object') {
+    if (v instanceof Date) return v;
+    if ('error' in v) return String(v.error);
+    if ('result' in v) return cellToPlain(v.result);
+    if ('richText' in v) return v.richText.map(rt => rt.text).join('');
+    if ('text' in v) return v.text;
+    return null;
+  }
+  return v;
+}
+
+function isBlankValue(v) {
+  const p = cellToPlain(v);
+  return p === null || p === undefined || (typeof p === 'string' && p.trim() === '');
+}
+
+function excelSerialToDate(n) {
+  // Excel epoch (1900 system), matches ExcelJS/most spreadsheet conventions
+  const utcDays = Math.floor(n - 25569);
+  const utcMs = utcDays * 86400 * 1000;
+  const date = new Date(utcMs);
+  const fractional = n - Math.floor(n);
+  if (fractional > 0) date.setUTCMilliseconds(Math.round(fractional * 86400 * 1000));
+  return date;
+}
+
+function parseDateValue(v) {
+  const p = cellToPlain(v);
+  if (p === null) return null;
+  if (p instanceof Date && !isNaN(p)) return p;
+  if (typeof p === 'number') return excelSerialToDate(p);
+  if (typeof p === 'string') {
+    const s = p.trim();
+    let m = s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/); // dd-mm-yyyy or dd/mm/yyyy
+    if (m) return new Date(Date.UTC(+m[3], +m[2] - 1, +m[1]));
+    m = s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/); // yyyy-mm-dd
+    if (m) return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    const d = new Date(s);
+    if (!isNaN(d)) return d;
+  }
+  return null;
+}
+
+function parseIntValue(v) {
+  const p = cellToPlain(v);
+  if (p === null) return { value: null, error: false };
+  if (typeof p === 'string' && ERROR_RE.test(p.trim())) return { value: 0, error: true, raw: p };
+  const cleaned = typeof p === 'string' ? p.replace(/[^\d.,-]/g, '').replace(',', '.') : p;
+  const n = typeof cleaned === 'number' ? cleaned : parseFloat(cleaned);
+  if (isNaN(n)) return { value: null, error: false, raw: p };
+  return { value: Math.round(n), error: false };
+}
+
+function parseNumberValue(v) {
+  const p = cellToPlain(v);
+  if (p === null) return { value: null, error: false };
+  if (typeof p === 'string' && ERROR_RE.test(p.trim())) return { value: 0, error: true, raw: p };
+  let str = p;
+  let isPercentString = false;
+  if (typeof p === 'string' && p.trim().endsWith('%')) { isPercentString = true; str = p.replace('%', ''); }
+  const cleaned = typeof str === 'string' ? str.replace(/[^\d.,-]/g, '').replace(',', '.') : str;
+  let n = typeof cleaned === 'number' ? cleaned : parseFloat(cleaned);
+  if (isNaN(n)) return { value: null, error: false, raw: p };
+  if (isPercentString) n = n / 100;
+  return { value: n, error: false };
+}
+
+function parseOcupacion(v) {
+  const r = parseNumberValue(v);
+  if (r.value === null || r.error) return r;
+  // normalize: values clearly expressed as whole percentages (e.g. 34.8) become a fraction
+  if (Math.abs(r.value) > 1.5) return { value: r.value / 100, error: false };
+  return r;
+}
+
+function parseTextValue(v) {
+  const p = cellToPlain(v);
+  if (p === null) return '';
+  if (p instanceof Date) return p.toISOString();
+  return String(p).trim();
+}
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+function isoWeek(date) {
+  const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function findHeaderRow(rows) {
+  const limit = Math.min(10, rows.length);
+  for (let i = 0; i < limit; i++) {
+    const row = rows[i];
+    if (!row) continue;
+    const norm = row.map(normalize);
+    const hasSemana = norm.some(c => c === 'semana');
+    const hasLocal = norm.some(c => c === 'local');
+    const hasFecha = norm.some(c => c === 'fecha');
+    if (hasSemana && hasLocal && hasFecha) return i;
+  }
+  return -1;
+}
+
+function buildColumnMap(headerRow) {
+  const norm = headerRow.map(normalize);
+  const map = {};
+  for (const field of Object.keys(FIELD_ALIASES)) {
+    const aliases = FIELD_ALIASES[field];
+    let idx = -1;
+    for (const alias of aliases) {
+      idx = norm.findIndex(c => c === alias);
+      if (idx !== -1) break;
+    }
+    if (idx === -1) {
+      for (const alias of aliases) {
+        idx = norm.findIndex(c => c.includes(alias));
+        if (idx !== -1) break;
+      }
+    }
+    map[field] = idx;
+  }
+  return map;
+}
+
+async function readWorkbook(file) {
+  const buf = await file.arrayBuffer();
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.load(buf);
+  return wb;
+}
+
+function worksheetToRows(ws) {
+  const rows = [];
+  for (let r = 1; r <= ws.rowCount; r++) {
+    const row = ws.getRow(r);
+    const arr = [];
+    let maxCol = row.cellCount;
+    for (let c = 1; c <= Math.max(maxCol, HEADERS.length + 3); c++) {
+      arr.push(row.getCell(c).value);
+    }
+    rows.push(arr);
+  }
+  return rows;
+}
+
+function processWorkbook(wb) {
+  const messages = [];
+  let headerRow = -1, headerRowValues = null, sourceRows = null, usedSheet = null;
+
+  for (const ws of wb.worksheets) {
+    const rows = worksheetToRows(ws);
+    const idx = findHeaderRow(rows);
+    if (idx !== -1) {
+      headerRow = idx;
+      headerRowValues = rows[idx].map(cellToPlain);
+      sourceRows = rows;
+      usedSheet = ws.name;
+      break;
+    }
+  }
+
+  if (headerRow === -1) {
+    return { error: 'No se encontró una fila de encabezados con al menos "Semana", "Fecha" y "Local". Revisá que el archivo tenga esas columnas.' };
+  }
+
+  const colMap = buildColumnMap(headerRowValues);
+  const missing = Object.keys(FIELD_ALIASES).filter(f => colMap[f] === -1);
+  if (missing.length) {
+    return { error: 'No se encontraron estas columnas en el archivo: ' + missing.join(', ') + '. Encabezados detectados: ' + headerRowValues.filter(Boolean).join(' | ') };
+  }
+
+  const results = [];
+  let skippedTotals = 0;
+  let fixedErrors = 0;
+  const weekCounts = {};
+
+  for (let r = headerRow + 1; r < sourceRows.length; r++) {
+    const row = sourceRows[r];
+    const get = (field) => row[colMap[field]];
+
+    const allBlank = Object.keys(FIELD_ALIASES).every(f => isBlankValue(get(f)));
+    if (allBlank) {
+      results.push({ blank: true });
+      continue;
+    }
+
+    const localRaw = parseIntValue(get('local'));
+    const semanaRaw = parseIntValue(get('semana'));
+    const fecha = parseDateValue(get('fecha'));
+
+    if (localRaw.value === null && !fecha) {
+      skippedTotals++;
+      continue;
+    }
+
+    const dotacion = parseIntValue(get('dotacion'));
+    const demanda = parseNumberValue(get('demanda'));
+    const pps = parseNumberValue(get('pps'));
+    const ocupacion = parseOcupacion(get('ocupacion'));
+    const qPrestadores = parseIntValue(get('qPrestadores'));
+    const gAsegurado = parseTextValue(get('gAsegurado'));
+
+    if (pps.error) fixedErrors++;
+    if (qPrestadores.error) fixedErrors++;
+
+    const semanaVal = semanaRaw.value !== null ? semanaRaw.value : (fecha ? isoWeek(fecha) : null);
+    if (semanaVal !== null) weekCounts[semanaVal] = (weekCounts[semanaVal] || 0) + 1;
+
+    results.push({
+      blank: false,
+      semana: semanaVal,
+      fecha,
+      local: localRaw.value,
+      dotacion: dotacion.value,
+      demanda: demanda.value,
+      pps: pps.value,
+      ppsError: pps.error,
+      ocupacion: ocupacion.value,
+      gAsegurado,
+      qPrestadores: qPrestadores.value,
+      qPrestadoresError: qPrestadores.error
+    });
+  }
+
+  while (results.length && results[results.length - 1].blank) results.pop();
+
+  let dominantWeek = null, maxCount = -1;
+  const weeks = Object.keys(weekCounts).map(Number).sort((a, b) => a - b);
+  for (const w of weeks) {
+    if (weekCounts[w] > maxCount) { maxCount = weekCounts[w]; dominantWeek = w; }
+  }
+
+  if (weeks.length > 1) {
+    messages.push({ type: 'warn', text: 'Se detectaron varias semanas en el archivo (' + weeks.join(', ') + '). El nombre del archivo usará la semana predominante (S' + pad2(dominantWeek) + ').' });
+  }
+  if (skippedTotals > 0) {
+    messages.push({ type: 'warn', text: skippedTotals + ' fila(s) sin Local ni Fecha fueron omitidas (probablemente totales o etiquetas).' });
+  }
+  if (fixedErrors > 0) {
+    messages.push({ type: 'err', text: fixedErrors + ' valor(es) con error de fórmula (ej. #DIV/0!) en el archivo original se reemplazaron por 0. Revisá esas filas antes de enviar.' });
+  }
+  messages.push({ type: 'warn', text: 'El valor de "G. Asegurado" se copia tal cual figura en el archivo original (no se reinterpreta la acción).' });
+
+  const dataRows = results.filter(r => !r.blank);
+  if (!dataRows.length) {
+    return { error: 'No se encontraron filas de datos debajo del encabezado.' };
+  }
+
+  return {
+    sheetUsed: usedSheet,
+    rows: results,
+    dataCount: dataRows.length,
+    dominantWeek,
+    weeks,
+    skippedTotals,
+    fixedErrors,
+    messages
+  };
+}
+
+function formatDateDisplay(d) {
+  if (!d) return '';
+  return pad2(d.getUTCDate()) + '-' + pad2(d.getUTCMonth() + 1) + '-' + d.getUTCFullYear();
+}
+
+function renderResults(result) {
+  const card = document.getElementById('resultsCard');
+  card.classList.remove('hidden');
+
+  const summaryGrid = document.getElementById('summaryGrid');
+  summaryGrid.innerHTML = '';
+  const stats = [
+    ['Filas de datos', result.dataCount],
+    ['Semana detectada', result.dominantWeek !== null ? 'S' + pad2(result.dominantWeek) : '-'],
+    ['Filas omitidas', result.skippedTotals],
+    ['Errores corregidos', result.fixedErrors]
+  ];
+  for (const [label, num] of stats) {
+    const div = document.createElement('div');
+    div.className = 'stat';
+    div.innerHTML = '<div class="num">' + num + '</div><div class="label">' + label + '</div>';
+    summaryGrid.appendChild(div);
+  }
+
+  const messagesWrap = document.getElementById('messagesWrap');
+  messagesWrap.innerHTML = '';
+  if (result.messages.length) {
+    const ul = document.createElement('ul');
+    ul.className = 'msg-list';
+    for (const m of result.messages) {
+      const li = document.createElement('li');
+      li.className = m.type === 'err' ? 'msg-err' : 'msg-warn';
+      li.textContent = m.text;
+      ul.appendChild(li);
+    }
+    messagesWrap.appendChild(ul);
+  }
+
+  const head = document.getElementById('previewHead');
+  head.innerHTML = '';
+  const trh = document.createElement('tr');
+  for (const h of HEADERS) {
+    const th = document.createElement('th');
+    th.textContent = h;
+    trh.appendChild(th);
+  }
+  head.appendChild(trh);
+
+  const body = document.getElementById('previewBody');
+  body.innerHTML = '';
+  for (const row of result.rows) {
+    const tr = document.createElement('tr');
+    if (row.blank) {
+      tr.className = 'blank-row';
+      const td = document.createElement('td');
+      td.colSpan = HEADERS.length;
+      tr.appendChild(td);
+      body.appendChild(tr);
+      continue;
+    }
+    const cells = [
+      row.semana ?? '',
+      formatDateDisplay(row.fecha),
+      row.local ?? '',
+      row.dotacion ?? '',
+      row.demanda ?? '',
+      row.pps ?? '',
+      row.ocupacion !== null ? (row.ocupacion * 100).toFixed(1) + '%' : '',
+      row.gAsegurado ?? '',
+      row.qPrestadores ?? ''
+    ];
+    cells.forEach((val, i) => {
+      const td = document.createElement('td');
+      td.textContent = val;
+      if ((i === 5 && row.ppsError) || (i === 8 && row.qPrestadoresError)) td.classList.add('fixed');
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  }
+}
+
+async function buildOutputWorkbook(result) {
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet('SHOPPERS');
+
+  ws.mergeCells('A1:I1');
+  const titleCell = ws.getCell('A1');
+  titleCell.value = 'SHOPPERS';
+  titleCell.font = { bold: true, size: 14 };
+  titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+  ws.getRow(1).height = 22;
+
+  const headerRow = ws.getRow(2);
+  headerRow.values = HEADERS;
+  headerRow.font = { bold: true };
+  headerRow.eachCell(cell => {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
+    cell.border = { bottom: { style: 'thin', color: { argb: 'FFB0BEC5' } } };
+  });
+
+  let r = 3;
+  for (const item of result.rows) {
+    if (item.blank) { r++; continue; }
+    const row = ws.getRow(r);
+    row.getCell(1).value = item.semana;
+    row.getCell(1).numFmt = '0';
+    if (item.fecha) {
+      row.getCell(2).value = item.fecha;
+      row.getCell(2).numFmt = 'dd-mm-yyyy';
+    }
+    row.getCell(3).value = item.local;
+    row.getCell(3).numFmt = '0';
+    row.getCell(4).value = item.dotacion;
+    row.getCell(4).numFmt = '0';
+    row.getCell(5).value = item.demanda;
+    row.getCell(6).value = item.pps;
+    row.getCell(6).numFmt = '0.0';
+    row.getCell(7).value = item.ocupacion;
+    row.getCell(7).numFmt = '0.0%';
+    row.getCell(8).value = item.gAsegurado;
+    row.getCell(9).value = item.qPrestadores;
+    row.getCell(9).numFmt = '0';
+    r++;
+  }
+
+  ws.columns = [
+    { width: 9 }, { width: 13 }, { width: 9 }, { width: 15 },
+    { width: 15 }, { width: 8 }, { width: 11 }, { width: 20 }, { width: 24 }
+  ];
+  ws.views = [{ state: 'frozen', ySplit: 2 }];
+
+  return wb.xlsx.writeBuffer();
+}
+
+// ---- UI wiring ----
+
+let selectedFile = null;
+let lastResult = null;
+
+const drop = document.getElementById('drop');
+const fileInput = document.getElementById('fileInput');
+const fileNameEl = document.getElementById('fileName');
+const processBtn = document.getElementById('processBtn');
+const statusEl = document.getElementById('status');
+const downloadBtn = document.getElementById('downloadBtn');
+
+drop.addEventListener('click', () => fileInput.click());
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
+drop.addEventListener('drop', e => {
+  e.preventDefault();
+  drop.classList.remove('drag');
+  if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length) setFile(fileInput.files[0]);
+});
+
+function setFile(file) {
+  selectedFile = file;
+  fileNameEl.textContent = 'Archivo seleccionado: ' + file.name;
+  processBtn.disabled = false;
+  statusEl.textContent = '';
+  document.getElementById('resultsCard').classList.add('hidden');
+}
+
+processBtn.addEventListener('click', async () => {
+  if (!selectedFile) return;
+  processBtn.disabled = true;
+  statusEl.textContent = 'Procesando...';
+  try {
+    const wb = await readWorkbook(selectedFile);
+    const result = processWorkbook(wb);
+    if (result.error) {
+      statusEl.textContent = '';
+      alert(result.error);
+      processBtn.disabled = false;
+      return;
+    }
+    lastResult = result;
+    renderResults(result);
+    statusEl.textContent = 'Listo.';
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = '';
+    alert('No se pudo leer el archivo: ' + err.message);
+  } finally {
+    processBtn.disabled = false;
+  }
+});
+
+downloadBtn.addEventListener('click', async () => {
+  if (!lastResult) return;
+  downloadBtn.disabled = true;
+  downloadBtn.textContent = 'Generando...';
+  try {
+    const buffer = await buildOutputWorkbook(lastResult);
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const week = lastResult.dominantWeek !== null ? pad2(lastResult.dominantWeek) : 'XX';
+    const filename = 'Asegurado S' + week + '.xlsx';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error(err);
+    alert('No se pudo generar el archivo: ' + err.message);
+  } finally {
+    downloadBtn.disabled = false;
+    downloadBtn.textContent = '⬇ Descargar Excel';
+  }
+});
+</script>
+</body>
+</html>
