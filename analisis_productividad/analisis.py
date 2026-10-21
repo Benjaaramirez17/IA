@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 PEDIDOS_POR_CROWD = 6
+PARTICIPACION_PO = (0.55, 0.60, 0.65)
 BASE = Path(__file__).parent
 
 
@@ -20,6 +21,7 @@ def calcular(fila):
     upp = uni / ped
     ped_crowd = min(crowd * PEDIDOS_POR_CROWD, ped)
     ped_po = ped - ped_crowd
+    escenarios = escenarios_participacion(ped, uni, po, crowd)
     return {
         "Fecha": fila["Fecha"],
         "Denominacion": fila["Denominacion"],
@@ -36,7 +38,20 @@ def calcular(fila):
         "Ped_rest_PO": ped_po,
         "Ped_PO_neto": ped_po / po,
         "Uni_PO_neto": ped_po * upp / po,
+        **escenarios,
     }
+
+
+def escenarios_participacion(ped, uni, po, crowd):
+    """Reparte la demanda con el PO tomando una participación fija; el resto va a Crowd."""
+    res = {}
+    for sh in PARTICIPACION_PO:
+        tag = f"{sh:.0%}"
+        res[f"Ped_PO_{tag}"] = ped * sh / po
+        res[f"Uni_PO_{tag}"] = uni * sh / po
+        res[f"Ped_Crowd_{tag}"] = ped * (1 - sh) / crowd
+        res[f"Uni_Crowd_{tag}"] = uni * (1 - sh) / crowd
+    return res
 
 
 def resumir(filas):
@@ -60,6 +75,9 @@ def resumir(filas):
         "Part_Crowd": ped_crowd / ped,
         "Ped_PO_neto": (ped - ped_crowd) / po,
         "Uni_PO_neto": (uni - uni_crowd) / po,
+        # Participación del PO con la que cada Crowd haría exactamente PEDIDOS_POR_CROWD
+        "Part_PO_equilibrio": 1 - crowd * PEDIDOS_POR_CROWD / ped,
+        **escenarios_participacion(ped, uni, po, crowd),
     }
 
 
