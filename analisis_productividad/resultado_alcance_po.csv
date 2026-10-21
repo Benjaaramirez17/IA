@@ -1,0 +1,8 @@
+Fecha;Denominacion;Pedidos;PO;Alcance_PO_meta_ped;Alcance_PO_meta_uni;Cobertura_meta;Alcance_PO_tope_ped;Cobertura_tope;Ped_PO_real;Uni_PO_real;Crowd;Ped_Crowd_real;Prod_Crowd_real;Crowd_necesario_meta;Crowd_necesario_tope
+12-oct;Valle;323;26;234;9100;0.72;286;0.89;7.2;294;20;136;6.8;14;6
+13-oct;Valle;349;32;288;11200;0.83;352;1.01;5.2;200;26;181;7.0;9;0
+14-oct;Valle;311;26;234;9100;0.75;286;0.92;6.7;272;35;136;3.9;20;7
+15-oct;Valle;310;27;243;9450;0.78;297;0.96;4.6;172;36;186;5.2;13;3
+16-oct;Semi alta;365;30;270;10500;0.74;330;0.9;3.7;147;35;253;7.2;14;5
+17-oct;Semi alta;361;26;234;9100;0.65;286;0.79;4.6;195;25;242;9.7;14;8
+18-oct;Semi alta;324;18;162;6300;0.5;198;0.61;7.7;332;23;185;8.0;21;16
