@@ -1,10 +1,15 @@
 """Productividad PO vs participación Crowd por día y por denominación."""
 import csv
+import math
 import sys
 from pathlib import Path
 
 PEDIDOS_POR_CROWD = 6
 PARTICIPACION_PO = (0.55, 0.60, 0.65)
+META_PED_PO = 9
+TOPE_PED_PO = 11
+META_UNI_PO = 350
+PROD_CROWD = 5.5
 BASE = Path(__file__).parent
 
 
@@ -39,6 +44,17 @@ def calcular(fila):
         "Ped_PO_neto": ped_po / po,
         "Uni_PO_neto": ped_po * upp / po,
         **escenarios,
+        **crowd_requerido(ped, uni, po),
+    }
+
+
+def crowd_requerido(ped, uni, po):
+    """Crowd que cubre la demanda que excede la meta y el tope de pedidos por PO."""
+    upp = uni / ped
+    return {
+        "Crowd_meta": math.ceil(max(0, ped - po * META_PED_PO) / PROD_CROWD),
+        "Crowd_tope": math.ceil(max(0, ped - po * TOPE_PED_PO) / PROD_CROWD),
+        "Crowd_meta_unid": math.ceil(max(0, uni - po * META_UNI_PO) / (PROD_CROWD * upp)),
     }
 
 
@@ -78,6 +94,7 @@ def resumir(filas):
         # Participación del PO con la que cada Crowd haría exactamente PEDIDOS_POR_CROWD
         "Part_PO_equilibrio": 1 - crowd * PEDIDOS_POR_CROWD / ped,
         **escenarios_participacion(ped, uni, po, crowd),
+        **crowd_requerido(ped / n, uni / n, po / n),
     }
 
 
